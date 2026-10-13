@@ -215,6 +215,9 @@
     "%@, all day" : {
       "comment" : "Beside an event that fills a day. The placeholder is the day, such as Fri 9 Oct."
     },
+    "%@, minimized" : {
+      "comment" : "Beside a window that is in the Dock. The placeholder is its app's name."
+    },
     "%@, on this Mac" : {
       "comment" : "The placeholder is the address of a server such as localhost:8080."
     },
@@ -1350,6 +1353,9 @@
       "comment" : "Accessibility is the name of a permission in System Settings."
     },
     "Floe needs Accessibility to list your menu bar items." : {},
+    "Floe needs Accessibility to list your windows" : {
+      "comment" : "Accessibility is the name of a permission in System Settings."
+    },
     "Floe needs Automation access to read the Finder selection. Turn it on under System Settings › Privacy & Security › Automation, then try again. (-1743)" : {},
     "Floe needs access to Contacts to find people" : {
       "comment" : "Contacts is the name of Apple's app and of a permission in System Settings."
@@ -1723,6 +1729,7 @@
     "Minimize" : {
       "comment" : "The Window menu item that puts the window in the Dock."
     },
+    "Minimize Window" : {},
     "Missing @raycast.schemaVersion. Add `# @raycast.schemaVersion 1`." : {
       "comment" : "The text between the backticks, and the word that starts with @raycast, are typed into a script as they are."
     },
@@ -1830,6 +1837,7 @@
     "No menu bar items found" : {},
     "No menu bar items match" : {},
     "No open tabs match" : {},
+    "No open window matches" : {},
     "No receipts yet" : {},
     "No recent files" : {},
     "No recipient" : {
@@ -1955,6 +1963,7 @@
     },
     "Open System Settings" : {},
     "Open Today’s Note" : {},
+    "Open Windows" : {},
     "Open With" : {
       "comment" : "The title of a submenu that lists apps."
     },
@@ -2612,7 +2621,9 @@
     "Support Floe" : {},
     "Swap Shown and Hidden Items" : {},
     "Switch to Tab" : {},
+    "Switch to Window" : {},
     "Switch to an open browser tab" : {},
+    "Switch to an open window" : {},
     "Switching the sync off leaves the passwords in iCloud Keychain. This deletes them there, on every device." : {},
     "Symbol" : {
       "comment" : "The icon of a quicklink."
@@ -3038,7 +3049,7 @@
       "comment" : "The label of a slider for how thick a border is."
     },
     "Window" : {
-      "comment" : "The title of the Window menu in the menu bar."
+      "comment" : "The kind of a result, shown beside its title. Here an open window of an app.\nThe title of the Window menu in the menu bar."
     },
     "Writes a log for troubleshooting to ~/Library/Logs/Floe." : {},
     "Writes launch times, slow searches and failures to ~/Library/Logs/Floe. Never what you type or ask." : {},

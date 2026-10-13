@@ -89,6 +89,14 @@ struct RootIcon: View {
             }
         case .shortcut:
             AppleShortcutIcon()
+        case let .window(.window(window)):
+            if let url = window.appURL {
+                AppIconView(path: url.path, size: 24)
+            } else {
+                SymbolTile(symbol: "macwindow")
+            }
+        case .window(.access):
+            SymbolTile(symbol: "hand.raised")
         case .extensionStore, .system, .note, .snippet, .event, .clipboardEntry,
              .menuBarAccess, .askAI, .webAddress, .checkpoint, .checkpointDraft,
              .reminderDraft, .eventDraft, .contact, .outgoing, .focus, .keyword,

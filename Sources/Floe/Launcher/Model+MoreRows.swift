@@ -33,6 +33,9 @@ extension LauncherModel {
         if case .answer = item {
             return String(localized: "Copy to Clipboard", bundle: .floe)
         }
+        if case let .window(row) = item {
+            return title(for: row)
+        }
         return draftTitle(for: item)
     }
 
@@ -77,6 +80,8 @@ extension LauncherModel {
             undo(receipt)
         } else if case let .receipt(receipt) = item {
             showDetails(of: receipt)
+        } else if case let .window(row) = item {
+            open(row)
         } else {
             openTyped(item)
         }
@@ -138,6 +143,9 @@ extension LauncherModel {
         }
         if case let .definition(definition) = item {
             return [ItemAction(title: String(localized: "Copy Definition", bundle: .floe), symbol: "doc.on.doc") { [weak self] in self?.copy(definition) }]
+        }
+        if case let .window(.window(window)) = item {
+            return windowActions(for: window)
         }
         return shellActions(for: item)
     }

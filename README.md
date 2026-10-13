@@ -58,7 +58,7 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - Results are ranked by how often and how recently you use them, with fuzzy matching on scattered letters.
 - Give an application or command an alias or a hotkey, and mark favorites that stay at the top.
 - Set hotkeys for Emoji, Clipboard History, File Search and the system commands.
-- Narrow a search to one place with a scope: `files`, `menu`, `tabs`.
+- Narrow a search to one place with a scope: `files`, `menu`, `tabs`, `windows`.
 - Type a web address or a path in full to open it (`~/Downloads` gets the file actions).
 - Type `keywords` or `?` to list every word the search answers to, with an example of each.
 - Press the Up arrow to bring back the last 50 searches that opened something.
@@ -112,6 +112,7 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - Calculator with unit conversion.
 - Currency conversion with the European Central Bank's daily rates (opt-in).
 - `define <word>` shows what the Mac's dictionary says about it. Return opens the word in the Dictionary app.
+- `windows <title>` lists the open windows that match, to switch to one, minimize it or close it.
 - `time in tokyo` and `time 5pm in berlin` show the time somewhere else.
 - `uuid`, `password 24` and `lorem 3` make something to paste.
 - `base64`, `unbase64`, `urlencode`, `urldecode`, `uppercase`, `lowercase`, `titlecase` and `sha256` change the text after them, or the clipboard.

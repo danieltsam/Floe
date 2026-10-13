@@ -1,0 +1,64 @@
+//
+//  WindowSearchScopeTests.swift
+//  Project: Floe
+//
+//  Copyright (Floe) © 2026 René Jiménez
+//  Licensed under the GNU AGPLv3
+
+@testable import Floe
+import Foundation
+import Testing
+
+@MainActor struct WindowSearchScopeTests {
+    private let windows = [
+        OpenWindow(id: "1:0", title: "Invoice March.pdf", appName: "Preview"),
+        OpenWindow(id: "2:0", title: "Inbox", appName: "Mail"),
+        OpenWindow(id: "2:1", title: "Re: invoice", appName: "Mail", isMinimized: true),
+    ]
+
+    private func scope(trusted: Bool = true) -> WindowSearchScope {
+        WindowSearchScope(isTrusted: { trusted }, scan: { [windows] in windows })
+    }
+
+    private func titles(_ query: String) async -> [String] {
+        let scope = scope()
+        let context = SearchContext(query: query)
+        guard let text = scope.text(in: context), let updates = scope.updates(for: text, context: context) else { return [] }
+        var rows: [RootItem] = []
+        for await batch in updates {
+            rows = batch
+        }
+        return rows.map(\.title)
+    }
+
+    @Test func theWordAloneListsEveryWindowAndTextNarrowsThem() async {
+        #expect(await titles("windows") == ["Invoice March.pdf", "Inbox", "Re: invoice"])
+        #expect(await Set(titles("windows invoice")) == ["Invoice March.pdf", "Re: invoice"])
+        #expect(await titles("Windows mail") == ["Inbox", "Re: invoice"], "an app's name finds its windows")
+        #expect(await titles("windows zzz").isEmpty)
+    }
+
+    @Test func anotherWordIsNotTheScope() {
+        #expect(scope().text(in: SearchContext(query: "window")) == nil)
+        #expect(scope().text(in: SearchContext(query: "windowserver")) == nil)
+        #expect(scope().text(in: SearchContext(query: "windows")) == "")
+    }
+
+    @Test func withoutAccessibilityOneRowSaysSo() {
+        let scope = scope(trusted: false)
+        let context = SearchContext(query: "windows")
+        #expect(scope.results(for: "", context: context).map(\.id) == ["window-access"])
+        #expect(scope.updates(for: "", context: context) == nil)
+        #expect(self.scope().results(for: "", context: context).isEmpty, "with access the rows come from the scan")
+    }
+
+    @Test func aWindowRowIsLabelledByItsAppAndKeepsNoPlace() {
+        let row = RootItem.window(.window(windows[2]))
+        #expect(row.id == "window:2:1")
+        #expect(row.rowLabel == "Mail, minimized")
+        #expect(RootItem.window(.window(windows[0])).rowLabel == "Preview")
+        #expect(row.isScopeResult)
+        #expect(row.settingsKey == nil)
+        #expect(OpenWindows.focus(windows[0]) == false, "a window with no element behind it cannot be raised")
+    }
+}
