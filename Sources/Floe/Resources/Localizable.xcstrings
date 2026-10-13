@@ -47,6 +47,9 @@
     "%@ can show in the menu bar. Floe adds a menu bar command only when you ask, and you can change this later under General." : {
       "comment" : "The placeholder is the names of one or more commands. General is the name of a settings page."
     },
+    "%@ could not be run." : {
+      "comment" : "The placeholder is the name of the command that could not run."
+    },
     "%@ couldn’t load the release notes." : {
       "comment" : "The placeholder is the name of this app."
     },
@@ -69,6 +72,12 @@
           }
         }
       }
+    },
+    "%@ free" : {
+      "comment" : "How much room a disk has left. The placeholder is a size, such as 212 GB."
+    },
+    "%@ health" : {
+      "comment" : "About the battery: how much of its first capacity it still holds. The placeholder is a percentage, such as 91%."
     },
     "%@ is a launcher for your apps and commands. It runs Raycast extensions and searches your menu bar." : {
       "comment" : "The placeholder is the name of this app."
@@ -112,7 +121,7 @@
       "comment" : "The placeholder is the name of a kind of view, such as Grid."
     },
     "%@ left" : {
-      "comment" : "Beside a running timer. The placeholder is the time left on its clock, such as 4:12."
+      "comment" : "About the battery. The placeholder is a length of time, such as 3 hr 10 min.\nBeside a running timer. The placeholder is the time left on its clock, such as 4:12."
     },
     "%@ needs these before it can run. Change them later in Floe Settings." : {
       "comment" : "The placeholder is the name of an extension or one of its commands."
@@ -147,6 +156,9 @@
           }
         }
       }
+    },
+    "%@ used" : {
+      "comment" : "How much memory is in use. The placeholder is a size, such as 11 GB."
     },
     "%@ was changed after Floe wrote it, so it stays where it is" : {
       "comment" : "The placeholder is the name of a note's file."
@@ -288,6 +300,9 @@
           }
         }
       }
+    },
+    "%lld cycles" : {
+      "comment" : "About the battery: how many times it has been charged and emptied."
     },
     "%lld entries in iCloud could not be read and were skipped." : {
       "comment" : "The placeholder is a count."
@@ -719,6 +734,9 @@
     "Base" : {
       "comment" : "A label on the calculator result that says what kind of calculation it is."
     },
+    "Battery" : {
+      "comment" : "The kind of a result, shown beside its title."
+    },
     "Battery (System Settings)" : {
       "comment" : "The name of a pane of System Settings.",
       "extractionState" : "extracted_with_value",
@@ -802,10 +820,22 @@
     "Capsule" : {
       "comment" : "A shape for the search field."
     },
+    "Cask" : {
+      "comment" : "Beside a Homebrew package. A cask is an app Homebrew installs."
+    },
+    "Cask, installed" : {
+      "comment" : "Beside a Homebrew package that is on this Mac."
+    },
     "Caution" : {
       "comment" : "The heading of a cautionary note in the release notes."
     },
     "Changed" : {},
+    "Charging" : {
+      "comment" : "About the battery."
+    },
+    "Charging, %@ until full" : {
+      "comment" : "About the battery. The placeholder is a length of time, such as 1 hr 20 min."
+    },
     "Check Automatically" : {},
     "Check Manually" : {},
     "Check Now" : {},
@@ -969,7 +999,9 @@
     "Copy Email" : {},
     "Copy File" : {},
     "Copy Host Name" : {},
-    "Copy Name" : {},
+    "Copy Name" : {
+      "comment" : "A button that copies the name of the selected thing."
+    },
     "Copy Note" : {},
     "Copy Path" : {},
     "Copy Phone" : {},
@@ -1137,6 +1169,9 @@
     },
     "Digital Storage" : {
       "comment" : "A kind of unit, named in a calculator error."
+    },
+    "Disk" : {
+      "comment" : "The kind of a result, shown beside its title."
     },
     "Displays (System Settings)" : {
       "comment" : "The name of a pane of System Settings.",
@@ -1412,6 +1447,12 @@
     },
     "Forget" : {},
     "Forget Them" : {},
+    "Formula" : {
+      "comment" : "Beside a Homebrew package. A formula is a command line tool Homebrew installs."
+    },
+    "Formula, installed" : {
+      "comment" : "Beside a Homebrew package that is on this Mac."
+    },
     "Free and open source" : {},
     "Frequency" : {
       "comment" : "A kind of unit, named in a calculator error."
@@ -1443,6 +1484,9 @@
       }
     },
     "Full changelog" : {},
+    "Fully charged" : {
+      "comment" : "About the battery."
+    },
     "Game Controllers (System Settings)" : {
       "comment" : "The name of a pane of System Settings.",
       "extractionState" : "extracted_with_value",
@@ -1529,6 +1573,12 @@
     },
     "Install Thaw and its actions appear in the search." : {},
     "Install extensions from the Raycast store" : {},
+    "Install in Terminal" : {
+      "comment" : "A button that runs the command installing a Homebrew package in the terminal."
+    },
+    "Install or upgrade a Homebrew package in your terminal" : {
+      "comment" : "Homebrew is the name of a package manager."
+    },
     "Install, update and remove extensions from the Raycast store." : {},
     "Installed" : {
       "comment" : "Said of an extension that is already installed."
@@ -1646,6 +1696,9 @@
     "Listening on the Port" : {},
     "Loading extensions…" : {},
     "Loading…" : {},
+    "Local Address" : {
+      "comment" : "The kind of a result, shown beside its title. Here this Mac's address on the local network."
+    },
     "Lock Screen" : {
       "comment" : "A command that locks the screen."
     },
@@ -1716,6 +1769,9 @@
     },
     "Medium-Light" : {
       "comment" : "A skin tone for emoji."
+    },
+    "Memory" : {
+      "comment" : "The kind of a result, shown beside its title."
     },
     "Menu Bar" : {
       "comment" : "The heading over every menu bar item.\nThe kind of a result, shown beside its title."
@@ -1844,6 +1900,9 @@
     "No menu bar items match" : {},
     "No open tabs match" : {},
     "No open window matches" : {},
+    "No package matches" : {
+      "comment" : "Shown when no Homebrew package has the name typed."
+    },
     "No receipts yet" : {},
     "No recent files" : {},
     "No recently used file opens in that app" : {},
@@ -1921,6 +1980,20 @@
       "comment" : "A command that shows the song that is playing and its artist."
     },
     "OK" : {},
+    "Of %@" : {
+      "comment" : "Under how much memory is in use. The placeholder is how much the Mac has, such as 16 GB."
+    },
+    "Of %@ on %@" : {
+      "comment" : "Under how much room a disk has left. The first placeholder is its size, such as 494 GB, the second its name.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Of %1$@ on %2$@"
+          }
+        }
+      }
+    },
     "Off" : {
       "comment" : "Automatic updates: never check."
     },
@@ -1929,6 +2002,12 @@
     },
     "Ollama, on this Mac" : {
       "comment" : "Ollama is the name of an app."
+    },
+    "On battery" : {
+      "comment" : "About the battery: not plugged in."
+    },
+    "On the power adapter" : {
+      "comment" : "About the battery: plugged in and not charging."
     },
     "Only use AI that runs on this Mac" : {},
     "Opacity" : {
@@ -2155,7 +2234,10 @@
     "Quit All Apps" : {
       "comment" : "A command that quits every open app."
     },
-    "Quit Floe" : {},
+    "Quit Floe" : {
+      "comment" : "A command that quits Floe"
+    },
+    "Quit Floe now? You will have to use finder or spotlight to launch it again." : {},
     "Quit a running process" : {},
     "Quit all apps now?" : {},
     "Quitting %@" : {
@@ -2415,6 +2497,9 @@
     "Search what you copied" : {},
     "Searching files…" : {},
     "Search…" : {},
+    "See the battery's charge. Also disk, memory and ip" : {
+      "comment" : "The last three words are typed as they are and stay in English."
+    },
     "See the time in another city" : {},
     "See what Floe did, and undo it" : {},
     "See what is listening on a port" : {},
@@ -2738,6 +2823,9 @@
     },
     "The command line tool set in General is not installed, so no question is sent." : {},
     "The command line tool set up in General" : {},
+    "The command's input could not be prepared." : {
+      "comment" : "Said when a command is given something to read and the pipe to read it from cannot be made."
+    },
     "The event %@ was already deleted" : {
       "comment" : "The placeholder is what the event is called, such as lunch with Ana."
     },
@@ -2947,6 +3035,9 @@
     "Undo" : {
       "comment" : "A verb in the Edit menu."
     },
+    "Uninstall in Terminal" : {
+      "comment" : "A button that runs the command removing a Homebrew package in the terminal."
+    },
     "Unknown @raycast.mode %@. Use fullOutput, compact, silent or inline." : {
       "comment" : "The word that starts with @raycast and the four mode names are typed into a script as they are."
     },
@@ -2972,6 +3063,9 @@
     },
     "Updates" : {
       "comment" : "A noun: the label of the line about checking for new versions of Floe."
+    },
+    "Upgrade in Terminal" : {
+      "comment" : "A button that runs the command upgrading a Homebrew package in the terminal."
     },
     "Uppercase" : {
       "comment" : "The kind of a result, shown beside its title."
@@ -3448,6 +3542,9 @@
     },
     "quit all apps, quit all, close all apps" : {
       "comment" : "Words that find the Quit All Apps command, separated by commas."
+    },
+    "quit floe, close floe, quit, close" : {
+      "comment" : "Words that find the Quit Floe command, separated by commas"
     },
     "raycast, import, store, installed" : {
       "comment" : "Words that find the Include extensions installed in Raycast setting in the settings search, separated by commas."

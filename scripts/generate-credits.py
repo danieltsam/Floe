@@ -66,6 +66,9 @@ DEPENDENCIES = [
                "and hands opencode its configuration, "
                "its hang watchdog and the folder watcher behind hot reload, each modified for Floe and used with "
                "his permission", group="origin"),
+    Dependency("Barometer", "barometer", "GPL-3.0",
+               "Barometer by mackid1993. Floe reads the battery, the memory in use and the network address "
+               "with its system sources, cut down for a row in the search", group="origin"),
     Dependency("CompactSlider", "compactSlider", "MIT", "Used by ThawUI", "swift", "compactslider"),
     Dependency("Sparkle", "sparkle", "MIT", "Checks for updates and installs them", "swift", "sparkle",
                optional=True),

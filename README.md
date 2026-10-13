@@ -117,6 +117,8 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - `bookmarks <text>` finds a bookmark of Chrome, Brave, Edge, Arc, Vivaldi, Dia or Helium.
 - `time in tokyo` and `time 5pm in berlin` show the time somewhere else.
 - `uuid`, `password 24` and `lorem 3` make something to paste.
+- `battery`, `disk`, `memory` and `ip` show a fact about this Mac, under the other results.
+- `brew ripgrep` finds a Homebrew package; Return installs or upgrades it in your terminal. `brew` alone lists what is installed.
 - `base64`, `unbase64`, `urlencode`, `urldecode`, `uppercase`, `lowercase`, `titlecase` and `sha256` change the text after them, or the clipboard.
 - Command-Y on a file shows it in Quick Look.
 - Snippets with text expansion.
@@ -276,4 +278,4 @@ Open to partnerships, integrations, and sponsorships. [Get in touch](https://git
 
 [AGPL-3.0](LICENSE). Code ported from other projects keeps its own terms; [LICENSES](LICENSES/README.md) says which license covers which folder.
 
-[Credits](CREDITS.md) lists what Floe is built from, including [Thaw](https://github.com/thaw-app/Thaw) and [Droppy Code](https://getdroppycode.app) by Jordy Spruit. Raycast is a trademark of Raycast Technologies Inc. Floe is not affiliated with Raycast.
+[Credits](CREDITS.md) lists what Floe is built from, including [Thaw](https://github.com/thaw-app/Thaw), [Droppy Code](https://getdroppycode.app) by Jordy Spruit and [Barometer](https://github.com/mackid1993/Barometer) by mackid1993. Raycast is a trademark of Raycast Technologies Inc. Floe is not affiliated with Raycast.

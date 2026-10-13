@@ -37,8 +37,13 @@ nonisolated struct AnswerRow: Hashable, Sendable {
 struct AnswerRowSearchProvider: SearchProvider {
     /// What a bare `base64` works on. Read only when the query is one of the words that change a text.
     var clipboard: () -> String? = { NSPasteboard.general.string(forType: .string) }
+    var facts = SystemFacts.Readers()
 
     func contribution(for context: SearchContext) -> SearchContribution {
+        // Under the ranked rows: `disk` still opens Disk Utility with Return.
+        if let fact = SystemFacts.row(for: context.trimmed, readers: facts) {
+            return SearchContribution(appended: [RootResult(item: .answer(fact), section: nil)])
+        }
         guard let row = row(for: context) else { return SearchContribution() }
         return SearchContribution(pinned: [RootResult(item: .answer(row), section: nil)])
     }

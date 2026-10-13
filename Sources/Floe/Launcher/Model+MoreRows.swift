@@ -36,6 +36,9 @@ extension LauncherModel {
         if case let .window(row) = item {
             return title(for: row)
         }
+        if case let .brew(package) = item {
+            return title(for: Homebrew.primaryVerb(for: package))
+        }
         return draftTitle(for: item)
     }
 
@@ -82,6 +85,8 @@ extension LauncherModel {
             showDetails(of: receipt)
         } else if case let .window(row) = item {
             open(row)
+        } else if case let .brew(package) = item {
+            brew(Homebrew.primaryVerb(for: package), package)
         } else {
             openTyped(item)
         }
@@ -150,6 +155,9 @@ extension LauncherModel {
         }
         if case let .window(.window(window)) = item {
             return windowActions(for: window)
+        }
+        if case let .brew(package) = item {
+            return brewActions(for: package)
         }
         return shellActions(for: item)
     }

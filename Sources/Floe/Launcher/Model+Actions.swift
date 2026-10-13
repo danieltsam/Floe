@@ -173,7 +173,7 @@ extension LauncherModel {
         case .file, .clipboardEntry, .menuBarItem, .menuBarAccess: false
         case .browserTab: false
         case let .focus(request, _): request == .toggle
-        case .askAI, .webAddress, .shell, .process, .receipt, .checkpointDraft, .reminderDraft, .eventDraft, .timer, .contact, .outgoing, .keyword, .definition, .answer, .window, .bookmark: false
+        case .askAI, .webAddress, .shell, .process, .receipt, .checkpointDraft, .reminderDraft, .eventDraft, .timer, .contact, .outgoing, .keyword, .definition, .answer, .window, .bookmark, .brew: false
         default: true
         }
     }

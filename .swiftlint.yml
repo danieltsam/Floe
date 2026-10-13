@@ -67,9 +67,9 @@ file_header:
   required_pattern: |-
     //
     //  SWIFTLINT_CURRENT_FILENAME
-    //  Project: (Floe|Thaw|Droppy Code)
+    //  Project: (Floe|Thaw|Droppy Code|Barometer)
     //
-    //  Copyright \((Floe\) © 2026 René Jiménez|Thaw\) © 2026 Toni Förster|Droppy Code\) © 2026 Jordy Spruit\n//  Droppy Code by Jordy Spruit \(Droppy\), https://getdroppycode\.app)
+    //  Copyright \((Floe\) © 2026 René Jiménez|Thaw\) © 2026 Toni Förster|Droppy Code\) © 2026 Jordy Spruit\n//  Droppy Code by Jordy Spruit \(Droppy\), https://getdroppycode\.app|Barometer\) © 2026 mackid1993\n//  Barometer by mackid1993, https://github\.com/mackid1993/Barometer)
 
 modifier_order:
   preferred_modifier_order:

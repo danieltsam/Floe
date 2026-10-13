@@ -114,6 +114,8 @@ After you install:
 - **`bookmarks invoice` finds a bookmark** of Chrome, Brave, Edge, Arc, Vivaldi, Dia or Helium. Floe reads the browser's own file when you type the word, and nothing leaves your Mac. Safari is not covered.
 - **`time in tokyo` shows the time there**, and how far it is from yours. `time 5pm in berlin` takes a time of day here to there.
 - **`uuid`, `password 24` and `lorem 3` make something to paste.** A password is copied so that clipboard managers leave it out.
+- **`battery`, `disk`, `memory` and `ip` show a fact about this Mac.** The battery's charge, time left, cycles and health, the room on the startup disk, the memory in use and the local address. They sit under the other results, so `disk` and Return still open Disk Utility. The battery, memory and address are read with Barometer's system sources, by mackid1993.
+- **`brew ripgrep` finds a Homebrew package.** Return installs it in your terminal, or upgrades one you have, and the actions uninstall it. `brew` alone lists what is installed. The names come from the lists Homebrew keeps on disk, so `brew` is not started until you choose.
 - **`base64 hello` changes a text**, and so do `unbase64`, `urlencode`, `urldecode`, `uppercase`, `lowercase`, `titlecase` and `sha256`. With nothing after the word, it works on the clipboard.
 - **Command-Y shows a file in Quick Look** from the search, and a file's Actions menu has Quick Look.
 - **Emoji and symbols.** Hands and people use the skin tone you choose in Settings > General. By @OwenCope in [#6](https://github.com/thaw-app/Floe/pull/6).
