@@ -78,15 +78,8 @@ enum SearchRanker {
 
     /// Pure relevance sort: a diff score is lowest for the best match and grows with worse ones.
     ///
-    /// Equal scores keep their input order. sorted(by:) is not documented as stable, and ties
-    /// are common, so without the tiebreak results could permute between runs.
+    /// sorted(by:) is stable, so equal scores keep their input order, which the test of tie order holds onto.
     static func sortedByRelevance<T>(_ items: [(item: T, diffScore: Double)]) -> [T] {
-        items.enumerated()
-            .sorted { lhs, rhs in
-                lhs.element.diffScore == rhs.element.diffScore
-                    ? lhs.offset < rhs.offset
-                    : lhs.element.diffScore < rhs.element.diffScore
-            }
-            .map(\.element.item)
+        items.sorted { $0.diffScore < $1.diffScore }.map(\.item)
     }
 }
