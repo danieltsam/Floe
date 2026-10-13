@@ -24,6 +24,13 @@ nonisolated struct ClipboardEntry: Identifiable, Codable, Sendable {
     var date: Date
     var pinned: Bool
     var sourceApp: String?
+    /// The copy as it was formatted, when it was: a pasteboard type to the file that holds it.
+    var formats: [String: String]?
+
+    /// Every file in the clipboard folder this entry owns.
+    var fileNames: [String] {
+        (imageFile.map { [$0] } ?? []) + (formats.map { Array($0.values) } ?? [])
+    }
 
     /// What identifies a duplicate for merging: same kind and same content.
     var identity: String {
@@ -91,19 +98,18 @@ final class ClipboardHistoryStore: ObservableObject {
         worker.queuedBytes
     }
 
-    private let files: ClipboardFiles
+    let files: ClipboardFiles
     private let remote: ((PanelPacket) -> Void)?
     private let limits: Limits
     private let worker: ClipboardHistoryWorker
     private var ledger = ClipboardByteLedger()
-    /// Image files the list no longer uses, removed by the worker with the next save.
+    /// Files the list no longer uses, removed by the worker with the next save.
     private var unusedFiles: [String] = []
     /// Goes up with every Clear, so a copy still being processed when it happened is not kept.
     private var epoch = 0
-    private var isLoaded = false
+    private(set) var isLoaded = false
     private var clearsWhenLoaded = false
-    private var lastChangeCount = 0
-    private var timer: Timer?
+    private var watcher: ClipboardWatcher?
     private var recordingObserver: AnyCancellable?
 
     static var directory: URL {
@@ -138,11 +144,15 @@ final class ClipboardHistoryStore: ObservableObject {
     // MARK: Monitoring
 
     private func startMonitoring() {
-        lastChangeCount = NSPasteboard.general.changeCount
-        timer?.invalidate()
-        timer = Timer.scheduledOnMain(withTimeInterval: 0.5, repeats: true) { [weak self] in
-            self?.poll()
-        }
+        let board = NSPasteboard.general
+        let watcher = ClipboardWatcher(
+            changeCount: { board.changeCount },
+            read: { ClipboardCapture.reading(board) },
+            isRecording: { AppSettings.shared.recordsClipboardHistory },
+            deliver: { [weak self] in self?.take($0) }
+        )
+        watcher.start()
+        self.watcher = watcher
         // Copies still waiting when recording stops, or when another app takes the clipboard, are not kept.
         let settings = AppSettings.shared
         recordingObserver = settings.$clipboardHandler.combineLatest(settings.$clipboardHistoryEnabled)
@@ -155,18 +165,25 @@ final class ClipboardHistoryStore: ObservableObject {
             }
     }
 
-    private func poll() {
-        guard AppSettings.shared.recordsClipboardHistory else { return }
-        let board = NSPasteboard.general
-        guard board.changeCount != lastChangeCount else { return }
-        lastChangeCount = board.changeCount
-        guard let capture = ClipboardCapture.read(board) else { return }
-        record(capture)
+    /// What the watcher read: a copy to keep, or an entry Floe put back itself, which only moves to the top.
+    func take(_ reading: ClipboardCapture.Reading) {
+        switch reading {
+        case let .copy(capture): record(capture)
+        case let .own(id): touch(id)
+        case .skipped, .empty: break
+        }
     }
 
-    /// Hands a copy to the worker; it joins the list once it is ready, after the copies before it.
+    /// Text and files join the list at once, and the worker only writes their formatted copies. An image is
+    /// the worker's to convert, and so is anything copied before the saved list is read: it joins after that.
     func record(_ capture: ClipboardCapture) {
-        worker.prepare(capture, epoch: epoch)
+        guard isLoaded, capture.imageBytes == 0 else {
+            worker.prepare(capture, epoch: epoch)
+            return
+        }
+        guard let made = ClipboardEntry.made(from: capture) else { return }
+        worker.store(made.files)
+        insert(made.entry, sizes: made.files.mapValues(\.count))
     }
 
     /// Forgets the copies not in the list yet: the waiting ones now, the one being converted when it returns.
@@ -188,11 +205,11 @@ final class ClipboardHistoryStore: ObservableObject {
                     removeUnpinned()
                 }
                 onSnapshotSaved?()
-            case let .prepared(entry, bytes, epoch):
+            case let .prepared(entry, sizes, epoch):
                 if epoch == self.epoch {
-                    insert(entry, bytes: bytes)
-                } else if let name = entry.imageFile {
-                    worker.remove([name])
+                    insert(entry, sizes: sizes)
+                } else {
+                    worker.remove(entry.fileNames)
                 }
             case let .saved(bytes):
                 ledger.set(ClipboardFiles.historyName, bytes: bytes)
@@ -219,23 +236,35 @@ final class ClipboardHistoryStore: ObservableObject {
 
     // MARK: Mutations
 
-    /// Adds an entry, merging a duplicate to the top and keeping its pin.
-    private func insert(_ entry: ClipboardEntry, bytes: Int) {
+    /// Adds an entry, merging a duplicate into it and keeping its pin.
+    private func insert(_ entry: ClipboardEntry, sizes: [String: Int]) {
         var next = entry
-        if let name = next.imageFile {
+        for (name, bytes) in sizes {
             ledger.set(name, bytes: bytes)
         }
         if let existing = entries.first(where: { $0.identity == next.identity }) {
             next.pinned = existing.pinned
             next.id = existing.id
-            if existing.kind == .image, existing.imageFile != next.imageFile {
-                removeImageFile(existing.imageFile)
-            }
+            existing.fileNames.filter { !next.fileNames.contains($0) }.forEach(removeFile)
             entries.removeAll { $0.id == existing.id }
         }
-        entries.insert(next, at: 0)
+        place(next)
         enforceEntryCap()
         enforceByteCap()
+        save()
+    }
+
+    /// Newest first by the time of the copy, so an image that took a while lands under what was copied after it.
+    private func place(_ entry: ClipboardEntry) {
+        entries.insert(entry, at: entries.partitioningIndex { $0.date <= entry.date })
+    }
+
+    /// Moves an entry to the top as copied now: Floe put it back on the clipboard itself.
+    func touch(_ id: UUID, date: Date = Date()) {
+        guard let index = entries.firstIndex(where: { $0.id == id }) else { return }
+        var entry = entries.remove(at: index)
+        entry.date = date
+        place(entry)
         save()
     }
 
@@ -262,7 +291,7 @@ final class ClipboardHistoryStore: ObservableObject {
             remote(.deleteClipboard(entry.id)); return
         }
         guard let index = entries.firstIndex(where: { $0.id == entry.id }) else { return }
-        removeImageFile(entries[index].imageFile)
+        entries[index].fileNames.forEach(removeFile)
         entries.remove(at: index)
         save()
     }
@@ -282,7 +311,7 @@ final class ClipboardHistoryStore: ObservableObject {
 
     private func removeUnpinned() {
         for entry in entries where !entry.pinned {
-            removeImageFile(entry.imageFile)
+            entry.fileNames.forEach(removeFile)
         }
         entries = entries.filter(\.pinned)
         save()
@@ -294,17 +323,17 @@ final class ClipboardHistoryStore: ObservableObject {
         unpinned = Array(unpinned.prefix(max(0, limits.maxEntries - pinned.count)))
         let removed = Set(entries.map(\.id)).subtracting(pinned.map(\.id) + unpinned.map(\.id))
         for entry in entries where removed.contains(entry.id) {
-            removeImageFile(entry.imageFile)
+            entry.fileNames.forEach(removeFile)
         }
         entries = pinned + unpinned
         entries.sort { $0.date > $1.date }
     }
 
-    /// Drops the oldest unpinned entries (and their images) until the folder fits the byte cap.
+    /// Drops the oldest unpinned entries (and their files) until the folder fits the byte cap.
     private func enforceByteCap() {
         guard ledger.total > limits.maxBytes else { return }
         for entry in entries.sorted(by: { $0.date < $1.date }) where !entry.pinned {
-            removeImageFile(entry.imageFile)
+            entry.fileNames.forEach(removeFile)
             entries.removeAll { $0.id == entry.id }
             if ledger.total <= limits.maxBytes {
                 break
@@ -323,62 +352,9 @@ final class ClipboardHistoryStore: ObservableObject {
         worker.save(entries)
     }
 
-    private func removeImageFile(_ name: String?) {
-        guard let name, !name.isEmpty else { return }
+    private func removeFile(_ name: String) {
+        guard !name.isEmpty else { return }
         ledger.remove(name)
         unusedFiles.append(name)
-    }
-}
-
-extension ClipboardHistoryStore {
-    /// The PNG stored for a copied image, or nil when the data is not an image.
-    @Sendable static nonisolated func storedPNG(_ data: Data) -> Data? {
-        downsampledPNG(data) ?? NSImage(data: data).flatMap(downscaledPNG)
-    }
-
-    /// ImageIO scales while it decodes, so the copied image never exists at full size. Drawn through
-    /// AppKit, each one left a full-size bitmap in the system's caches. Nil for what ImageIO cannot read.
-    static nonisolated func downsampledPNG(_ data: Data) -> Data? {
-        let options: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceShouldCacheImmediately: true,
-            kCGImageSourceThumbnailMaxPixelSize: Int(imageMaxDimension),
-        ]
-        let png = NSMutableData()
-        guard let source = CGImageSourceCreateWithData(data as CFData, [kCGImageSourceShouldCache: false] as CFDictionary),
-              let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary),
-              let destination = CGImageDestinationCreateWithData(png, "public.png" as CFString, 1, nil)
-        else { return nil }
-        CGImageDestinationAddImage(destination, image, nil)
-        return CGImageDestinationFinalize(destination) ? png as Data : nil
-    }
-
-    /// For what only AppKit reads, a PDF above all: scales an image to at most `imageMaxDimension` on its longer side.
-    static nonisolated func downscaledPNG(_ image: NSImage) -> Data? {
-        guard let tiff = image.tiffRepresentation,
-              let rep = NSBitmapImageRep(data: tiff)
-        else { return nil }
-        let width = rep.pixelsWide
-        let height = rep.pixelsHigh
-        let longest = max(width, height)
-        if longest <= Int(imageMaxDimension), let png = rep.representation(using: .png, properties: [:]) {
-            return png
-        }
-        let scale = imageMaxDimension / CGFloat(longest)
-        let size = NSSize(width: CGFloat(width) * scale, height: CGFloat(height) * scale)
-        let scaled = NSImage(size: size)
-        scaled.lockFocus()
-        image.draw(in: NSRect(origin: .zero, size: size), from: .zero, operation: .copy, fraction: 1)
-        scaled.unlockFocus()
-        guard let scaledTIFF = scaled.tiffRepresentation,
-              let scaledRep = NSBitmapImageRep(data: scaledTIFF)
-        else { return nil }
-        return scaledRep.representation(using: .png, properties: [:])
-    }
-
-    func image(for entry: ClipboardEntry) -> NSImage? {
-        guard entry.kind == .image, let name = entry.imageFile else { return nil }
-        return NSImage(contentsOf: files.directory.appendingPathComponent(name))
     }
 }

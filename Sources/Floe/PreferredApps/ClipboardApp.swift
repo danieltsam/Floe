@@ -76,9 +76,9 @@ enum ClipboardApps {
     /// copy: the identifier from its Info.plist, the link from how the app builds its own deeplinks.
     static let links = ["com.raycast.macos": "raycast://extensions/raycast/clipboard-history/clipboard-history"]
 
-    /// Floe's own history is parked: the command only goes to the clipboard app the user chose, and no copy is saved.
-    /// To bring it back, turn this off. The settings, the store and the view are all still here.
-    static let ownHistoryIsParked = true
+    /// With this on, Floe's own history is parked: the command only goes to the clipboard app the user chose,
+    /// and no copy is saved. The settings, the store and the view stay.
+    static let ownHistoryIsParked = false
 
     /// Floe saves copies only while it is the clipboard manager and its switch is on.
     static func records(handler: ClipboardHandler, historyEnabled: Bool, parked: Bool = ownHistoryIsParked) -> Bool {

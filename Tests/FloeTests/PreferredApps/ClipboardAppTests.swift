@@ -57,7 +57,6 @@ struct ClipboardAppTests {
     init() throws {
         scratch = try ScratchDefaults()
         settings = AppSettings(defaults: scratch.defaults, savesAfterEdits: false)
-        // Floe's own history is parked: these tests cover it as it is when brought back.
         settings.clipboardHistoryIsParked = false
     }
 
@@ -229,11 +228,11 @@ struct ClipboardAppTests {
 
     // MARK: The picker
 
-    @Test func thePickerOffersNoneThenTheKnownAppsThatAreInstalled() {
-        #expect(PreferredApps.options(for: .clipboard, choice: nil, installed: Fake.mac()).map(\.title) == ["None", "Raycast"])
-        #expect(PreferredApps.options(for: .clipboard, choice: nil, installed: Fake.mac([:])).map(\.title) == ["None"])
+    @Test func thePickerOffersFloeThenTheKnownAppsThatAreInstalled() {
+        #expect(PreferredApps.options(for: .clipboard, choice: nil, installed: Fake.mac()).map(\.title) == ["Floe", "Raycast"])
+        #expect(PreferredApps.options(for: .clipboard, choice: nil, installed: Fake.mac([:])).map(\.title) == ["Floe"])
         let options = PreferredApps.options(for: .clipboard, choice: Fake.clippyChoice, installed: Fake.mac())
-        #expect(options.map(\.title) == ["None", "Raycast", "Clippy"])
+        #expect(options.map(\.title) == ["Floe", "Raycast", "Clippy"])
         #expect(options.first?.choice == nil)
         #expect(PreferredApps.options(for: .clipboard, choice: Fake.clippyChoice, installed: Fake.mac([:])).last?.title == "Clippy (not installed)")
     }
@@ -417,13 +416,12 @@ struct ClipboardAppTests {
         #expect(ClipboardApps.settingsNotice(for: .unavailable(app: nil, message: "")) == "Clipboard history is handled by another app. Floe saves no copies.")
     }
 
-    @Test func theSettingsSearchFindsTheRoleAndClearingButNotTheParkedSwitch() {
+    @Test func theSettingsSearchFindsTheRoleTheSwitchAndClearing() {
         let entries = SearchIndex.generalEntries.filter { SearchIndex.clipboardEntries.map(\.id).contains($0.id) }
-        #expect(entries.map(\.id) == ["general.clipboardApp", "general.clearClipboardHistory"])
-        #expect(entries.map(\.section) == ["Preferred Apps", "Clipboard"], "the section stays in view whatever app is chosen")
+        #expect(entries.map(\.id) == ["general.clipboardApp", "general.clipboardHistory", "general.clearClipboardHistory"])
+        #expect(entries.map(\.section) == ["Preferred Apps", "Clipboard", "Clipboard"], "the section stays in view whatever app is chosen")
         #expect(entries.first?.title == AppRole.clipboard.title)
         #expect(entries.first?.descriptionText == AppRole.clipboard.detail)
-        #expect(SearchIndex.staticEntries.filter { $0.id == "general.clipboardHistory" }.isEmpty)
-        #expect(AppRole.clipboard.detail == "Opens from Clipboard History in the search.")
+        #expect(AppRole.clipboard.detail == "Opens from Clipboard History in the search. With another app chosen, Floe saves no copies and keeps the history it has.")
     }
 }

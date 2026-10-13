@@ -9,28 +9,42 @@ import AppKit
 import ApplicationServices
 
 extension ClipboardHistoryStore {
-    /// Writes an entry back to the general pasteboard.
+    /// Writes an entry back to a pasteboard, with its formatting when it has any and with the mark that
+    /// tells Floe's own watcher which entry it is. False when the pasteboard did not take it.
     @discardableResult
-    static func writeToPasteboard(_ entry: ClipboardEntry) -> Bool {
-        let board = NSPasteboard.general
+    static func writeToPasteboard(_ entry: ClipboardEntry, board: NSPasteboard = .general, directory: URL = ClipboardHistoryStore.directory) -> Bool {
+        let before = board.changeCount
         board.clearContents()
+        let written: Bool
         switch entry.kind {
         case .text, .link:
             guard let text = entry.text else { return false }
-            return board.setString(text, forType: .string)
+            let item = NSPasteboardItem()
+            item.setString(text, forType: .string)
+            for (type, name) in entry.formats ?? [:] {
+                if let data = try? Data(contentsOf: directory.appendingPathComponent(name)) {
+                    item.setData(data, forType: NSPasteboard.PasteboardType(type))
+                }
+            }
+            item.setString(entry.id.uuidString, forType: ClipboardCapture.ownEntryType)
+            written = board.writeObjects([item])
         case .file:
             let urls = (entry.filePaths ?? []).map { URL(fileURLWithPath: $0) as NSURL }
-            guard !urls.isEmpty else { return false }
-            board.writeObjects(urls)
-            return true
+            written = !urls.isEmpty && board.writeObjects(urls) && mark(board, as: entry)
         case .image:
             guard let name = entry.imageFile,
                   let data = try? Data(contentsOf: directory.appendingPathComponent(name)),
                   let image = NSImage(data: data)
             else { return false }
-            board.writeObjects([image])
-            return true
+            written = board.writeObjects([image]) && mark(board, as: entry)
         }
+        // The count moves when the pasteboard takes the entry: pasting before it has gives the copy before this one.
+        return written && board.changeCount != before
+    }
+
+    private static func mark(_ board: NSPasteboard, as entry: ClipboardEntry) -> Bool {
+        board.addTypes([ClipboardCapture.ownEntryType], owner: nil)
+        return board.setString(entry.id.uuidString, forType: ClipboardCapture.ownEntryType)
     }
 
     /// Whether Return pastes straight into the frontmost app: needs Accessibility.
@@ -47,5 +61,22 @@ extension ClipboardHistoryStore {
         up?.flags = .maskCommand
         down?.post(tap: .cghidEventTap)
         up?.post(tap: .cghidEventTap)
+    }
+
+    /// Presses Command-V once Floe is out of the way: the app in front, not Floe, has to be the one that reads the key.
+    /// Never sooner than 0.15 s, the pause Floe used before, and no later than a second.
+    static func pasteWhenClear(
+        isClear: @escaping () -> Bool = { NSApp.keyWindow == nil && NSWorkspace.shared.frontmostApplication?.processIdentifier != ProcessInfo.processInfo.processIdentifier },
+        press: @escaping () -> Void = { simulatePaste() }
+    ) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(150))
+            var waits = 0
+            while !isClear(), waits < 17 {
+                try? await Task.sleep(for: .milliseconds(50))
+                waits += 1
+            }
+            press()
+        }
     }
 }

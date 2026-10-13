@@ -132,7 +132,8 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - Choose a preferred terminal, editor, browser and notes app; files, folders and links open in them.
 - Use a terminal editor (Helix, Neovim, Vim, Emacs and others) as the editor.
 - Send a link to another browser with Open With.
-- Choose a clipboard manager, and Clipboard History opens it.
+- Keep a clipboard history: text with its formatting, links, images and files. Return pastes one, and copies marked private by a password manager are left out.
+- Or choose a clipboard manager, and Clipboard History opens it. Floe then saves no copies.
 
 ### Notes
 

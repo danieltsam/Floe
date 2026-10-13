@@ -16,9 +16,28 @@ nonisolated struct ClipboardCapture: Sendable {
         case text(String)
     }
 
+    /// What the watcher found on the pasteboard after a change.
+    enum Reading: Sendable {
+        case copy(ClipboardCapture)
+        /// An entry of the history that Floe put back itself.
+        case own(UUID)
+        /// Marked private by whoever copied it.
+        case skipped
+        /// Nothing Floe keeps is there, or not yet: an app may empty the pasteboard and fill it a moment later.
+        case empty
+    }
+
+    /// The types text keeps its formatting in, and the most of one that is kept: past it the copy is plain text.
+    static let formatTypes: [NSPasteboard.PasteboardType] = [.rtf, .html]
+    static let maxFormatBytes = 1024 * 1024
+    /// Beside an entry Floe wrote to the pasteboard: the entry's identifier.
+    static let ownEntryType = NSPasteboard.PasteboardType("org.thaw.floe.clipboard-entry")
+
     var content: Content
     var date: Date
     var sourceApp: String?
+    /// The text as it was formatted, by pasteboard type. Empty for what is not text.
+    var formats: [String: Data] = [:]
 
     /// The original image data this copy holds until it is converted; text and files are not counted.
     var imageBytes: Int {
@@ -53,11 +72,30 @@ nonisolated struct ClipboardCapture: Sendable {
 
     /// Reads the pasteboard once: files first, then images, then text. Nil for what is never saved.
     static func read(_ board: NSPasteboard) -> ClipboardCapture? {
-        guard !isPasswordManagerInFront else { return nil }
+        if case let .copy(capture) = reading(board) {
+            capture
+        } else {
+            nil
+        }
+    }
+
+    static func reading(_ board: NSPasteboard) -> Reading {
+        guard !isPasswordManagerInFront else { return .skipped }
         let types = Set((board.types ?? []).map(\.rawValue))
-        guard types.isDisjoint(with: skippedTypes) else { return nil }
-        guard let content = content(of: board) else { return nil }
-        return ClipboardCapture(content: content, date: Date(), sourceApp: NSWorkspace.shared.frontmostApplication?.localizedName)
+        guard types.isDisjoint(with: skippedTypes) else { return .skipped }
+        if let id = board.string(forType: ownEntryType).flatMap(UUID.init(uuidString:)) {
+            return .own(id)
+        }
+        guard let content = content(of: board) else { return .empty }
+        var capture = ClipboardCapture(content: content, date: Date(), sourceApp: NSWorkspace.shared.frontmostApplication?.localizedName)
+        if case .text = content {
+            for type in formatTypes {
+                if let data = board.data(forType: type), !data.isEmpty, data.count <= maxFormatBytes {
+                    capture.formats[type.rawValue] = data
+                }
+            }
+        }
+        return .copy(capture)
     }
 
     private static func content(of board: NSPasteboard) -> Content? {
@@ -69,7 +107,7 @@ nonisolated struct ClipboardCapture: Sendable {
         if let data = board.data(forType: .tiff) ?? board.data(forType: .png) {
             return .image(data, fallbackText: board.string(forType: .string))
         }
-        return board.string(forType: .string).map(Content.text)
+        return board.string(forType: .string).flatMap { $0.isEmpty ? nil : Content.text($0) }
     }
 
     private static var isPasswordManagerInFront: Bool {
@@ -85,6 +123,22 @@ nonisolated struct ClipboardCapture: Sendable {
 }
 
 nonisolated extension ClipboardEntry {
+    /// The entry for copied text or files, and the files its formatted copies go in. Nil for an image, which
+    /// has to be converted first, and for empty text.
+    static func made(from capture: ClipboardCapture) -> (entry: ClipboardEntry, files: [String: Data])? {
+        switch capture.content {
+        case .image:
+            return nil
+        case let .files(paths):
+            return (.files(paths, date: capture.date, sourceApp: capture.sourceApp), [:])
+        case let .text(string):
+            guard var entry = text(string, date: capture.date, sourceApp: capture.sourceApp) else { return nil }
+            let names = capture.formats.mapValues { _ in "\(UUID().uuidString).format" }
+            entry.formats = names.isEmpty ? nil : names
+            return (entry, Dictionary(uniqueKeysWithValues: capture.formats.compactMap { type, data in names[type].map { ($0, data) } }))
+        }
+    }
+
     /// The entry for copied files.
     static func files(_ paths: [String], date: Date, sourceApp: String?) -> ClipboardEntry {
         ClipboardEntry(id: UUID(), kind: .file, filePaths: paths, date: date, pinned: false, sourceApp: sourceApp)

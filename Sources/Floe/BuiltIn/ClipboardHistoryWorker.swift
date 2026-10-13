@@ -73,13 +73,14 @@ nonisolated struct ClipboardByteLedger {
 final nonisolated class ClipboardHistoryWorker: Sendable {
     enum Event: Sendable {
         case loaded([ClipboardEntry], sizes: [String: Int])
-        case prepared(ClipboardEntry, bytes: Int, epoch: Int)
+        case prepared(ClipboardEntry, sizes: [String: Int], epoch: Int)
         case saved(bytes: Int)
     }
 
     private enum Job: Sendable {
         case load
         case prepare(ClipboardCapture, epoch: Int)
+        case store([String: Data])
         case remove([String])
         case save
         case signal(DispatchSemaphore)
@@ -210,8 +211,17 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
         }
     }
 
+    /// Writes the formatted copies of an entry that is already in the list.
+    func store(_ files: [String: Data]) {
+        if !files.isEmpty {
+            enqueue(.store(files))
+        }
+    }
+
     func remove(_ names: [String]) {
-        enqueue(.remove(names))
+        if !names.isEmpty {
+            enqueue(.remove(names))
+        }
     }
 
     func save(_ entries: [ClipboardEntry]) {
@@ -245,8 +255,12 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
         case .load:
             return [load(files)]
         case let .prepare(capture, epoch):
-            guard let (entry, bytes) = entry(for: capture, files: files, storedPNG: storedPNG) else { return [] }
-            return [.prepared(entry, bytes: bytes, epoch: epoch)]
+            guard let (entry, sizes) = entry(for: capture, files: files, storedPNG: storedPNG) else { return [] }
+            return [.prepared(entry, sizes: sizes, epoch: epoch)]
+        case let .store(written):
+            // A copy that cannot be written is pasted as its plain text.
+            written.forEach { try? files.write($0.value, $0.key, false) }
+            return []
         case let .remove(names):
             names.forEach(files.remove)
             return []
@@ -269,31 +283,32 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
     private static func load(_ files: ClipboardFiles) -> Event {
         let sizes = files.sizes()
         let stored = files.read(ClipboardFiles.historyName).flatMap { try? JSONDecoder().decode([ClipboardEntry].self, from: $0) } ?? []
-        let entries = stored.filter { entry in
-            guard entry.kind == .image, let name = entry.imageFile else { return true }
-            return sizes[name] != nil
+        let entries: [ClipboardEntry] = stored.compactMap { stored in
+            var entry = stored
+            // A formatted copy whose file is gone leaves the text, which is in the list itself.
+            entry.formats = entry.formats?.filter { sizes[$0.value] != nil }
+            guard entry.kind == .image, let name = entry.imageFile else { return entry }
+            return sizes[name] == nil ? nil : entry
         }
         return .loaded(entries, sizes: sizes)
     }
 
-    /// Turns a capture into an entry, converting and storing its image. Nil when there is nothing to keep.
-    private static func entry(for capture: ClipboardCapture, files: ClipboardFiles, storedPNG: (Data) -> Data?) -> (ClipboardEntry, bytes: Int)? {
-        switch capture.content {
-        case let .files(paths):
-            return (.files(paths, date: capture.date, sourceApp: capture.sourceApp), 0)
-        case let .text(string):
-            return ClipboardEntry.text(string, date: capture.date, sourceApp: capture.sourceApp).map { ($0, 0) }
-        case let .image(data, fallbackText):
-            guard let png = storedPNG(data) else {
-                return fallbackText.flatMap { ClipboardEntry.text($0, date: capture.date, sourceApp: capture.sourceApp) }.map { ($0, 0) }
-            }
-            let name = "\(UUID().uuidString).png"
-            do {
-                try files.write(png, name, false)
-            } catch {
-                return nil
-            }
-            return (.image(named: name, png: png, date: capture.date, sourceApp: capture.sourceApp), png.count)
+    /// Turns a capture into an entry and writes its files, converting its image. Nil when there is nothing to keep.
+    private static func entry(for capture: ClipboardCapture, files: ClipboardFiles, storedPNG: (Data) -> Data?) -> (ClipboardEntry, sizes: [String: Int])? {
+        guard case let .image(data, fallbackText) = capture.content else {
+            guard let made = ClipboardEntry.made(from: capture) else { return nil }
+            made.files.forEach { try? files.write($0.value, $0.key, false) }
+            return (made.entry, made.files.mapValues(\.count))
         }
+        guard let png = storedPNG(data) else {
+            return fallbackText.flatMap { ClipboardEntry.text($0, date: capture.date, sourceApp: capture.sourceApp) }.map { ($0, [:]) }
+        }
+        let name = "\(UUID().uuidString).png"
+        do {
+            try files.write(png, name, false)
+        } catch {
+            return nil
+        }
+        return (.image(named: name, png: png, date: capture.date, sourceApp: capture.sourceApp), [name: png.count])
     }
 }

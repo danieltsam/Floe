@@ -41,9 +41,7 @@ final class ClipboardHistoryModel: ObservableObject {
         guard ClipboardHistoryStore.writeToPasteboard(entry) else { return }
         host.dismiss()
         if ClipboardHistoryStore.canPasteDirectly {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                ClipboardHistoryStore.simulatePaste()
-            }
+            ClipboardHistoryStore.pasteWhenClear()
         } else {
             host.showHUD(String(localized: "Copied. Press ⌘V to paste.", bundle: .floe))
         }
