@@ -53,21 +53,25 @@ nonisolated enum SelectedText {
         return try await copiedSelectedText()
     }
 
-    /// Whatever the focused element reports as selected.
+    /// Whatever the focused element reports as selected. Each element is asked with the same 0.25 s
+    /// limit the menu bar scan uses, so a hung app costs a quarter second, not the system default.
     static func accessibilitySelectedText() -> String? {
         let systemWide = AXUIElementCreateSystemWide()
+        AXUIElementSetMessagingTimeout(systemWide, 0.25)
         var app: CFTypeRef?
         guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedApplicationAttribute as CFString, &app) == .success,
               let app, CFGetTypeID(app) == AXUIElementGetTypeID()
         else { return nil }
         // swiftlint:disable:next force_cast
         let appElement = app as! AXUIElement
+        AXUIElementSetMessagingTimeout(appElement, 0.25)
         var focused: CFTypeRef?
         guard AXUIElementCopyAttributeValue(appElement, kAXFocusedUIElementAttribute as CFString, &focused) == .success,
               let focused, CFGetTypeID(focused) == AXUIElementGetTypeID()
         else { return nil }
         // swiftlint:disable:next force_cast
         let element = focused as! AXUIElement
+        AXUIElementSetMessagingTimeout(element, 0.25)
         var selected: CFTypeRef?
         guard AXUIElementCopyAttributeValue(element, "AXSelectedText" as CFString, &selected) == .success else { return nil }
         if let text = selected as? String, !text.isEmpty {
