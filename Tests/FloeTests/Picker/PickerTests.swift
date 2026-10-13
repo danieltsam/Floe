@@ -39,6 +39,18 @@ struct PickListTests {
         #expect(PickList.items(from: input).isEmpty)
     }
 
+    @Test func aTabSplitsALineIntoATitleAndWhatIsShownBesideIt() {
+        let items = PickList.items(from: "142\tFix the nav\tana\nplain line\n\tonly a detail")
+        #expect(items.map(\.title) == ["142", "plain line", ""])
+        #expect(items.map(\.detail) == ["Fix the nav  ana", nil, "only a detail"])
+        #expect(PickList.output(for: items[0], printsIndex: false) == "142\tFix the nav\tana", "the caller gets its whole line back")
+    }
+
+    @Test func aQueryFindsARowByItsDetailButPutsATitleMatchFirst() {
+        let items = PickList.items(from: "142\tnav rework\nnav\tsomething else\n7\tunrelated")
+        #expect(PickList.matches(items, query: "nav").map(\.title) == ["nav", "142"])
+    }
+
     @Test func anEmptyQueryListsEverythingInInputOrder() {
         let items = PickList.items(from: "zeta\nalpha\nmid")
         #expect(PickList.matches(items, query: "") == items)

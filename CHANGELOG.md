@@ -49,7 +49,7 @@ After you install:
 - **Hide from Search** takes an application or a command out of the search. Settings > General lists what is hidden and brings it back.
 - **The Up arrow brings back earlier searches:** the last 50 that opened something. Settings > Privacy turns this off and forgets them.
 - **Optional search sources.** Files and open browser tabs (Safari, Dia, Helium) add up to three rows to a search. Both are off until you turn them on in Privacy.
-- **`Floe --pick` lends the search panel to a script.** It reads lines on standard input and prints the one you choose.
+- **`Floe --pick` lends the search panel to a script.** It reads lines on standard input and prints the one you choose. A tab splits a line into a title and what is shown beside it.
 
 #### Shell commands
 - **Type `>` and a command to run it.** Return runs it in the background and shows the first line of output. Your shell aliases work. Settings > General changes the prefix to `$` or `!`, or turns this off.

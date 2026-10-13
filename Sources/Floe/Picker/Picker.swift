@@ -16,6 +16,17 @@ struct PickItem: Identifiable, Equatable {
     var id: Int {
         index
     }
+
+    /// A line with tabs is a row with columns: the first is its title.
+    var title: String {
+        text.split(separator: "\t", maxSplits: 1, omittingEmptySubsequences: false).first.map(String.init) ?? text
+    }
+
+    /// The columns after the first, shown beside the title. Nil for a line without a tab.
+    var detail: String? {
+        let columns = text.split(separator: "\t", omittingEmptySubsequences: false).dropFirst().filter { !$0.isEmpty }
+        return columns.isEmpty ? nil : columns.joined(separator: "  ")
+    }
 }
 
 /// How `Floe --pick` ends, as the exit status the calling script sees.
@@ -28,7 +39,7 @@ enum PickExit: Int32 {
 
 /// The picker without its window: what the input holds, what a query leaves of it, and what a choice prints.
 enum PickList {
-    static let usage = "Floe --pick reads the items to choose from on standard input, one per line: ls | Floe --pick"
+    static let usage = "Floe --pick reads the items to choose from on standard input, one per line: ls | Floe --pick. A tab splits a line into a title and what is shown beside it; the whole line is printed."
 
     /// A line of nothing but spaces is blank too. The text is kept as it came, so the caller gets its own line back.
     static func items(from input: String) -> [PickItem] {
@@ -43,7 +54,8 @@ enum PickList {
     static func matches(_ items: [PickItem], query: String) -> [PickItem] {
         guard !query.isEmpty else { return items }
         let scored: [(item: PickItem, score: Int)] = items.compactMap { item in
-            Fuzzy.score(query, item.text).map { (item, $0) }
+            // The title counts for more than the columns beside it.
+            [Fuzzy.score(query, item.title), item.detail.flatMap { Fuzzy.score(query, $0) }.map { $0 - 10 }].compactMap(\.self).max().map { (item, $0) }
         }
         // The position breaks ties, so the order does not depend on the sort being stable.
         let ordered = scored.sorted { first, second in

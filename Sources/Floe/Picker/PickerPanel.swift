@@ -199,7 +199,7 @@ struct PickView: View {
                 // Lazy, so ten thousand lines cost only the rows on screen.
                 LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(session.results) { item in
-                        PickRow(text: item.text, selected: item == session.selected)
+                        PickRow(title: item.title, detail: item.detail, selected: item == session.selected)
                             .id(item.id)
                             .onTapGesture { session.select(item) }
                             .simultaneousGesture(TapGesture(count: 2).onEnded { session.finish(item) })
@@ -235,18 +235,29 @@ struct PickView: View {
 
 /// `PaletteRow` without its icon column: a line of input has no icon, and the empty column would indent every row.
 private struct PickRow: View {
-    let text: String
+    let title: String
+    let detail: String?
     let selected: Bool
 
     var body: some View {
-        Text(verbatim: text)
-            .font(ThawType.body)
-            .lineLimit(1)
-            // Paths differ at their ends, so the middle is what gives way.
-            .truncationMode(.middle)
-            .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
-            .padding(EdgeInsets(top: 6, leading: 8, bottom: 6, trailing: 8))
-            .modifier(SearchRowBackground(selected: selected))
-            .accessibilityAddTraits(selected ? .isSelected : [])
+        HStack(spacing: 12) {
+            Text(verbatim: title)
+                .lineLimit(1)
+                // Paths differ at their ends, so the middle is what gives way.
+                .truncationMode(.middle)
+                .layoutPriority(1)
+            Spacer(minLength: 0)
+            if let detail {
+                Text(verbatim: detail)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .font(ThawType.body)
+        .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+        .padding(EdgeInsets(top: 6, leading: 8, bottom: 6, trailing: 8))
+        .modifier(SearchRowBackground(selected: selected))
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }

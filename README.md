@@ -212,6 +212,12 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 ls ~/Projects | Floe --pick
 ```
 
+A tab in a line splits it into a title and what is shown beside it, and the whole line is printed:
+
+```sh
+gh pr list --json number,title --jq '.[] | "\(.number)\t\(.title)"' | Floe --pick | cut -f1
+```
+
 ## Install
 
 Download Floe from the [releases page](https://github.com/thaw-app/Floe/releases/latest), open the disk image and move Floe to Applications.
