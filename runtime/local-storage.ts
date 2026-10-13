@@ -43,7 +43,7 @@ async function patiently<T>(work: () => T | Promise<T>): Promise<T> {
             return await work();
         } catch (error) {
             if (waited >= 5000 || !isHeld(error)) throw error;
-            await Bun.sleep(25 + Math.random() * 50);
+            await Bun.sleep(25 + (crypto.getRandomValues(new Uint8Array(1))[0] % 50));
         }
     }
 }
