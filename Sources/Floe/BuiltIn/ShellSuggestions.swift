@@ -139,10 +139,13 @@ nonisolated enum ShellSuggestions {
         // Each entry's kind arrives with the listing, so no entry is asked about one by one.
         let listed = (try? FileManager.default.contentsOfDirectory(
             at: URL(fileURLWithPath: base, isDirectory: true),
-            includingPropertiesForKeys: [.isDirectoryKey]
+            includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]
         )) ?? []
         return listed.map { url in
-            let isFolder = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+            let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+            // A link says it is no folder, so the link is followed: /tmp is one.
+            let target = values?.isSymbolicLink == true ? try? url.resolvingSymlinksInPath().resourceValues(forKeys: [.isDirectoryKey]) : values
+            let isFolder = target?.isDirectory == true
             return isFolder ? url.lastPathComponent + "/" : url.lastPathComponent
         }
     }

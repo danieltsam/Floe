@@ -125,6 +125,9 @@ struct ShellSuggestionsTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         try Data().write(to: folder.appendingPathComponent("file.txt"))
         #expect(ShellSuggestions.entriesOnDisk(folder.path + "/").sorted() == ["file.txt", "inner/"])
+        try FileManager.default.createSymbolicLink(at: folder.appendingPathComponent("link"), withDestinationURL: folder.appendingPathComponent("inner"))
+        try FileManager.default.createSymbolicLink(at: folder.appendingPathComponent("link.txt"), withDestinationURL: folder.appendingPathComponent("file.txt"))
+        #expect(ShellSuggestions.entriesOnDisk(folder.path + "/").sorted() == ["file.txt", "inner/", "link.txt", "link/"], "a link to a folder is a folder")
         #expect(ShellSuggestions.entriesOnDisk("/floe-no-such-folder/").isEmpty)
         #expect(ShellSuggestions.programsOnPath().contains("ls"))
     }
