@@ -92,7 +92,7 @@ extension LauncherModel {
             actions += shortcutActions(for: shortcut)
         case let .clipboardEntry(entry):
             actions.append(ItemAction(title: String(localized: "Copy", bundle: .floe, comment: "A verb: put the selection on the clipboard."), symbol: "doc.on.doc") { [weak self] in self?.clipboardHistory.copy(entry) })
-        case .webAddress, .quicklink:
+        case .webAddress, .quicklink, .bookmark:
             actions += linkActions(for: item)
         default:
             actions += laterActions(for: item)
@@ -173,7 +173,7 @@ extension LauncherModel {
         case .file, .clipboardEntry, .menuBarItem, .menuBarAccess: false
         case .browserTab: false
         case let .focus(request, _): request == .toggle
-        case .askAI, .webAddress, .shell, .process, .receipt, .checkpointDraft, .reminderDraft, .eventDraft, .timer, .contact, .outgoing, .keyword, .definition, .answer, .window: false
+        case .askAI, .webAddress, .shell, .process, .receipt, .checkpointDraft, .reminderDraft, .eventDraft, .timer, .contact, .outgoing, .keyword, .definition, .answer, .window, .bookmark: false
         default: true
         }
     }

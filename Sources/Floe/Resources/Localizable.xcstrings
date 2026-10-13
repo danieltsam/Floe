@@ -736,6 +736,10 @@
     },
     "Bluetooth Off" : {},
     "Bluetooth On" : {},
+    "Bookmark" : {
+      "comment" : "The kind of a result, shown beside its title. Here a page saved in a browser."
+    },
+    "Bookmarks" : {},
     "Border" : {
       "comment" : "The line drawn around the launcher panel."
     },
@@ -1821,6 +1825,7 @@
     "No answer" : {},
     "No app opens that URL" : {},
     "No app opens the clipboard link. Change it in Settings" : {},
+    "No bookmark matches" : {},
     "No clipboard entries match" : {},
     "No contact matches" : {},
     "No copies match" : {},
@@ -1966,6 +1971,9 @@
     "Open Windows" : {},
     "Open With" : {
       "comment" : "The title of a submenu that lists apps."
+    },
+    "Open a bookmark of Chrome, Brave, Edge, Arc, Vivaldi, Dia or Helium" : {
+      "comment" : "The names are browsers."
     },
     "Open a message draft" : {},
     "Open an Item by Letter" : {},

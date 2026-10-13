@@ -92,6 +92,8 @@ enum RootItem: Identifiable {
     case answer(AnswerRow)
     /// An open window, found by `windows` and its title, or the row that stands in for them until Floe may read them.
     case window(WindowRow)
+    /// A bookmark of one of the browsers, found by `bookmarks`; Return opens it.
+    case bookmark(WebBookmark)
 
     static let menuBarSearchKey = "builtin:menubar-search"
     static let emojiSearchKey = "builtin:emoji-search"
@@ -146,6 +148,7 @@ enum RootItem: Identifiable {
         case let .answer(row): row.id
         case let .window(.window(window)): "window:\(window.id)"
         case .window(.access): "window-access"
+        case let .bookmark(bookmark): "bookmark:\(bookmark.url.absoluteString)"
         }
     }
 
@@ -200,6 +203,7 @@ enum RootItem: Identifiable {
         case let .definition(definition): definition.text
         case let .answer(row): row.title
         case let .window(.window(window)): window.title
+        case let .bookmark(bookmark): bookmark.title
         case .window(.access): String(localized: "Floe needs Accessibility to list your windows", bundle: .floe, comment: "Accessibility is the name of a permission in System Settings.")
         case let .shell(row, _): row.origin == .typed ? String(localized: "Run \(row.text)", bundle: .floe, comment: "The placeholder is a shell command the user typed.") : row.text
         }
@@ -244,10 +248,12 @@ enum RootItem: Identifiable {
         case .snippet: id
         case let .focus(request, _): request == .toggle ? id : nil
         case .settings, .extensionStore, .settingsPane, .note, .thaw, .finderSelection, .calculator, .emoji, .quicklink, .searchFiles, .event: nil
-        case .file, .clipboardEntry, .menuBarItem, .menuBarAccess, .browserTab, .askAI, .webAddress, .shell, .process, .receipt, .checkpoint, .checkpointDraft, .reminderDraft, .eventDraft, .timer, .contact, .outgoing, .keyword, .definition, .answer, .window: nil
+        case .file, .clipboardEntry, .menuBarItem, .menuBarAccess, .browserTab, .askAI, .webAddress, .shell, .process, .receipt, .checkpoint, .checkpointDraft, .reminderDraft, .eventDraft, .timer, .contact, .outgoing, .keyword, .definition, .answer, .window, .bookmark: nil
         }
     }
+}
 
+extension RootItem {
     var kind: String {
         switch self {
         case .app: String(localized: "Application", bundle: .floe, comment: "The kind of a result, shown beside its title.")
@@ -282,6 +288,7 @@ enum RootItem: Identifiable {
         case .keyword: String(localized: "Keyword", bundle: .floe, comment: "The kind of a result, shown beside its title. Here a word the search answers to.")
         case .definition: String(localized: "Dictionary", bundle: .floe, comment: "The kind of a result, shown beside its title. Here what the dictionary says about a word.")
         case let .answer(row): row.kind
+        case .bookmark: String(localized: "Bookmark", bundle: .floe, comment: "The kind of a result, shown beside its title. Here a page saved in a browser.")
         case .window: String(localized: "Window", bundle: .floe, comment: "The kind of a result, shown beside its title. Here an open window of an app.")
         case .contact: String(localized: "Contact", bundle: .floe, comment: "The kind of a result, shown beside its title. Here a person from Contacts.")
         case .timer: String(localized: "Timer", bundle: .floe, comment: "The kind of a result, shown beside its title. Here a countdown.")

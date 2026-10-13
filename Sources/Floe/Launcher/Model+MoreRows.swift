@@ -99,7 +99,7 @@ extension LauncherModel {
         case let .focus(request, shortcut): setFocus(request, shortcut: shortcut)
         case let .keyword(hint): type(hint)
         case let .definition(definition): reach(definition.link)
-        default: copyAnswer(item)
+        default: openFound(item)
         }
     }
 
@@ -111,8 +111,12 @@ extension LauncherModel {
         reset()
     }
 
-    /// An answer goes to the clipboard, a password marked so that clipboard managers leave it alone.
-    private func copyAnswer(_ item: RootItem) {
+    /// Return on something the search found or worked out: a bookmark opens, and an answer goes to the clipboard,
+    /// a password marked so that clipboard managers leave it alone.
+    private func openFound(_ item: RootItem) {
+        if case let .bookmark(bookmark) = item {
+            reach(bookmark.url)
+        }
         guard case let .answer(row) = item else { return }
         if row.isSecret {
             NSPasteboard.general.copySecret(row.text)

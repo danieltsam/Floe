@@ -343,9 +343,9 @@ struct SearchScopeTests {
         #expect(scope.updates(for: "clock", context: context) != nil, "a scan as old as its lifetime is made again")
     }
 
-    @Test func theStandardScopesAreFilesClipboardMenuSSHProcessesPortsShortcutsTimersContactsWindowsAndKeywords() {
-        #expect(RootSearch.standardScopes().map(\.keyword) == ["files", "clipboard", "menu", "ssh", "kill", "port", "receipts", "shortcuts", "timers", "contact", "windows", "keywords", "?"])
-        #expect(RootSearch.standardScopes().map(\.title) == ["Files", "Clipboard History", "Menu Bar Items", "SSH Hosts", "Running Processes", "Listening on the Port", "Receipts", "Shortcuts", "Timers", "Contacts", "Open Windows", "Keywords", "Keywords"])
+    @Test func theStandardScopesAreFilesClipboardMenuSSHProcessesPortsShortcutsTimersContactsWindowsBookmarksAndKeywords() {
+        #expect(RootSearch.standardScopes().map(\.keyword) == ["files", "clipboard", "menu", "ssh", "kill", "port", "receipts", "shortcuts", "timers", "contact", "windows", "bookmarks", "keywords", "?"])
+        #expect(RootSearch.standardScopes().map(\.title) == ["Files", "Clipboard History", "Menu Bar Items", "SSH Hosts", "Running Processes", "Listening on the Port", "Receipts", "Shortcuts", "Timers", "Contacts", "Open Windows", "Bookmarks", "Keywords", "Keywords"])
     }
 
     // MARK: The new rows

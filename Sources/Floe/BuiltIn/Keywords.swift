@@ -55,6 +55,7 @@ extension KeywordHint {
         KeywordHint(keyword: "menu", example: "menu wifi", detail: String(localized: "Click a menu bar item", bundle: .floe)),
         KeywordHint(keyword: "tabs", example: "tabs invoice", detail: String(localized: "Switch to an open browser tab", bundle: .floe), need: .source(SearchSourceInfo.tabs.id)),
         KeywordHint(keyword: OpenWindows.keyword, example: "windows invoice", detail: String(localized: "Switch to an open window", bundle: .floe)),
+        KeywordHint(keyword: Bookmarks.keyword, example: "bookmarks invoice", detail: String(localized: "Open a bookmark of Chrome, Brave, Edge, Arc, Vivaldi, Dia or Helium", bundle: .floe, comment: "The names are browsers.")),
         KeywordHint(keyword: "ssh", example: "ssh web", detail: String(localized: "Connect to an SSH host", bundle: .floe), need: .sshHosts),
         KeywordHint(keyword: "shortcuts", example: "shortcuts mail", detail: String(localized: "Run one of your Shortcuts", bundle: .floe, comment: "Shortcuts are what the user makes in Apple's Shortcuts app."), need: .shortcuts),
         KeywordHint(keyword: Processes.keyword, example: "kill safari", detail: String(localized: "Quit a running process", bundle: .floe)),

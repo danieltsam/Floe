@@ -100,7 +100,7 @@ struct RootIcon: View {
         case .extensionStore, .system, .note, .snippet, .event, .clipboardEntry,
              .menuBarAccess, .askAI, .webAddress, .checkpoint, .checkpointDraft,
              .reminderDraft, .eventDraft, .contact, .outgoing, .focus, .keyword,
-             .definition, .answer, .timer, .receipt, .shell:
+             .definition, .answer, .bookmark, .timer, .receipt, .shell:
             symbolIcon
         }
     }
@@ -146,6 +146,8 @@ struct RootIcon: View {
             SymbolTile(symbol: "character.book.closed")
         case let .answer(row):
             SymbolTile(symbol: row.symbol)
+        case .bookmark:
+            SymbolTile(symbol: "book")
         case .timer:
             SymbolTile(symbol: "timer")
         case let .receipt(receipt):

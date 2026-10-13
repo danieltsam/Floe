@@ -88,6 +88,9 @@ extension LauncherModel {
         case let .webAddress(address):
             let openWith = LinkActions.openWith(address.url, menu: browserMenu, host: host, opener: linkOpener)
             return [openWith, LinkActions.copyAddress(address.url, host: host)].compactMap(\.self)
+        case let .bookmark(bookmark):
+            let openWith = LinkActions.openWith(bookmark.url, menu: browserMenu, host: host, opener: linkOpener)
+            return [openWith, LinkActions.copyAddress(bookmark.url, host: host)].compactMap(\.self)
         case let .quicklink(link, queryText, _, _):
             guard let destination = url(for: link, query: queryText), Browsers.isWebLink(destination) else { return [] }
             return [LinkActions.openWith(destination, menu: browserMenu, host: host, opener: linkOpener)].compactMap(\.self)
