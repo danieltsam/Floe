@@ -49,6 +49,15 @@ struct ShellTests {
         #expect(Date().timeIntervalSince(started) < 10)
     }
 
+    @Test func aProcessThatClosesItsOwnStreamsKeepsRunningToItsEnd() async throws {
+        // A command that closes its own output is not over because its pipes are: no deadline may
+        // tear it down for streams that ended while it went on living.
+        let started = Date()
+        let result = try await Shell.run(tool("/bin/sh"), ["-c", "exec 1>&- 2>&-; sleep 1"], environment: [:], timeout: 5)
+        #expect(result.succeeded)
+        #expect(Date().timeIntervalSince(started) >= 0.9)
+    }
+
     @Test func keepsOnlyTheTailOfALongOutput() async throws {
         let result = try await Shell.run(tool("/bin/sh"), ["-c", "yes 0123456789 | head -c 100000"], environment: [:], outputLimit: 1000)
         #expect(result.stdout.count <= 2000)

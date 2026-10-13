@@ -12,10 +12,14 @@
 //  environment moved to LoginEnvironment.swift, the check for shell commands that write files
 //  is left out, because Floe runs no agent's commands, and `run` can hand standard output on
 //  as it is read, for a tool that streams its answer. Input written to a program that has already
-//  ended fails quietly, where it used to end the app with a broken pipe.
+//  ended fails quietly, where it used to end the app with a broken pipe. The process itself is
+//  Subprocess's now, as the extension installer already runs; what stays here is the tail-keeping
+//  collector, the deadline, and the quiet treatment of a broken pipe.
 
 import Foundation
+import Subprocess
 import Synchronization
+import System
 
 nonisolated struct ShellResult: Sendable {
     var status: Int32
@@ -66,7 +70,7 @@ nonisolated enum Shell {
     /// `outputLimit`, only that many bytes of each stream's tail are kept. `onOutput` is given
     /// standard output as it is read, in order.
     @concurrent
-    // swiftlint:disable:next function_body_length - kept in one piece, as in Droppy Code
+    // swiftlint:disable:next function_body_length - one run of one process, kept in one piece
     static func run(
         _ executable: URL,
         _ arguments: [String],
@@ -77,89 +81,88 @@ nonisolated enum Shell {
         outputLimit: Int? = nil,
         onOutput: (@Sendable (Data) -> Void)? = nil
     ) async throws -> ShellResult {
-        let process = Process()
-        process.executableURL = executable
-        process.arguments = arguments
-        if let directory {
-            process.currentDirectoryURL = directory
+        try Task.checkCancellation()
+        // A program that is not there, or cannot run, is said at once instead of asked of the process machinery.
+        guard FileManager.default.isExecutableFile(atPath: executable.path) else {
+            throw ShellError(String(localized: "\(executable.lastPathComponent) could not be run.", bundle: .floe, comment: "The placeholder is the name of the command that could not run."))
         }
-        process.environment = environment ?? LoginEnvironment.current
-
-        let stdout = Pipe()
-        let stderr = Pipe()
-        let stdin: Pipe? = input == nil ? nil : Pipe()
-        process.standardOutput = stdout
-        process.standardError = stderr
-        process.standardInput = stdin ?? FileHandle.nullDevice
-
         let collector = OutputCollector(limit: outputLimit, onOutput: onOutput)
-        stdout.fileHandleForReading.readabilityHandler = collector.reader(for: .stdout)
-        stderr.fileHandleForReading.readabilityHandler = collector.reader(for: .stderr)
-
-        let cancelled = Mutex(false)
+        // A cancel tears the process down through these steps, and so does the deadline below.
+        // The process alone is asked, never Floe's own group, as terminate() did.
+        var options = PlatformOptions()
+        let teardown = [TeardownStep.gracefulShutDown(allowedDurationToNextStep: .seconds(1))]
+        options.teardownSequence = teardown
+        // The body hands the running process and its deadline over: the deadline ends the process
+        // when it outlives its time, and is only put down once the process has ended.
+        let running = Mutex<Execution<FileDescriptorInput, SequenceOutput, SequenceOutput>?>(nil)
         let deadline = Mutex<Task<Void, Never>?>(nil)
-        defer {
-            deadline.withLock { $0?.cancel() }
-            stdout.fileHandleForReading.readabilityHandler = nil
-            stderr.fileHandleForReading.readabilityHandler = nil
-        }
-        let status: Int32 = try await withTaskCancellationHandler {
-            try Task.checkCancellation()
-            return try await withCheckedThrowingContinuation { continuation in
-                let once = OnceContinuation(continuation)
-                process.terminationHandler = { process in
-                    once.resume(returning: process.terminationStatus)
-                }
-                do {
-                    try cancelled.withLock { isCancelled in
-                        if isCancelled {
-                            throw CancellationError()
-                        }
-                        try process.run()
-                    }
-                    let timer = Task {
+        let surroundings = environment ?? LoginEnvironment.current
+        // The input goes through a pipe of Floe's own, whose write end is made quiet, so a program
+        // that ends without reading it fails the write instead of ending Floe. Without input: the null device.
+        let stdin = try StandardInput(for: input)
+
+        let result: ExecutionResult<Void, SequenceOutput, SequenceOutput>
+        do {
+            result = try await Subprocess.run(
+                .path(FilePath(executable.path)),
+                arguments: Arguments(arguments),
+                environment: .custom(Dictionary(uniqueKeysWithValues: surroundings.map { (Environment.Key(stringLiteral: $0.key), $0.value) })),
+                workingDirectory: directory.map { FilePath($0.path) },
+                platformOptions: options,
+                input: .fileDescriptor(stdin.readEnd, closeAfterSpawningProcess: false),
+                output: .sequence,
+                error: .sequence
+            ) { execution in
+                // The child has its own copy of the read end; Floe's goes at once.
+                stdin.closeReadEnd()
+                running.withLock { $0 = execution }
+                deadline.withLock {
+                    $0 = Task {
                         do {
                             try await Task.sleep(for: .seconds(timeout))
                         } catch {
+                            // Cancelled because the process has ended: only a real deadline tears
+                            // a living process down, however its streams ended before it did.
                             return
                         }
-                        terminate(process)
-                    }
-                    deadline.withLock { $0 = timer }
-                } catch {
-                    once.resume(throwing: error)
-                    return
-                }
-                if let input, let stdin {
-                    DispatchQueue.global(qos: .userInitiated).async {
-                        // A program that ends without reading its input must not end Floe with it: the write fails instead.
-                        _ = fcntl(stdin.fileHandleForWriting.fileDescriptor, F_SETNOSIGPIPE, 1)
-                        try? stdin.fileHandleForWriting.write(contentsOf: input)
-                        try? stdin.fileHandleForWriting.close()
+                        await running.withLock { $0 }?.teardown(using: teardown)
                     }
                 }
+                await withThrowingTaskGroup { group in
+                    group.addTask {
+                        for try await buffer in execution.standardOutput {
+                            collector.read(buffer.withUnsafeBytes(Data.init), from: .stdout)
+                        }
+                    }
+                    group.addTask {
+                        for try await buffer in execution.standardError {
+                            collector.read(buffer.withUnsafeBytes(Data.init), from: .stderr)
+                        }
+                    }
+                    if let input {
+                        group.addTask {
+                            // The write is quiet: a program that has ended fails it instead of ending Floe with it.
+                            stdin.write([UInt8](input))
+                            stdin.close()
+                        }
+                    }
+                }
+                stdin.close()
             }
-        } onCancel: {
-            cancelled.withLock { isCancelled in
-                isCancelled = true
-                terminate(process)
-            }
+        } catch {
+            stdin.close()
+            deadline.withLock { $0?.cancel() }
+            throw error
         }
+        // The process has ended, one way or another: its deadline is of no more use.
         deadline.withLock { $0?.cancel() }
         try Task.checkCancellation()
-        let output = await collector.finished(within: 3)
-        try Task.checkCancellation()
-        return ShellResult(status: status, stdout: output.stdout, stderr: output.stderr)
-    }
-
-    private static func terminate(_ process: Process) {
-        guard process.isRunning else { return }
-        process.terminate()
-        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 1) {
-            guard process.isRunning else { return }
-            let pid = process.processIdentifier
-            kill(getpgid(pid) == pid ? -pid : pid, SIGKILL)
+        // A process ended by a signal carries the signal's number, as it did.
+        let status: Int32 = switch result.terminationStatus {
+        case .exited(let code): code
+        case .signaled(let signal): signal
         }
+        return ShellResult(status: status, stdout: collector.output(.stdout), stderr: collector.output(.stderr))
     }
 
     /// Runs a named tool found on the login PATH.
@@ -179,44 +182,15 @@ nonisolated enum Shell {
     }
 }
 
-/// Resumes a continuation exactly once, however many callbacks race to finish it.
-///
-/// It is taken out under the lock and resumed outside it, since a resume runs whatever
-/// the awaiting task does next and `withLock` is non-reentrant.
-final nonisolated class OnceContinuation<Value: Sendable>: Sendable {
-    private let continuation: Mutex<CheckedContinuation<Value, Error>?>
-
-    init(_ continuation: CheckedContinuation<Value, Error>) {
-        self.continuation = Mutex(continuation)
-    }
-
-    func resume(returning value: Value) {
-        take()?.resume(returning: value)
-    }
-
-    func resume(throwing error: Error) {
-        take()?.resume(throwing: error)
-    }
-
-    private func take() -> CheckedContinuation<Value, Error>? {
-        continuation.withLock { continuation in
-            defer { continuation = nil }
-            return continuation
-        }
-    }
-}
-
 private final nonisolated class OutputCollector: Sendable {
     enum Stream: Hashable {
         case stdout
         case stderr
     }
 
-    private struct State {
+    private struct State: Sendable {
         var stdout = Data()
         var stderr = Data()
-        var closed: Set<Stream> = []
-        var waiters: [OnceContinuation<Void>] = []
     }
 
     private let state = Mutex(State())
@@ -228,23 +202,16 @@ private final nonisolated class OutputCollector: Sendable {
         self.onOutput = onOutput
     }
 
-    func reader(for stream: Stream) -> @Sendable (FileHandle) -> Void {
-        { [self] handle in
-            let data = handle.availableData
-            if data.isEmpty {
-                handle.readabilityHandler = nil
-                close(stream)
-            } else {
-                state.withLock { state in
-                    switch stream {
-                    case .stdout: append(data, to: &state.stdout)
-                    case .stderr: append(data, to: &state.stderr)
-                    }
-                }
-                if stream == .stdout {
-                    onOutput?(data)
-                }
+    /// Takes one chunk of a stream in, and hands standard output on as it arrived.
+    func read(_ data: Data, from stream: Stream) {
+        state.withLock { state in
+            switch stream {
+            case .stdout: append(data, to: &state.stdout)
+            case .stderr: append(data, to: &state.stderr)
             }
+        }
+        if stream == .stdout {
+            onOutput?(data)
         }
     }
 
@@ -256,50 +223,58 @@ private final nonisolated class OutputCollector: Sendable {
         buffer = Data(buffer.suffix(limit))
     }
 
-    func finished(within timeout: TimeInterval) async -> (stdout: Data, stderr: Data) {
-        if let output = state.withLock({ $0.closed.count == 2 ? ($0.stdout, $0.stderr) : nil }) {
-            return output
+    func output(_ stream: Stream) -> Data {
+        state.withLock { stream == .stdout ? $0.stdout : $0.stderr }
+    }
+}
+
+/// The process's standard input: a pipe of Floe's own when there is input, so its write end can be
+/// made quiet, and the null device when there is not. Every end has one owner and is closed once.
+private final nonisolated class StandardInput: Sendable {
+    let readEnd: FileDescriptor
+    private let writeEnd: FileDescriptor?
+    private let readClosed = Mutex(false)
+    private let writeClosed = Mutex(false)
+
+    init(for input: Data?) throws {
+        guard let input else {
+            readEnd = try FileDescriptor.open("/dev/null", .readOnly)
+            writeEnd = nil
+            return
         }
-        let deadline = Task {
-            do {
-                try await Task.sleep(for: .seconds(timeout))
-            } catch {
-                return
-            }
-            close(.stdout)
-            close(.stderr)
+        var fds: [Int32] = [-1, -1]
+        guard pipe(&fds) == 0 else {
+            throw ShellError(String(localized: "The command's input could not be prepared.", bundle: .floe, comment: "Said when a command is given something to read and the pipe to read it from cannot be made."))
         }
-        defer { deadline.cancel() }
-        await withTaskCancellationHandler {
-            try? await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                let once = OnceContinuation(continuation)
-                let isDone = state.withLock { state in
-                    if state.closed.count == 2 {
-                        return true
-                    }
-                    state.waiters.append(once)
-                    return false
-                }
-                if isDone {
-                    once.resume(returning: ())
-                }
-            }
-        } onCancel: {
-            close(.stdout)
-            close(.stderr)
-        }
-        return state.withLock { ($0.stdout, $0.stderr) }
+        readEnd = FileDescriptor(rawValue: fds[0])
+        writeEnd = FileDescriptor(rawValue: fds[1])
+        // A write to a pipe whose reader is gone fails quietly, instead of ending Floe with a broken pipe.
+        _ = fcntl(fds[1], F_SETNOSIGPIPE, 1)
     }
 
-    private func close(_ stream: Stream) {
-        let ready: [OnceContinuation<Void>] = state.withLock { state in
-            guard state.closed.insert(stream).inserted, state.closed.count == 2 else { return [] }
-            let ready = state.waiters
-            state.waiters.removeAll()
-            return ready
+    /// The child has its own copy of the read end now, so Floe's goes at once, before another
+    /// run's file can take the number. Its write end closes only when the writing is done.
+    func closeReadEnd() {
+        readClosed.withLock { isClosed in
+            guard !isClosed else { return }
+            isClosed = true
+            try? readEnd.close()
         }
-        for waiter in ready {
-            waiter.resume(returning: ())
+    }
+
+    /// Writes the input, in full: a partial write is written on until it is done or the reader is gone.
+    func write(_ bytes: [UInt8]) {
+        guard let writeEnd else { return }
+        try? writeEnd.writeAll(bytes)
+    }
+
+    /// Closes what is still Floe's, whichever way the run ends.
+    func close() {
+        closeReadEnd()
+        writeClosed.withLock { isClosed in
+            guard !isClosed, let writeEnd else { return }
+            isClosed = true
+            try? writeEnd.close()
         }
     }
 }
