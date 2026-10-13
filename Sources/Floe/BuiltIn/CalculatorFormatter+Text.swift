@@ -108,20 +108,30 @@ extension CalculatorFormatter {
         replacePattern(text, pattern: #"\b[a-zA-Z]+\b(?![₀-₉])"#) { groups in normalizeUnitCasing(groups[0]) }
     }
 
+    /// The spacing passes, each compiled once, since formatting runs on every answer.
+    private static let spacing: [(expression: NSRegularExpression, written: String)] = [
+        (#"[ \t]*\*[ \t]*"#, " × "),
+        (#"(?<![a-zA-Zµ°])[ \t]*\/[ \t]*(?![a-zA-Zµ°])"#, " ÷ "),
+        (#"[ \t]*\+[ \t]*"#, " + "),
+        (#"(?<!\^)(\S)[ \t]*-[ \t]*(\S)"#, "$1 − $2"),
+        (#"\^-[ \t]*"#, "^−"),
+        (#"\([ \t]*-[ \t]*"#, "(−"),
+        (#"^-[ \t]*"#, "−"),
+        (#"[ \t]*=[ \t]*"#, " = "),
+        (#"[ \t]*≈[ \t]*"#, " ≈ "),
+        (#"[ \t]+"#, " "),
+    ].compactMap { pattern, written in
+        (try? NSRegularExpression(pattern: pattern)).map { (expression: $0, written: written) }
+    }
+
     private static func withOperatorsSpaced(_ text: String) -> String {
-        let spacing: [(pattern: String, written: String)] = [
-            (#"[ \t]*\*[ \t]*"#, " × "),
-            (#"(?<![a-zA-Zµ°])[ \t]*\/[ \t]*(?![a-zA-Zµ°])"#, " ÷ "),
-            (#"[ \t]*\+[ \t]*"#, " + "),
-            (#"(?<!\^)(\S)[ \t]*-[ \t]*(\S)"#, "$1 − $2"),
-            (#"\^-[ \t]*"#, "^−"),
-            (#"\([ \t]*-[ \t]*"#, "(−"),
-            (#"^-[ \t]*"#, "−"),
-            (#"[ \t]*=[ \t]*"#, " = "),
-            (#"[ \t]*≈[ \t]*"#, " ≈ "),
-            (#"[ \t]+"#, " "),
-        ]
-        return spacing.reduce(text) { $0.replacingOccurrences(of: $1.pattern, with: $1.written, options: .regularExpression) }.trimmingCharacters(in: .whitespaces)
+        // Each pass reads the string the one before it wrote, and a replacement changes the length,
+        // so the whole range is taken from the string as it stands now, not as it came in.
+        let spaced = spacing.reduce(text) { current, step in
+            let whole = NSRange(location: 0, length: (current as NSString).length)
+            return step.expression.stringByReplacingMatches(in: current, options: [], range: whole, withTemplate: step.written)
+        }
+        return spaced.trimmingCharacters(in: .whitespaces)
     }
 
     /// Decimal digits in the locale's groups, leaving out what is raised or sits before a base below the line.
@@ -150,7 +160,7 @@ extension CalculatorFormatter {
     /// Replaces each match with what `transform` makes of its groups: the whole match first, then each capture.
     static func replacePattern(_ string: String, pattern: String, transform: ([String]) -> String) -> String {
         // NSRegularExpression, since Swift's own regex has no lookbehind and five of the patterns need one.
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return string }
+        guard let regex = compiledPattern(pattern) else { return string }
         let source = string as NSString
         var result = ""
         var end = 0
@@ -162,229 +172,22 @@ extension CalculatorFormatter {
         return result + source.substring(from: end)
     }
 
-    private struct FormattedSegment {
-        let text: String
-        let isSuperscript: Bool
-    }
+    /// The patterns handed to `replacePattern` are fixed strings, so each is compiled once. It stays
+    /// NSRegularExpression: Swift's own regex has no lookbehind, which five of the patterns need.
+    private static let compilationLock = NSLock()
+    nonisolated(unsafe) private static var compiledPatterns: [String: NSRegularExpression] = [:]
 
-    private static func isFollowedByRadical(_ str: String, at index: String.Index) -> Bool {
-        var scan = str.index(after: index)
-        while scan < str.endIndex {
-            let ch = str[scan]
-            if ch == "√" {
-                return true
-            }
-            if supToAscii[ch] != nil {
-                scan = str.index(after: scan)
-            } else {
-                return false
-            }
+    private static func compiledPattern(_ pattern: String) -> NSRegularExpression? {
+        compilationLock.lock()
+        if let regex = compiledPatterns[pattern] {
+            compilationLock.unlock()
+            return regex
         }
-        return false
-    }
-
-    private static func isSpaceOrTab(_ c: Character) -> Bool {
-        c == " " || c == "\t"
-    }
-
-    private static func isSign(_ c: Character) -> Bool {
-        c == "+" || c == "-" || c == "−"
-    }
-
-    private static func isExponentTokenChar(_ c: Character) -> Bool {
-        c.isLetter || c.isNumber || c == "."
-    }
-
-    private static func isSuperscript(in s: String, at index: String.Index) -> Bool {
-        supToAscii[s[index]] != nil && !isFollowedByRadical(s, at: index)
-    }
-
-    private static func isSpecialExponentStart(in s: String, at index: String.Index) -> Bool {
-        s[index] == "^" || isSuperscript(in: s, at: index)
-    }
-
-    private static func parseParenthesizedExponent(
-        in s: String,
-        openParen: String.Index
-    ) -> (segment: FormattedSegment?, nextIndex: String.Index) {
-        let contentStart = s.index(after: openParen)
-        var depth = 1
-        var parenScan = contentStart
-
-        while parenScan < s.endIndex {
-            let c = s[parenScan]
-            if c == "(" {
-                depth += 1
-            } else if c == ")" {
-                depth -= 1
-                if depth == 0 {
-                    let expContent = String(s[contentStart ..< parenScan])
-                    let segment = expContent.isEmpty ? nil : FormattedSegment(text: expContent, isSuperscript: true)
-                    return (segment, s.index(after: parenScan))
-                }
-            }
-            parenScan = s.index(after: parenScan)
+        let regex = try? NSRegularExpression(pattern: pattern)
+        if let regex {
+            compiledPatterns[pattern] = regex
         }
-
-        let expContent = String(s[contentStart...])
-        let segment = expContent.isEmpty ? nil : FormattedSegment(text: expContent, isSuperscript: true)
-        return (segment, s.endIndex)
-    }
-
-    private static func parseSimpleExponent(
-        in s: String,
-        startingAt scan: String.Index
-    ) -> (segment: FormattedSegment, nextIndex: String.Index)? {
-        var tokenScan = scan
-        if isSign(s[tokenScan]) {
-            tokenScan = s.index(after: tokenScan)
-            while tokenScan < s.endIndex, isSpaceOrTab(s[tokenScan]) {
-                tokenScan = s.index(after: tokenScan)
-            }
-        }
-        while tokenScan < s.endIndex, isExponentTokenChar(s[tokenScan]) {
-            tokenScan = s.index(after: tokenScan)
-        }
-        guard tokenScan > scan else { return nil }
-        let expContent = String(s[scan ..< tokenScan]).filter { !isSpaceOrTab($0) }
-        return (FormattedSegment(text: expContent, isSuperscript: true), tokenScan)
-    }
-
-    private static func parseCaret(
-        in s: String,
-        at currentIndex: String.Index
-    ) -> (segment: FormattedSegment?, nextIndex: String.Index) {
-        var scan = s.index(after: currentIndex)
-        while scan < s.endIndex, isSpaceOrTab(s[scan]) {
-            scan = s.index(after: scan)
-        }
-
-        if scan < s.endIndex {
-            if s[scan] == "(" {
-                return parseParenthesizedExponent(in: s, openParen: scan)
-            }
-            if let result = parseSimpleExponent(in: s, startingAt: scan) {
-                return result
-            }
-        }
-
-        return (FormattedSegment(text: "^", isSuperscript: false), s.index(after: currentIndex))
-    }
-
-    private static func parseUnicodeSuperscripts(
-        in s: String,
-        startingAt currentIndex: String.Index
-    ) -> (segment: FormattedSegment, nextIndex: String.Index) {
-        var scan = currentIndex
-        var converted = ""
-        while scan < s.endIndex, let ascii = supToAscii[s[scan]], !isFollowedByRadical(s, at: scan) {
-            converted.append(ascii)
-            scan = s.index(after: scan)
-        }
-        return (FormattedSegment(text: converted, isSuperscript: true), scan)
-    }
-
-    private static func parseSegments(from s: String) -> [FormattedSegment] {
-        var segments: [FormattedSegment] = []
-        var currentIndex = s.startIndex
-
-        while currentIndex < s.endIndex {
-            let ch = s[currentIndex]
-
-            // 1. Explicit caret exponent: ^(...) or ^token
-            if ch == "^" {
-                let (segment, nextIndex) = parseCaret(in: s, at: currentIndex)
-                if let segment {
-                    segments.append(segment)
-                }
-                currentIndex = nextIndex
-                continue
-            }
-
-            // 2. Unicode superscripts that aren't radical degrees
-            if isSuperscript(in: s, at: currentIndex) {
-                let (segment, nextIndex) = parseUnicodeSuperscripts(in: s, startingAt: currentIndex)
-                segments.append(segment)
-                currentIndex = nextIndex
-                continue
-            }
-
-            // 3. Regular text: accumulate until next exponent or unicode superscript
-            let regStart = currentIndex
-            while currentIndex < s.endIndex, !isSpecialExponentStart(in: s, at: currentIndex) {
-                currentIndex = s.index(after: currentIndex)
-            }
-            if currentIndex > regStart {
-                segments.append(FormattedSegment(text: String(s[regStart ..< currentIndex]), isSuperscript: false))
-            }
-        }
-
-        return segments
-    }
-
-    private static func formatSegment(_ segment: FormattedSegment, operatorChars: Set<Character>) -> AttributedString {
-        var segAttr = AttributedString(segment.text)
-        segAttr.foregroundColor = .primary
-
-        if segment.isSuperscript {
-            segAttr.font = .system(size: 16, weight: .bold)
-            segAttr.baselineOffset = 8
-            segAttr.appKit.superscript = 1
-        }
-
-        for idx in segAttr.characters.indices where operatorChars.contains(segAttr.characters[idx]) {
-            segAttr[idx ..< segAttr.characters.index(after: idx)].foregroundColor = .secondary
-        }
-
-        return segAttr
-    }
-
-    private static func styleRadicalIndices(in attr: inout AttributedString) {
-        for idx in attr.characters.indices where attr.characters[idx] == "√" {
-            var backIdx = idx
-            while backIdx > attr.startIndex {
-                let prevIdx = attr.characters.index(before: backIdx)
-                let prevChar = attr.characters[prevIdx]
-                if "⁰¹²³⁴⁵⁶⁷⁸⁹ⁿᵏⁱˣʸ".contains(prevChar) {
-                    attr[prevIdx ..< backIdx].foregroundColor = .secondary
-                    backIdx = prevIdx
-                } else {
-                    break
-                }
-            }
-        }
-    }
-
-    private static func styleConversionKeywords(in attr: inout AttributedString) {
-        let plain = String(attr.characters)
-        guard let regex = try? NSRegularExpression(pattern: #"(?<!\d\s)(?<!\d)\bin\b|\b(to|into|as)\b"#) else { return }
-        let nsString = plain as NSString
-        let matches = regex.matches(in: plain, range: NSRange(location: 0, length: nsString.length))
-        for match in matches {
-            if let range = Range(match.range, in: plain),
-               let attrRange = Range(range, in: attr)
-            {
-                attr[attrRange].foregroundColor = .secondary
-            }
-        }
-    }
-
-    /// Formats an expression or result into an `AttributedString` where operators and conversion keywords are styled in gray,
-    /// and exponents are rendered using actual superscripts (baseline offset and smaller font) rather than unicode superscripts.
-    static func format(_ text: String, locale: Locale = .current) -> AttributedString {
-        let formattedString = formatString(text, locale: locale, convertExponentsToUnicode: false)
-        let segments = parseSegments(from: formattedString)
-        var attr = AttributedString()
-
-        let operatorChars: Set<Character> = ["+", "−", "×", "÷", "/", "*", "^", "=", "≈", "√", "∛", "∜", "⁄"]
-
-        for segment in segments {
-            attr.append(formatSegment(segment, operatorChars: operatorChars))
-        }
-
-        styleRadicalIndices(in: &attr)
-        styleConversionKeywords(in: &attr)
-
-        return attr
+        compilationLock.unlock()
+        return regex
     }
 }

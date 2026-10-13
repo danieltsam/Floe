@@ -16,6 +16,15 @@ import Testing
 struct CalculatorTests {
     private let calculator = Calculator()
 
+    @Test func everyOperatorIsSpacedWhenOneReplacementChangesTheLength() {
+        // A pass that makes the string longer must not hide the operators after it from the passes behind:
+        // the range each pass reads is the string as the pass before it left it.
+        #expect(CalculatorFormatter.formatString("1*2+3") == "1 × 2 + 3")
+        #expect(CalculatorFormatter.formatString("10*20+30") == "10 × 20 + 30")
+        #expect(CalculatorFormatter.formatString("2*3*4") == "2 × 3 × 4")
+        #expect(CalculatorFormatter.formatString("1 +2") == "1 + 2", "a spacing pass that shortens also reads what it is given now")
+    }
+
     @Test func unitFractionRendering() {
         // Plain string format keeps units rendering normally with slash / instead of division symbol ÷
         #expect(CalculatorFormatter.formatString("km/h") == "km/h")
