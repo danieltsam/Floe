@@ -30,6 +30,9 @@ extension LauncherModel {
         if case .definition = item {
             return String(localized: "Open in Dictionary", bundle: .floe, comment: "Dictionary is the name of Apple's app.")
         }
+        if case .answer = item {
+            return String(localized: "Copy to Clipboard", bundle: .floe)
+        }
         return draftTitle(for: item)
     }
 
@@ -91,7 +94,7 @@ extension LauncherModel {
         case let .focus(request, shortcut): setFocus(request, shortcut: shortcut)
         case let .keyword(hint): type(hint)
         case let .definition(definition): reach(definition.link)
-        default: break
+        default: copyAnswer(item)
         }
     }
 
@@ -99,6 +102,19 @@ extension LauncherModel {
     private func copy(_ definition: WordDefinition) {
         NSPasteboard.general.copy(definition.text)
         showHUD(String(localized: "Copied \(definition.word)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
+        hidePanel()
+        reset()
+    }
+
+    /// An answer goes to the clipboard, a password marked so that clipboard managers leave it alone.
+    private func copyAnswer(_ item: RootItem) {
+        guard case let .answer(row) = item else { return }
+        if row.isSecret {
+            NSPasteboard.general.copySecret(row.text)
+        } else {
+            NSPasteboard.general.copy(row.text)
+        }
+        showHUD(String(localized: "Copied Answer", bundle: .floe))
         hidePanel()
         reset()
     }

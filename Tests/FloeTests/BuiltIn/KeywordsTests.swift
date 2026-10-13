@@ -41,6 +41,7 @@ struct KeywordsTests {
         let typed = [
             CommandPrefix.greaterThan.rawValue, Checkpoint.keyword, Processes.keyword, Processes.portKeyword, ReminderDraft.keyword, EventDraft.keyword,
             TimerDraft.keyword, FocusRequest.keyword, WordDefinition.keyword, AskAI.keyword, EmojiSearchProvider.prefix,
+            WorldTime.keyword, Generators.uuidKeyword, Generators.passwordKeyword, Generators.loremKeyword, TextChange.base64.rawValue,
         ] + OutgoingDraft.Kind.allCases.map(\.keyword) + NoteAction.allCases.map(\.keyword)
         let listed = KeywordHint.all.map(\.keyword)
         #expect(Set(listed) == Set(scoped + typed), "a keyword that is added gets a row, and one that is gone loses it")

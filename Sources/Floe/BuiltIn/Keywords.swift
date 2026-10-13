@@ -59,6 +59,11 @@ extension KeywordHint {
         KeywordHint(keyword: Processes.keyword, example: "kill safari", detail: String(localized: "Quit a running process", bundle: .floe)),
         KeywordHint(keyword: Processes.portKeyword, example: "port 3000", detail: String(localized: "See what is listening on a port", bundle: .floe)),
         KeywordHint(keyword: WordDefinition.keyword, example: "define tide", detail: String(localized: "Look a word up in the dictionary", bundle: .floe)),
+        KeywordHint(keyword: WorldTime.keyword, example: "time in tokyo", detail: String(localized: "See the time in another city", bundle: .floe)),
+        KeywordHint(keyword: Generators.uuidKeyword, example: "uuid", detail: String(localized: "Make a new UUID", bundle: .floe, comment: "A UUID is a random identifier programmers use.")),
+        KeywordHint(keyword: Generators.passwordKeyword, example: "password 24", detail: String(localized: "Make a random password", bundle: .floe)),
+        KeywordHint(keyword: Generators.loremKeyword, example: "lorem 2", detail: String(localized: "Make paragraphs of placeholder text", bundle: .floe)),
+        KeywordHint(keyword: TextChange.base64.rawValue, example: "base64 hello", detail: String(localized: "Encode or change the case of a text. Also unbase64, urlencode, urldecode, uppercase, lowercase, titlecase, sha256", bundle: .floe, comment: "The words after Also are typed as they are and stay in English.")),
         KeywordHint(keyword: AskAI.keyword, example: "ask how do tides work", detail: String(localized: "Ask AI a question", bundle: .floe), need: .ai),
         KeywordHint(keyword: EmojiSearchProvider.prefix, example: ":smile", detail: String(localized: "Find an emoji or a symbol", bundle: .floe), takesASpace: false),
     ]

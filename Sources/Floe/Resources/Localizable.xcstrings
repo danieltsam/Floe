@@ -24,6 +24,9 @@
     "%@ Preferences" : {
       "comment" : "The placeholder is a command's name."
     },
+    "%@ ahead of here" : {
+      "comment" : "The placeholder is a length of time, such as 9 hours."
+    },
     "%@ and %@" : {
       "comment" : "Two counts joined, such as 3 files and 5 tabs.",
       "localizations" : {
@@ -34,6 +37,9 @@
           }
         }
       }
+    },
+    "%@ behind here" : {
+      "comment" : "The placeholder is a length of time, such as 9 hours."
     },
     "%@ can check for updates automatically. You can also check manually from the menu bar or Settings › About." : {
       "comment" : "The placeholder is the name of this app."
@@ -194,6 +200,17 @@
         }
       },
       "shouldTranslate" : false
+    },
+    "%@, %@ in %@" : {
+      "comment" : "A time somewhere else. The placeholders are a time of day, a weekday and a city, as in 9:41 PM, Tuesday in Tokyo.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@ in %3$@"
+          }
+        }
+      }
     },
     "%@, all day" : {
       "comment" : "Beside an event that fills a day. The placeholder is the day, such as Fri 9 Oct."
@@ -952,6 +969,7 @@
     "Copy Process ID" : {},
     "Copy SSH Command" : {},
     "Copy the version, build and commit for a bug report" : {},
+    "Copy to Clipboard" : {},
     "Copy version information" : {},
     "Could not find the extensions folder in the Raycast repository." : {},
     "Could not install \"%@\": %@" : {
@@ -1182,6 +1200,9 @@
     "Enabled" : {
       "comment" : "A column heading over switches that turn commands on."
     },
+    "Encode or change the case of a text. Also unbase64, urlencode, urldecode, uppercase, lowercase, titlecase, sha256" : {
+      "comment" : "The words after Also are typed as they are and stay in English."
+    },
     "End color" : {},
     "Energy" : {
       "comment" : "A kind of unit, named in a calculator error."
@@ -1384,6 +1405,9 @@
     "Free and open source" : {},
     "Frequency" : {
       "comment" : "A kind of unit, named in a calculator error."
+    },
+    "From Base64" : {
+      "comment" : "The kind of a result, shown beside its title. Base64 is a way of writing data as text."
     },
     "From Raycast · %lld commands" : {
       "comment" : "The placeholder is how many commands an extension has.",
@@ -1647,6 +1671,9 @@
       }
     },
     "Look a word up in the dictionary" : {},
+    "Lowercase" : {
+      "comment" : "The kind of a result, shown beside its title."
+    },
     "Mail" : {
       "comment" : "The kind of a result, shown beside its title. Here a row that opens an email draft."
     },
@@ -1659,7 +1686,12 @@
     "Make a Shortcut that sets your Focus, then name it in Settings › General" : {
       "comment" : "Shortcut is what Apple's Shortcuts app makes. Focus is the macOS feature that silences notifications."
     },
+    "Make a new UUID" : {
+      "comment" : "A UUID is a random identifier programmers use."
+    },
     "Make a note" : {},
+    "Make a random password" : {},
+    "Make paragraphs of placeholder text" : {},
     "Mass" : {
       "comment" : "A kind of unit, named in a calculator error."
     },
@@ -1972,6 +2004,9 @@
         }
       }
     },
+    "Password" : {
+      "comment" : "The kind of a result, shown beside its title. Here a password Floe made up."
+    },
     "Passwords" : {},
     "Passwords are kept in iCloud Keychain." : {},
     "Passwords stay on this Mac." : {},
@@ -1999,6 +2034,9 @@
     },
     "Pinned" : {
       "comment" : "The heading over the copies the user pinned."
+    },
+    "Placeholder Text" : {
+      "comment" : "The kind of a result, shown beside its title. Here lorem ipsum, the filler text designers use."
     },
     "Placeholders: {clipboard} {date} {time} {datetime} {uuid} {day}" : {},
     "Play/Pause" : {
@@ -2354,6 +2392,7 @@
     "Search what you copied" : {},
     "Searching files…" : {},
     "Search…" : {},
+    "See the time in another city" : {},
     "See what Floe did, and undo it" : {},
     "See what is listening on a port" : {},
     "Select" : {
@@ -2710,6 +2749,7 @@
       "comment" : "The placeholder is what the reminder is about, such as call mom."
     },
     "The repository could not be reached, so this is the last copy fetched." : {},
+    "The same time as here" : {},
     "The search field is its own piece of glass, and the results are a second piece below it." : {},
     "The source chosen in General" : {},
     "The system command failed." : {},
@@ -2730,7 +2770,7 @@
     "This output has no volume to change" : {},
     "This source is not on this Mac, and Privacy allows only AI that runs on this Mac. Nothing is asked until one of them changes." : {},
     "Time" : {
-      "comment" : "A kind of unit, named in a calculator error."
+      "comment" : "A kind of unit, named in a calculator error.\nThe kind of a result, shown beside its title. Here the time in another city."
     },
     "Timer" : {
       "comment" : "The kind of a result, shown beside its title. Here a countdown."
@@ -2758,6 +2798,9 @@
     "Tint, border and shadow for the launcher panel." : {},
     "Tip" : {
       "comment" : "The heading of a tip in the release notes."
+    },
+    "Title Case" : {
+      "comment" : "The kind of a result, shown beside its title."
     },
     "To convert money, switch on exchange rates in Settings, Privacy." : {
       "comment" : "A calculator error."
@@ -2867,6 +2910,12 @@
     "URL" : {
       "comment" : "The label of the field for a web address."
     },
+    "URL Decoded" : {
+      "comment" : "The kind of a result, shown beside its title."
+    },
+    "URL Encoded" : {
+      "comment" : "The kind of a result, shown beside its title."
+    },
     "Unavailable: this Mac is not signed in to iCloud." : {},
     "Unavailable: this build of Floe is not signed for iCloud Keychain." : {},
     "Unavailable: this build of Floe is not signed for iCloud." : {},
@@ -2898,6 +2947,9 @@
     },
     "Updates" : {
       "comment" : "A noun: the label of the line about checking for new versions of Floe."
+    },
+    "Uppercase" : {
+      "comment" : "The kind of a result, shown beside its title."
     },
     "Use Its Own" : {},
     "Use as fallback" : {},

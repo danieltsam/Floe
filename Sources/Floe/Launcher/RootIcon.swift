@@ -92,7 +92,7 @@ struct RootIcon: View {
         case .extensionStore, .system, .note, .snippet, .event, .clipboardEntry,
              .menuBarAccess, .askAI, .webAddress, .checkpoint, .checkpointDraft,
              .reminderDraft, .eventDraft, .contact, .outgoing, .focus, .keyword,
-             .definition, .timer, .receipt, .shell:
+             .definition, .answer, .timer, .receipt, .shell:
             symbolIcon
         }
     }
@@ -136,6 +136,8 @@ struct RootIcon: View {
             SymbolTile(symbol: "character.cursor.ibeam")
         case .definition:
             SymbolTile(symbol: "character.book.closed")
+        case let .answer(row):
+            SymbolTile(symbol: row.symbol)
         case .timer:
             SymbolTile(symbol: "timer")
         case let .receipt(receipt):

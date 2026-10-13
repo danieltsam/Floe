@@ -23,6 +23,7 @@ enum RootSearch {
         CalendarSearchProvider(),
         NoteSearchProvider(),
         DefinitionSearchProvider(),
+        AnswerRowSearchProvider(),
         CatalogSearchProvider(),
         FinderSelectionSearchProvider(),
         SSHHostSearchProvider(),
