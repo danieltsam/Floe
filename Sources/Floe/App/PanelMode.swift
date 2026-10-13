@@ -62,6 +62,8 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
         model.residentRequests = { [channel] in channel.send($0) }
         model.canAskAI = AskAI.availabilityCheck { AIAnswer.isAvailable }
         model.typing.window = 0.03
+        // A shell suggestion's snapshot arrived: rows read again, so they are there without another key.
+        ShellSnapshots.shared.whenChanged { [weak self] in self?.model.refresh() }
         model.panelWindowSizes(settings: settings)
             .sink { [weak self] size in self?.panel?.resizeKeepingTop(to: size) }
             .store(in: &cancellables)

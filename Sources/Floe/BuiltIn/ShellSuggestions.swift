@@ -136,11 +136,14 @@ nonisolated enum ShellSuggestions {
     static func entriesOnDisk(_ folder: String) -> [String] {
         let path = (folder as NSString).expandingTildeInPath
         let base = path.hasPrefix("/") ? path : FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(path).path
-        let names = (try? FileManager.default.contentsOfDirectory(atPath: base)) ?? []
-        return names.map { name in
-            var isFolder: ObjCBool = false
-            FileManager.default.fileExists(atPath: (base as NSString).appendingPathComponent(name), isDirectory: &isFolder)
-            return isFolder.boolValue ? name + "/" : name
+        // Each entry's kind arrives with the listing, so no entry is asked about one by one.
+        let listed = (try? FileManager.default.contentsOfDirectory(
+            at: URL(fileURLWithPath: base, isDirectory: true),
+            includingPropertiesForKeys: [.isDirectoryKey]
+        )) ?? []
+        return listed.map { url in
+            let isFolder = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+            return isFolder ? url.lastPathComponent + "/" : url.lastPathComponent
         }
     }
 

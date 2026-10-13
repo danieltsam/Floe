@@ -10,10 +10,12 @@ import Foundation
 /// The prefix and a command lead the results with the row that runs it, and what it could become under it.
 /// A search without the prefix that reads as a command gets the row under everything else.
 struct ShellCommandSearchProvider: SearchProvider {
+    /// The suggestions read snapshots the store keeps, so the reads follow behind the typing
+    /// off the main actor. A test hands over its own instead.
     var isProgram: @Sendable (String) -> Bool = { ShellCommand.isProgram($0) }
-    var history: @Sendable () -> [String] = { ShellHistory.commands() }
-    var programs: @Sendable () -> [String] = { ShellSuggestions.programsOnPath() }
-    var entries: @Sendable (String) -> [String] = { ShellSuggestions.entriesOnDisk($0) }
+    var history: @Sendable () -> [String] = { ShellSnapshots.shared.history() }
+    var programs: @Sendable () -> [String] = { ShellSnapshots.shared.programs() }
+    var entries: @Sendable (String) -> [String] = { ShellSnapshots.shared.entries($0) }
 
     func contribution(for context: SearchContext) -> SearchContribution {
         let shell = context.shell
