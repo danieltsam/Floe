@@ -16,9 +16,10 @@ final class QuickLookPresenter: NSObject, QLPreviewPanelDataSource {
     func show(_ url: URL) {
         self.url = url
         guard let panel = QLPreviewPanel.shared() else { return }
-        panel.dataSource = self
-        panel.reloadData()
         NSApp.activate()
+        if panel.dataSource === self {
+            panel.reloadData()
+        }
         panel.makeKeyAndOrderFront(nil)
     }
 
@@ -28,5 +29,21 @@ final class QuickLookPresenter: NSObject, QLPreviewPanelDataSource {
 
     func previewPanel(_: QLPreviewPanel?, previewItemAt _: Int) -> QLPreviewItem? {
         url as NSURL?
+    }
+}
+
+/// The panel asks the responder chain who controls it, and the app's delegate is the end of that chain.
+/// AppKit declares the three calls without an actor and makes them on the main thread.
+extension AppDelegate {
+    override nonisolated func acceptsPreviewPanelControl(_: QLPreviewPanel?) -> Bool {
+        MainActor.assumeIsolated { QuickLookPresenter.shared.url != nil }
+    }
+
+    override nonisolated func beginPreviewPanelControl(_ panel: QLPreviewPanel?) {
+        MainActor.assumeIsolated { panel?.dataSource = QuickLookPresenter.shared }
+    }
+
+    override nonisolated func endPreviewPanelControl(_ panel: QLPreviewPanel?) {
+        MainActor.assumeIsolated { panel?.dataSource = nil }
     }
 }
