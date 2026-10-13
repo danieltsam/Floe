@@ -153,6 +153,19 @@ describe("LocalStorage", () => {
         expect(await storage.getItem<number>("fresh")).toBe(1);
     });
 
+    test("a database that cannot be written is left where it is", async () => {
+        await createLocalStorage(() => file).setItem("kept", "yes");
+        const real = storagePersistence.open;
+        storagePersistence.open = (target) => new Database(target, { readonly: true });
+        try {
+            await expect(createLocalStorage(() => file).setItem("lost", 1)).rejects.toThrow();
+        } finally {
+            storagePersistence.open = real;
+        }
+        expect(fs.readdirSync(folder).filter((name) => name.includes(".unreadable-"))).toHaveLength(0);
+        expect(await createLocalStorage(() => file).getItem("kept")).toBe("yes");
+    });
+
     test("what another process of the extension wrote is seen, and a write keeps it", async () => {
         const view = createLocalStorage(() => file);
         const background = createLocalStorage(() => file);

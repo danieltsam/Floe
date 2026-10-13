@@ -27,22 +27,29 @@ export const storagePersistence = {
     },
 };
 
-/// True of an error that says the database is held by another process right now, and false of one that
-/// says the file is no database at all. A held database is waited for; a broken one is moved aside.
+/// True of an error that says the database is held by another process right now. A held database is waited for.
 function isHeld(error: unknown): boolean {
     const code = (error as { code?: string }).code ?? "";
     if (code === "SQLITE_BUSY" || code === "SQLITE_LOCKED") return true;
     return /locked|busy/i.test((error as Error)?.message ?? "");
 }
 
+/// True of an error that says the file is no database, or a damaged one. Only such a file is moved aside:
+/// a full disk or a read-only folder fails the call and leaves the data where it is.
+function isBroken(error: unknown): boolean {
+    const code = (error as { code?: string }).code ?? "";
+    return code === "SQLITE_NOTADB" || code === "SQLITE_CORRUPT";
+}
+
 /// Runs a database step, waiting out a database another process holds. The wait is a sleep between
 /// tries, so the event loop keeps running while the other process finishes its work.
 async function patiently<T>(work: () => T | Promise<T>): Promise<T> {
-    for (let waited = 0; ; waited += 25) {
+    const deadline = Date.now() + 5000;
+    for (;;) {
         try {
             return await work();
         } catch (error) {
-            if (waited >= 5000 || !isHeld(error)) throw error;
+            if (Date.now() >= deadline || !isHeld(error)) throw error;
             await Bun.sleep(25 + (crypto.getRandomValues(new Uint8Array(1))[0] % 50));
         }
     }
@@ -58,7 +65,7 @@ async function settle(opened: Database, target: string): Promise<Database> {
         });
         return opened;
     } catch (error) {
-        if (isHeld(error)) throw error;
+        if (!isBroken(error)) throw error;
         try {
             opened.close();
         } catch {}
