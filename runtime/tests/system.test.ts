@@ -6,11 +6,13 @@
 //  Licensed under the GNU AGPLv3
 
 import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
+import { Database } from "bun:sqlite";
 import fs from "node:fs";
 import path from "node:path";
 import * as api from "../api/index";
 import { isLent } from "../api/oauth";
 import { ctx, handleReply, handleReplyChunk } from "../bridge";
+import { createLocalStorage } from "../local-storage";
 import { installRuntime, sent } from "./support";
 
 const runtime = installRuntime("system-tests");
@@ -338,14 +340,22 @@ describe("LocalStorage", () => {
 
   test("keeps its values in the extension's support folder", async () => {
     await api.LocalStorage.setItem("kept", "yes");
-    expect(JSON.parse(fs.readFileSync(path.join(runtime.supportPath, "local-storage.json"), "utf8")).kept).toBe("yes");
+    const database = new Database(path.join(runtime.supportPath, "local-storage.sqlite"), { readonly: true });
+    try {
+      expect(JSON.parse((database.prepare("select value from items where key = 'kept'").get() as { value: string }).value)).toBe("yes");
+    } finally {
+      database.close();
+    }
   });
 
-  test("treats a missing or damaged file as empty", async () => {
+  test("a former file that cannot be read is moved aside, and the database keeps what it has", async () => {
     fs.writeFileSync(path.join(runtime.supportPath, "local-storage.json"), "{not json");
-    expect(await api.LocalStorage.allItems()).toEqual({});
-    await api.LocalStorage.setItem("fresh", "start");
-    expect(await api.LocalStorage.allItems()).toEqual({ fresh: "start" });
+    const opened = createLocalStorage(() => path.join(runtime.supportPath, "local-storage.sqlite"));
+    expect(await opened.getItem("kept")).toBe("yes");
+    await opened.setItem("fresh", "start");
+    expect(await opened.getItem("fresh")).toBe("start");
+    const aside = fs.readdirSync(runtime.supportPath).filter((name) => name.includes(".unreadable-"));
+    expect(aside).toHaveLength(1);
   });
 });
 
