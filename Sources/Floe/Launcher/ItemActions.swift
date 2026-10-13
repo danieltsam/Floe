@@ -101,6 +101,12 @@ extension NSPasteboard {
         clearContents()
         setString(text, forType: .string)
     }
+
+    /// Copies a password. The marker is the one clipboard managers agreed on for what they should not keep.
+    func copySecret(_ text: String) {
+        copy(text)
+        setString("", forType: NSPasteboard.PasteboardType("org.nspasteboard.ConcealedType"))
+    }
 }
 
 // MARK: - Files

@@ -110,4 +110,14 @@ import Testing
         #expect(SelectionError.finderEmpty.errorDescription == "No files are selected in the Finder.")
         #expect(SelectionError.automationRefused.errorDescription?.hasSuffix("(-1743)") == true)
     }
+
+    @MainActor @Test func aCopyMarkedAsAPasswordIsNotCaptured() {
+        let pasteboard = NSPasteboard.withUniqueName()
+        defer { pasteboard.releaseGlobally() }
+        pasteboard.copy("plain")
+        #expect(ClipboardCapture.read(pasteboard) != nil)
+        pasteboard.copySecret("hunter2-hunter2")
+        #expect(pasteboard.string(forType: .string) == "hunter2-hunter2")
+        #expect(ClipboardCapture.read(pasteboard) == nil)
+    }
 }
