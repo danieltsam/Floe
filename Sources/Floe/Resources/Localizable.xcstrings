@@ -2123,6 +2123,9 @@
     "Questions go to the server on this Mac at %@. Nothing leaves the machine." : {
       "comment" : "The placeholder is the address of a server."
     },
+    "Quick Look" : {
+      "comment" : "The name of the macOS feature that previews a file."
+    },
     "Quick Look  ⌘Y" : {},
     "Quick Look %@" : {
       "comment" : "Quick Look is the macOS preview. The placeholder is the name of a file."

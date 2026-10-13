@@ -51,6 +51,16 @@ struct ItemActionTests {
         }
     }
 
+    @Test func quickLookHandsTheFileToTheHost() {
+        let file = URL(fileURLWithPath: "/tmp/floe-quick-look.txt")
+        var shown: [URL] = []
+        var host = ActionHost(showHUD: { _ in }, dismiss: {})
+        host.quickLook = { shown.append($0) }
+        let action = FileActions.actions(for: file, host: host).compactMap(\.self).first { $0.title == "Quick Look" }
+        action?.run()
+        #expect(shown == [file])
+    }
+
     @Test func anAppThatIsNotRunningOffersNoQuitAndASystemAppNoTrash() {
         let app = AppEntry(name: "Floe Test App", url: URL(fileURLWithPath: "/System/Applications/NotARealApp-\(UUID().uuidString).app"))
         let listed = titles(AppActions.actions(for: app, host: host))

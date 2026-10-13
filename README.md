@@ -116,6 +116,7 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - `time in tokyo` and `time 5pm in berlin` show the time somewhere else.
 - `uuid`, `password 24` and `lorem 3` make something to paste.
 - `base64`, `unbase64`, `urlencode`, `urldecode`, `uppercase`, `lowercase`, `titlecase` and `sha256` change the text after them, or the clipboard.
+- Command-Y on a file shows it in Quick Look.
 - Snippets with text expansion.
 - Quicklinks with fallback searches.
 - Emoji and symbols picker with a skin tone setting.

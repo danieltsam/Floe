@@ -78,8 +78,8 @@ extension LauncherModel {
         if event.keyCode == 126, recallOlderQuery() {
             return true
         }
-        if event.keyCode == 48, flags.isEmpty, results.indices.contains(selection), case let .shell(row, _) = results[selection].item, row.origin != .typed {
-            complete(with: row)
+        // Tab and Command-Y belong to the kind of row that is selected.
+        if handleRowKey(event, flags) {
             return true
         }
         if let delta = Shortcuts.navigationDelta(event.keyCode) {

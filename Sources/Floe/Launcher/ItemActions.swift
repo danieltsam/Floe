@@ -31,6 +31,8 @@ struct ActionHost {
     var record: (Receipt) -> Void = { _ in
         // A host that keeps none.
     }
+
+    var quickLook: (URL) -> Void = { QuickLookPresenter.shared.show($0) }
 }
 
 enum ActionsMenu {
@@ -124,6 +126,7 @@ enum FileActions {
                 NSWorkspace.shared.activateFileViewerSelecting([url])
                 host.dismiss()
             },
+            ItemAction(title: String(localized: "Quick Look", bundle: .floe, comment: "The name of the macOS feature that previews a file."), symbol: "eye") { host.quickLook(url) },
             nil,
         ]
         actions += copies(of: url, host: host)
