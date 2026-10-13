@@ -9,7 +9,8 @@
 import Foundation
 import Testing
 
-struct AnswerRowTests {
+/// One at a time: a generated answer is kept per query for the whole process.
+@Suite(.serialized) struct AnswerRowTests {
     private let mexico = TimeZone(identifier: "America/Mexico_City")!
     private let english = Locale(identifier: "en_US")
     /// Monday 12 October 2026, 10:00 in Mexico City.

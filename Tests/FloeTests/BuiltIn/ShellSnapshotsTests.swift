@@ -36,11 +36,8 @@ struct ShellSnapshotsTests {
         let store = ShellSnapshots(
             now: { clock.withLock { $0 } },
             readEntries: { _ in
-                let count: Int = reads.withLock { state in
-                    state += 1
-                    return state
-                }
-                return ["row-\(count)"]
+                reads.withLock { $0 += 1 }
+                return ["row"]
             }
         )
         func advance(by seconds: TimeInterval) {
@@ -48,12 +45,16 @@ struct ShellSnapshotsTests {
         }
         // The read of the first ask lands, and its freshness is counted from its landing.
         _ = store.entries("same")
-        try await landed(store, "same", is: "row-1")
+        try await landed(store, "same", is: "row")
         // Past the lifetime, the answer is read again — and its freshness is renewed even though
         // what came back is the same, so asks within the next lifetime wait for no read.
         advance(by: 3)
         _ = store.entries("same")
-        try await landed(store, "same", is: "row-2")
+        // The answer is the same, so the second read is what is waited for, then its landing on the main actor.
+        for _ in 0 ..< 100 where reads.withLock({ $0 }) < 2 {
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        try await Task.sleep(for: .milliseconds(50))
         advance(by: 1)
         _ = store.entries("same")
         advance(by: 0.5)
@@ -64,7 +65,9 @@ struct ShellSnapshotsTests {
     /// Waits for a read to land, by the only thing visible from outside: the store serving its answer.
     private func landed(_ store: ShellSnapshots, _ folder: String, is value: String) async throws {
         for _ in 0 ..< 100 {
-            if store.entries(folder) == [value] { return }
+            if store.entries(folder) == [value] {
+                return
+            }
             try await Task.sleep(for: .milliseconds(20))
         }
         Issue.record("the read that writes \(value) never landed")
