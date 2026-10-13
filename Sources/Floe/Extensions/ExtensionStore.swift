@@ -136,22 +136,11 @@ final class ExtensionStore: ObservableObject {
     }
 
     func install(_ name: String) async {
-        guard !busy.contains(name) else { return }
-        busy.insert(name)
-        error = nil
-        defer { busy.remove(name) }
-        do {
-            let fetched = try await Self.fetchExtensionCopy(name: name)
-            defer { try? FileManager.default.removeItem(at: fetched.workDir) }
-            try await Self.runBunInstall(in: fetched.extensionDir)
-            let folderCommit = await latestCommit(touching: name, askingAgain: true)
-            try Self.swapIn(name: name, staged: fetched.extensionDir, commit: Self.revisionToRecord(folderCommit: folderCommit, repositoryCommit: fetched.commit))
+        await perform(name) {
+            try await installFreshCopy(of: name)
             onInstalled()
+            // Only an install asks about menu-bar commands; an update leaves the user's answer alone.
             menuBarOffer = Self.menuBarOffer(for: name)
-        } catch let failure as StoreFailure {
-            self.error = failure.message
-        } catch {
-            self.error = error.localizedDescription
         }
     }
 
@@ -164,18 +153,30 @@ final class ExtensionStore: ObservableObject {
     }
 
     func update(_ name: String) async {
+        await perform(name) {
+            try await installFreshCopy(of: name)
+            onInstalled()
+        }
+    }
+
+    /// What an install and an update share: a copy fetched with git, installed with Bun, and swapped in
+    /// once the install succeeded. The copy's work folder is fetched away again whichever way this ends.
+    private func installFreshCopy(of name: String) async throws {
+        let fetched = try await Self.fetchExtensionCopy(name: name)
+        defer { try? FileManager.default.removeItem(at: fetched.workDir) }
+        try await Self.runBunInstall(in: fetched.extensionDir)
+        let folderCommit = await latestCommit(touching: name, askingAgain: true)
+        try Self.swapIn(name: name, staged: fetched.extensionDir, commit: Self.revisionToRecord(folderCommit: folderCommit, repositoryCommit: fetched.commit))
+    }
+
+    /// One extension's work at a time, and the failure's text kept for the page to show.
+    private func perform(_ name: String, _ work: () async throws -> Void) async {
         guard !busy.contains(name) else { return }
         busy.insert(name)
         error = nil
         defer { busy.remove(name) }
         do {
-            let fetched = try await Self.fetchExtensionCopy(name: name)
-            defer { try? FileManager.default.removeItem(at: fetched.workDir) }
-            try await Self.runBunInstall(in: fetched.extensionDir)
-            let folderCommit = await latestCommit(touching: name, askingAgain: true)
-            try Self.swapIn(name: name, staged: fetched.extensionDir, commit: Self.revisionToRecord(folderCommit: folderCommit, repositoryCommit: fetched.commit))
-            try? FileManager.default.removeItem(at: fetched.workDir)
-            onInstalled()
+            try await work()
         } catch let failure as StoreFailure {
             self.error = failure.message
         } catch {

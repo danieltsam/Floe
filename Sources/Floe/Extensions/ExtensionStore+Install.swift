@@ -35,20 +35,26 @@ extension ExtensionStore {
     static func fetchExtensionCopy(name: String) async throws -> FetchedExtension {
         let workDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("floe-store-\(UUID().uuidString)", isDirectory: true)
-        try FileManager.default.createDirectory(at: workDir, withIntermediateDirectories: true)
-        let git = gitExecutable()
-        let clone = ["clone", "--depth", "1", "--filter=blob:none", "--sparse", "https://github.com/raycast/extensions", workDir.path]
-        try await runTool(executable: git, arguments: clone, context: String(localized: "Clone failed", bundle: .floe, comment: "What went wrong while installing an extension. Clone is the git operation."))
-        let checkout = ["-C", workDir.path, "sparse-checkout", "set", "extensions/\(name)"]
-        try await runTool(executable: git, arguments: checkout, context: String(localized: "Checkout failed", bundle: .floe, comment: "What went wrong while installing an extension. Checkout is the git operation."))
-        let extensionDir = workDir.appendingPathComponent("extensions/\(name)", isDirectory: true)
-        guard FileManager.default.fileExists(atPath: extensionDir.appendingPathComponent("package.json").path) else {
-            throw StoreFailure(message: String(localized: "Extension \"\(name)\" was not found in the Raycast repository.", bundle: .floe, comment: "The placeholder is an extension's name."))
+        do {
+            try FileManager.default.createDirectory(at: workDir, withIntermediateDirectories: true)
+            let git = gitExecutable()
+            let clone = ["clone", "--depth", "1", "--filter=blob:none", "--sparse", "https://github.com/raycast/extensions", workDir.path]
+            try await runTool(executable: git, arguments: clone, context: String(localized: "Clone failed", bundle: .floe, comment: "What went wrong while installing an extension. Clone is the git operation."))
+            let checkout = ["-C", workDir.path, "sparse-checkout", "set", "extensions/\(name)"]
+            try await runTool(executable: git, arguments: checkout, context: String(localized: "Checkout failed", bundle: .floe, comment: "What went wrong while installing an extension. Checkout is the git operation."))
+            let extensionDir = workDir.appendingPathComponent("extensions/\(name)", isDirectory: true)
+            guard FileManager.default.fileExists(atPath: extensionDir.appendingPathComponent("package.json").path) else {
+                throw StoreFailure(message: String(localized: "Extension \"\(name)\" was not found in the Raycast repository.", bundle: .floe, comment: "The placeholder is an extension's name."))
+            }
+            let revision = ["-C", workDir.path, "rev-parse", "HEAD"]
+            let output = try await runTool(executable: git, arguments: revision, context: String(localized: "Could not read the repository commit", bundle: .floe))
+            let commit = output.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+            return FetchedExtension(workDir: workDir, extensionDir: extensionDir, commit: commit)
+        } catch {
+            // The copy never became an extension, so its folder is this function's to clean up.
+            try? FileManager.default.removeItem(at: workDir)
+            throw error
         }
-        let revision = ["-C", workDir.path, "rev-parse", "HEAD"]
-        let output = try await runTool(executable: git, arguments: revision, context: String(localized: "Could not read the repository commit", bundle: .floe))
-        let commit = output.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-        return FetchedExtension(workDir: workDir, extensionDir: extensionDir, commit: commit)
     }
 
     static func runBunInstall(in directory: URL) async throws {
