@@ -8,7 +8,7 @@
 import Foundation
 
 /// The folders of notes that apps on this Mac already keep, offered in Settings so the user need not find them.
-enum KnownNoteFolders {
+nonisolated enum KnownNoteFolders {
     struct Folder: Identifiable, Hashable {
         let app: String
         let path: String
@@ -31,25 +31,20 @@ enum KnownNoteFolders {
     }
 
     /// Octarine's workspaces, from the table it keeps of them. Read with the system's sqlite3, without opening the app.
-    static func octarineWorkspaces(database: URL) -> [String] {
+    static func octarineWorkspaces(database: URL) async -> [String] {
         guard FileManager.default.fileExists(atPath: database.path) else { return [] }
-        let sqlite = Process()
-        sqlite.executableURL = URL(fileURLWithPath: "/usr/bin/sqlite3")
-        sqlite.arguments = ["-readonly", database.path, "select path from workspaces;"]
-        let pipe = Pipe()
-        sqlite.standardOutput = pipe
-        sqlite.standardError = FileHandle.nullDevice
-        guard (try? sqlite.run()) != nil else { return [] }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        sqlite.waitUntilExit()
-        return (String(bytes: data, encoding: .utf8) ?? "").split(whereSeparator: \.isNewline).map(String.init).filter { $0.hasPrefix("/") }.sorted()
+        let query = "select path from workspaces;"
+        guard let output = try? await Shell.run(URL(fileURLWithPath: "/usr/bin/sqlite3"), ["-readonly", database.path, query]) else { return [] }
+        return output.output.split(whereSeparator: \.isNewline).map(String.init).filter { $0.hasPrefix("/") }.sorted()
     }
 
-    /// Every folder an app keeps notes in that is still there.
-    static func all(home: URL = FileManager.default.homeDirectoryForCurrentUser) -> [Folder] {
+    /// Every folder an app keeps notes in that is still there. Read off the main actor: the settings page
+    /// asks for it once, and a process and two files would hold the view where it waits for them.
+    @concurrent
+    static func all(home: URL = FileManager.default.homeDirectoryForCurrentUser) async -> [Folder] {
         let support = home.appendingPathComponent("Library/Application Support")
         let obsidian = obsidianVaults(in: try? Data(contentsOf: support.appendingPathComponent("obsidian/obsidian.json"))).map { Folder(app: "Obsidian", path: $0) }
-        let octarine = octarineWorkspaces(database: support.appendingPathComponent("Octarine/octarine.sqlite")).map { Folder(app: "Octarine", path: $0) }
+        let octarine = await octarineWorkspaces(database: support.appendingPathComponent("Octarine/octarine.sqlite")).map { Folder(app: "Octarine", path: $0) }
         return (obsidian + octarine).filter { FileManager.default.fileExists(atPath: $0.path) }
     }
 }

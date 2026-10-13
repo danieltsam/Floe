@@ -27,6 +27,9 @@ struct PreferredAppsSettingsSection: View {
 /// Which app a note typed into the search goes to, and the link for an app Floe has no name for.
 struct NotesAppPicker: View {
     @ObservedObject var settings: AppSettings
+    /// The folders the apps on this Mac already keep. Read once for as long as the folder choice is
+    /// the one shown, and not again on every pass of the view, where the reading holds the drawing up.
+    @State private var knownFolders: [KnownNoteFolders.Folder] = []
 
     var body: some View {
         Picker(selection: $settings.notesApp) {
@@ -42,6 +45,10 @@ struct NotesAppPicker: View {
             Text(AppRole.notes.title)
             Text(AppRole.notes.detail)
         }
+        .task(id: settings.notesApp) {
+            guard settings.notesApp == .folder else { return }
+            knownFolders = await KnownNoteFolders.all()
+        }
         if settings.notesApp == .custom {
             TextField(text: $settings.notesURLTemplate, prompt: Text(verbatim: "bear://x-callback-url/create?text={text}")) {
                 Text("URL")
@@ -51,7 +58,7 @@ struct NotesAppPicker: View {
         if settings.notesApp == .folder {
             LabeledContent {
                 Menu("Choose…") {
-                    ForEach(KnownNoteFolders.all()) { folder in
+                    ForEach(knownFolders) { folder in
                         Button {
                             settings.notesFolder = folder.path
                         } label: {

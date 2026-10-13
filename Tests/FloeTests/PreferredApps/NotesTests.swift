@@ -342,12 +342,12 @@ struct NotesTests {
         #expect(NoteFiles.dayFile(in: folder, now: now, timeZone: zone) == local)
     }
 
-    @Test func theFoldersAppsAlreadyKeepAreFoundFromTheirOwnLists() throws {
+    @Test func theFoldersAppsAlreadyKeepAreFoundFromTheirOwnLists() async throws {
         let list = Data(#"{"vaults":{"b":{"path":"/Users/me/Vault","ts":1,"open":true},"a":{"path":"/Users/me/Archive"}}}"#.utf8)
         #expect(KnownNoteFolders.obsidianVaults(in: list) == ["/Users/me/Archive", "/Users/me/Vault"])
         #expect(KnownNoteFolders.obsidianVaults(in: nil).isEmpty)
         #expect(KnownNoteFolders.obsidianVaults(in: Data("not json".utf8)).isEmpty)
-        #expect(KnownNoteFolders.octarineWorkspaces(database: URL(fileURLWithPath: "/floe-no-such-\(UUID().uuidString).sqlite")).isEmpty)
+        #expect(await KnownNoteFolders.octarineWorkspaces(database: URL(fileURLWithPath: "/floe-no-such-\(UUID().uuidString).sqlite")).isEmpty)
         #expect(KnownNoteFolders.Folder(app: "Obsidian", path: "/Users/me/Vault").title == "Obsidian: Vault")
 
         let home = try scratchFolder()
@@ -357,7 +357,7 @@ struct NotesTests {
         let support = home.appendingPathComponent("Library/Application Support/obsidian")
         try FileManager.default.createDirectory(at: support, withIntermediateDirectories: true)
         try JSONSerialization.data(withJSONObject: ["vaults": ["a": ["path": vault.path], "b": ["path": home.appendingPathComponent("Gone").path]]]).write(to: support.appendingPathComponent("obsidian.json"))
-        #expect(KnownNoteFolders.all(home: home).map(\.title) == ["Obsidian: Vault"], "a vault that is no longer there is not offered")
+        #expect(await KnownNoteFolders.all(home: home).map(\.title) == ["Obsidian: Vault"], "a vault that is no longer there is not offered")
     }
 
     @MainActor @Test func everyNotesChoiceHasAnIconInThePicker() {
