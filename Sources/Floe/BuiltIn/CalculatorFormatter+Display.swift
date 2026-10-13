@@ -202,9 +202,11 @@ extension CalculatorFormatter {
         }
     }
 
+    private static let conversionKeywords = try? NSRegularExpression(pattern: #"(?<!\d\s)(?<!\d)\bin\b|\b(to|into|as)\b"#)
+
     private static func styleConversionKeywords(in attr: inout AttributedString) {
         let plain = String(attr.characters)
-        guard let regex = try? NSRegularExpression(pattern: #"(?<!\d\s)(?<!\d)\bin\b|\b(to|into|as)\b"#) else { return }
+        guard let regex = conversionKeywords else { return }
         let nsString = plain as NSString
         let matches = regex.matches(in: plain, range: NSRange(location: 0, length: nsString.length))
         for match in matches {

@@ -113,7 +113,8 @@ extension CalculatorFormatter {
         (#"[ \t]*\*[ \t]*"#, " × "),
         (#"(?<![a-zA-Zµ°])[ \t]*\/[ \t]*(?![a-zA-Zµ°])"#, " ÷ "),
         (#"[ \t]*\+[ \t]*"#, " + "),
-        (#"(?<!\^)(\S)[ \t]*-[ \t]*(\S)"#, "$1 − $2"),
+        // The operands stay outside the match, so the minus after one is found too: 1-2-3.
+        (#"(?<=[^\s-])(?<!\^[^\s-])[ \t]*-[ \t]*(?=\S)"#, " − "),
         (#"\^-[ \t]*"#, "^−"),
         (#"\([ \t]*-[ \t]*"#, "(−"),
         (#"^-[ \t]*"#, "−"),
@@ -175,7 +176,7 @@ extension CalculatorFormatter {
     /// The patterns handed to `replacePattern` are fixed strings, so each is compiled once. It stays
     /// NSRegularExpression: Swift's own regex has no lookbehind, which five of the patterns need.
     private static let compilationLock = NSLock()
-    nonisolated(unsafe) private static var compiledPatterns: [String: NSRegularExpression] = [:]
+    private static nonisolated(unsafe) var compiledPatterns: [String: NSRegularExpression] = [:]
 
     private static func compiledPattern(_ pattern: String) -> NSRegularExpression? {
         compilationLock.lock()

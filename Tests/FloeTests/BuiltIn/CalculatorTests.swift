@@ -22,6 +22,7 @@ struct CalculatorTests {
         #expect(CalculatorFormatter.formatString("1*2+3") == "1 × 2 + 3")
         #expect(CalculatorFormatter.formatString("10*20+30") == "10 × 20 + 30")
         #expect(CalculatorFormatter.formatString("2*3*4") == "2 × 3 × 4")
+        #expect(CalculatorFormatter.formatString("1-2-3") == "1 − 2 − 3")
         #expect(CalculatorFormatter.formatString("1 +2") == "1 + 2", "a spacing pass that shortens also reads what it is given now")
     }
 
