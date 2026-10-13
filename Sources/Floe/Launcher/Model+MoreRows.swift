@@ -30,8 +30,8 @@ extension LauncherModel {
         if case .definition = item {
             return String(localized: "Open in Dictionary", bundle: .floe, comment: "Dictionary is the name of Apple's app.")
         }
-        if case .answer = item {
-            return String(localized: "Copy to Clipboard", bundle: .floe)
+        if case let .answer(row) = item {
+            return row.link == nil ? String(localized: "Copy to Clipboard", bundle: .floe) : String(localized: "Open System Settings", bundle: .floe)
         }
         if case let .window(row) = item {
             return title(for: row)
@@ -125,6 +125,12 @@ extension LauncherModel {
             reach(bookmark.url)
         }
         guard case let .answer(row) = item else { return }
+        if let link = row.link {
+            hidePanel()
+            reset()
+            NSWorkspace.shared.open(link)
+            return
+        }
         if row.isSecret {
             NSPasteboard.general.copySecret(row.text)
         } else {

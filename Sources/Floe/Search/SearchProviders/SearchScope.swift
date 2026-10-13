@@ -51,7 +51,7 @@ struct ScopeMatch {
 extension RootSearch {
     /// Each model gets its own: a scope may hold the search it is running.
     static func standardScopes() -> [any SearchScope] {
-        [FileSearchScope(), ClipboardSearchScope(), MenuBarSearchScope(), SSHSearchScope(), ProcessSearchScope(), PortSearchScope(), ReceiptsSearchScope(), AppleShortcutSearchScope(), TimersSearchScope(), ContactSearchScope(), WindowSearchScope(), BookmarkSearchScope(), BrewSearchScope(), RecentDocumentsScope(), KeywordSearchScope(), KeywordSearchScope(keyword: KeywordSearchScope.mark)]
+        [FileSearchScope(), ClipboardSearchScope(), MenuBarSearchScope(), SSHSearchScope(), ProcessSearchScope(), PortSearchScope(), ReceiptsSearchScope(), AppleShortcutSearchScope(), TimersSearchScope(), ContactSearchScope(), WindowSearchScope(), BookmarkSearchScope(), BrewSearchScope(), TranslateSearchScope(), RecentDocumentsScope(), KeywordSearchScope(), KeywordSearchScope(keyword: KeywordSearchScope.mark)]
     }
 
     /// The scope a query names with its keyword (see `SearchContext.text(after:)`). The first scope

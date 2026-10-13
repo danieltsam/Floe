@@ -24,6 +24,19 @@ final nonisolated class ThreadLog: Sendable {
     }
 }
 
+/// Remembers what a stand-in was asked, in order, from whatever thread asked it.
+final nonisolated class CallLog: Sendable {
+    private let calls = Mutex<[String]>([])
+
+    var all: [String] {
+        calls.withLock { $0 }
+    }
+
+    func note(_ call: String) {
+        calls.withLock { $0.append(call) }
+    }
+}
+
 /// Counts the jobs a task is handed away from its actor, for work with nothing inside to observe.
 /// Code that stays on the main actor never comes here; code that leaves it does.
 final nonisolated class CountingExecutor: TaskExecutor {

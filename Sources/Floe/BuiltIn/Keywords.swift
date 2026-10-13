@@ -64,6 +64,7 @@ extension KeywordHint {
         KeywordHint(keyword: Processes.portKeyword, example: "port 3000", detail: String(localized: "See what is listening on a port", bundle: .floe)),
         KeywordHint(keyword: WordDefinition.keyword, example: "define tide", detail: String(localized: "Look a word up in the dictionary", bundle: .floe)),
         KeywordHint(keyword: WorldTime.keyword, example: "time in tokyo", detail: String(localized: "See the time in another city", bundle: .floe)),
+        KeywordHint(keyword: Translate.keyword, example: "translate hola mundo", detail: String(localized: "Translate a text with Apple's translation, on this Mac. Also translate to german good morning", bundle: .floe, comment: "The words after Also are typed as they are and stay in English.")),
         KeywordHint(keyword: SystemFacts.battery.rawValue, example: "battery", detail: String(localized: "See the battery's charge. Also disk, memory and ip", bundle: .floe, comment: "The last three words are typed as they are and stay in English.")),
         KeywordHint(keyword: Generators.uuidKeyword, example: "uuid", detail: String(localized: "Make a new UUID", bundle: .floe, comment: "A UUID is a random identifier programmers use.")),
         KeywordHint(keyword: Generators.passwordKeyword, example: "password 24", detail: String(localized: "Make a random password", bundle: .floe)),

@@ -112,6 +112,7 @@
 		550CD0D1A11746898F064C88 /* WorldTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7182B70F3C921F082C9A69B /* WorldTime.swift */; };
 		553CA566F3573D1B855CA623 /* Model+Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43B92AFF31F28A7B38B57533 /* Model+Clipboard.swift */; };
 		55781EB74199BB1FA1342D00 /* SettingsSalvage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27BC8BADB46258DEB8AE9E40 /* SettingsSalvage.swift */; };
+		55FDC7AC05C9D718A331845C /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C16AEB8E37C797A4AA78F46 /* Translate.swift */; };
 		57448B25E790E1ABE6AAA787 /* Updates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB035C39E569BB620F7844F /* Updates.swift */; };
 		5763E5DB3E3316E5A5FB9C6F /* AnswerSearchProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70B21D1572BEDAB065D80604 /* AnswerSearchProviders.swift */; };
 		586B027C00406193718A4457 /* RootSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA5C8BB52FDA4181A2A6D1DB /* RootSearch.swift */; };
@@ -548,6 +549,7 @@
 		8AE33B90505045A8A2B0BEA4 /* FloeIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloeIntents.swift; sourceTree = "<group>"; };
 		8B84D5026A491B96DFA99BA1 /* FendCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FendCore; path = Vendor/FendCore; sourceTree = SOURCE_ROOT; };
 		8C0CECF01978DB7DDA0FB1A1 /* NoteDeskModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDeskModel.swift; sourceTree = "<group>"; };
+		8C16AEB8E37C797A4AA78F46 /* Translate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translate.swift; sourceTree = "<group>"; };
 		8C1DA7F52B1E57FBB729318A /* PanelSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelSections.swift; sourceTree = "<group>"; };
 		8CA12F659351BFD56E7C8AAD /* TypingSettle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingSettle.swift; sourceTree = "<group>"; };
 		8EAF1A1ABE57A2E066C84365 /* LentSignIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LentSignIn.swift; sourceTree = "<group>"; };
@@ -904,6 +906,7 @@
 				6B855D08974FAFAA9A4F8C92 /* ThawIntegration.swift */,
 				39AC0CCEA2091BF04425482E /* TimedCache.swift */,
 				95F42770ECB0255BA11434C8 /* Timers.swift */,
+				8C16AEB8E37C797A4AA78F46 /* Translate.swift */,
 				EC54F87B74836155DF9A1CCF /* WordDefinition.swift */,
 				D7182B70F3C921F082C9A69B /* WorldTime.swift */,
 			);
@@ -1708,6 +1711,7 @@
 				0F19BCEBA7CE82395F375208 /* TimedCache.swift in Sources */,
 				7A26FA1C0601C3019A1B841B /* Timers.swift in Sources */,
 				C39675A961D5E41851B51D19 /* ToolTextStream.swift in Sources */,
+				55FDC7AC05C9D718A331845C /* Translate.swift in Sources */,
 				AB302CE215493130078A8283 /* TypedLocationSearchProvider.swift in Sources */,
 				E19D0754DD57924C04A7BF1A /* TypedPath.swift in Sources */,
 				239434FEEABB3ED3A3139E1C /* TypingSettle.swift in Sources */,

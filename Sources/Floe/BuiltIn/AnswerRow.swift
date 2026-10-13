@@ -21,6 +21,8 @@ nonisolated struct AnswerRow: Hashable, Sendable {
     var text: String
     /// A password: clipboard managers are asked not to keep it.
     var isSecret = false
+    /// Where Return goes when the row has nothing to copy, such as the settings that would make an answer possible.
+    var link: URL?
 
     init(id: String, text: String, subtitle: String? = nil, kind: String, symbol: String, isSecret: Bool = false) {
         self.id = "answer:" + id

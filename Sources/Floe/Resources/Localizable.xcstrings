@@ -146,6 +146,17 @@
         }
       }
     },
+    "%@ to %@ is not downloaded" : {
+      "comment" : "Both placeholders are names of languages. macOS downloads each pair of languages it translates between.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ to %2$@ is not downloaded"
+          }
+        }
+      }
+    },
     "%@ to %@ · %@" : {
       "comment" : "The first two placeholders are the times an event starts and ends, and the third is the name of a calendar.",
       "localizations" : {
@@ -153,6 +164,17 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ to %2$@ · %3$@"
+          }
+        }
+      }
+    },
+    "%@ to %@, by Apple's translation on this Mac. It can be rough." : {
+      "comment" : "Under a translated text. Both placeholders are names of languages.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ to %2$@, by Apple's translation on this Mac. It can be rough."
           }
         }
       }
@@ -684,6 +706,10 @@
     "Apple Intelligence isn't available right now." : {},
     "Apple Intelligence, on this Mac" : {},
     "Apple Shortcuts" : {},
+    "Apple Translation" : {
+      "comment" : "The kind of a result, shown beside its title. Here a text translated by macOS's own translation."
+    },
+    "Apple's translation does not know this language" : {},
     "AppleCare & Warranty (System Settings)" : {
       "comment" : "The name of a pane of System Settings.",
       "extractionState" : "extracted_with_value",
@@ -712,6 +738,9 @@
       "comment" : "A verb on a button: send the question to AI."
     },
     "Ask AI a question" : {},
+    "Ask AI can translate it, when an AI source is set." : {
+      "comment" : "Ask AI is the name of a command of Floe."
+    },
     "Ask AI “%@”" : {
       "comment" : "The placeholder is the question the user typed."
     },
@@ -1858,6 +1887,9 @@
     "Name" : {
       "comment" : "A text field's placeholder: the name to give a saved command.\nThe label of the field for a name."
     },
+    "Name the language: translate to german good morning" : {
+      "comment" : "The words after the colon are typed as they are and stay in English."
+    },
     "Neither Spotify nor Music is open" : {
       "comment" : "Spotify and Music are the names of two apps."
     },
@@ -1984,6 +2016,7 @@
       "comment" : "Shown when Return is pressed on a calculation that has no answer."
     },
     "Nothing to save. Select files in Finder, open a browser window, or add a note after a colon." : {},
+    "Nothing to translate" : {},
     "Notifications (System Settings)" : {
       "comment" : "The name of a pane of System Settings.",
       "extractionState" : "extracted_with_value",
@@ -2381,6 +2414,9 @@
     },
     "Resumed %@" : {
       "comment" : "The placeholder is a checkpoint's name."
+    },
+    "Return opens Language & Region, where Translation Languages downloads it." : {
+      "comment" : "Language & Region and Translation Languages are named as System Settings names them."
     },
     "Return to root search" : {},
     "Rounded" : {
@@ -2905,6 +2941,9 @@
     },
     "This file isn't a Floe settings export." : {},
     "This file was exported by a newer version of Floe." : {},
+    "This is already %@" : {
+      "comment" : "The placeholder is the name of a language."
+    },
     "This note is too large to show here, or is not text." : {},
     "This output can't be muted" : {},
     "This output has no volume to change" : {},
@@ -3018,6 +3057,12 @@
     },
     "Translate" : {
       "comment" : "The name of the quicklink that opens Google Translate."
+    },
+    "Translate a text with Apple's translation, on this Mac. Also translate to german good morning" : {
+      "comment" : "The words after Also are typed as they are and stay in English."
+    },
+    "Translation" : {
+      "comment" : "The heading over a translated text."
     },
     "Translators" : {
       "comment" : "A link to the list of people who translated Floe."

@@ -117,6 +117,7 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - `bookmarks <text>` finds a bookmark of Chrome, Brave, Edge, Arc, Vivaldi, Dia or Helium.
 - `time in tokyo` and `time 5pm in berlin` show the time somewhere else.
 - `uuid`, `password 24` and `lorem 3` make something to paste.
+- `translate hola mundo` and `translate to german good morning` translate with Apple's translation, on this Mac. The row says it is Apple's, and that it can be rough.
 - `battery`, `disk`, `memory` and `ip` show a fact about this Mac, under the other results.
 - `brew ripgrep` finds a Homebrew package; Return installs or upgrades it in your terminal. `brew` alone lists what is installed.
 - `base64`, `unbase64`, `urlencode`, `urldecode`, `uppercase`, `lowercase`, `titlecase` and `sha256` change the text after them, or the clipboard.
