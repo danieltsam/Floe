@@ -58,6 +58,8 @@ nonisolated enum SelectedText {
     static func accessibilitySelectedText() -> String? {
         let systemWide = AXUIElementCreateSystemWide()
         AXUIElementSetMessagingTimeout(systemWide, 0.25)
+        // On the system-wide element the limit is the whole process's, so it is given back.
+        defer { AXUIElementSetMessagingTimeout(systemWide, 0) }
         var app: CFTypeRef?
         guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedApplicationAttribute as CFString, &app) == .success,
               let app, CFGetTypeID(app) == AXUIElementGetTypeID()
