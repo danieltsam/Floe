@@ -62,3 +62,31 @@ import Testing
         #expect(OpenWindows.focus(windows[0]) == false, "a window with no element behind it cannot be raised")
     }
 }
+
+@MainActor struct WindowRowTests {
+    private let model: LauncherModel
+
+    init() throws {
+        let defaults = try #require(UserDefaults(suiteName: "floe-window-tests-\(UUID().uuidString)"))
+        model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
+    }
+
+    @Test func aWindowOffersMinimizeOnlyWhileItIsNotMinimized() {
+        let open = OpenWindow(id: "1:0", title: "Inbox", appName: "Mail")
+        let minimized = OpenWindow(id: "1:1", title: "Draft", appName: "Mail", isMinimized: true)
+        #expect(model.windowActions(for: open).compactMap { $0?.title } == ["Minimize Window", "Close Window"])
+        #expect(model.windowActions(for: minimized).compactMap { $0?.title } == ["Close Window"])
+        #expect(LauncherModel.title(for: .window(open)) == "Switch to Window")
+        #expect(LauncherModel.title(for: .access) == "Open Privacy Settings")
+    }
+
+    @Test func aWindowThatWasNotReadFromAnAppIsLeftAlone() {
+        let window = OpenWindow(id: "1:0", title: "Inbox", appName: "Mail")
+        #expect(!OpenWindows.focus(window))
+        #expect(!OpenWindows.minimize(window))
+        #expect(!OpenWindows.close(window))
+        for action in model.windowActions(for: window) {
+            action?.run()
+        }
+    }
+}
