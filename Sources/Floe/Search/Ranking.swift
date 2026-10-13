@@ -126,7 +126,7 @@ enum Ranking {
     }
 
     /// A menu bar item matches on its name, or less strongly on the app that owns it.
-    static func menuBarScore(query: String, name: String, owner: String) -> Int? {
+    static nonisolated func menuBarScore(query: String, name: String, owner: String) -> Int? {
         [Fuzzy.score(query, name), Fuzzy.score(query, owner).map { $0 - 10 }].compactMap(\.self).max()
     }
 }

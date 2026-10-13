@@ -87,14 +87,14 @@ struct BookmarkSearchScope: SearchScope {
         let (stream, continuation) = AsyncStream.makeStream(of: [RootItem].self)
         Task { @concurrent [read] in
             let found = read()
-            await continuation.yield(MainActor.run { Self.ranked(found, query: text).prefix(Bookmarks.rowLimit).map(RootItem.bookmark) })
+            continuation.yield(Self.ranked(found, query: text).prefix(Bookmarks.rowLimit).map(RootItem.bookmark))
             continuation.finish()
         }
         return stream
     }
 
     /// Bookmarks whose title or site matches, best first.
-    static func ranked(_ bookmarks: [WebBookmark], query: String) -> [WebBookmark] {
+    static nonisolated func ranked(_ bookmarks: [WebBookmark], query: String) -> [WebBookmark] {
         bookmarks
             .compactMap { bookmark in Ranking.menuBarScore(query: query, name: bookmark.title, owner: bookmark.label).map { (bookmark, $0) } }
             .sorted { $0.1 > $1.1 }

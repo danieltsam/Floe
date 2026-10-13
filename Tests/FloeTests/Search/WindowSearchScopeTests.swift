@@ -7,6 +7,7 @@
 
 @testable import Floe
 import Foundation
+import Synchronization
 import Testing
 
 @MainActor struct WindowSearchScopeTests {
@@ -88,5 +89,26 @@ import Testing
         for action in model.windowActions(for: window) {
             action?.run()
         }
+    }
+
+    @Test func anActionOnAWindowReadsTheWindowsAgain() async throws {
+        let defaults = try #require(UserDefaults(suiteName: "floe-window-tests-\(UUID().uuidString)"))
+        let scans = Mutex(0)
+        let window = OpenWindow(id: "1:0", title: "Inbox", appName: "Mail")
+        let scope = WindowSearchScope(isTrusted: { true }, scan: {
+            scans.withLock { $0 += 1 }
+            return [window]
+        })
+        let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [scope], sources: [])
+        model.query = "windows"
+        for _ in 0 ..< 1000 where model.results.isEmpty {
+            try await Task.sleep(for: .milliseconds(1))
+        }
+        #expect(scans.withLock { $0 } == 1)
+        model.windowActions(for: window).last??.run()
+        for _ in 0 ..< 1000 where scans.withLock({ $0 }) < 2 {
+            try await Task.sleep(for: .milliseconds(1))
+        }
+        #expect(scans.withLock { $0 } == 2, "the list is read again, so a closed window leaves it")
     }
 }

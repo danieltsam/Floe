@@ -33,18 +33,18 @@ struct WindowSearchScope: SearchScope {
         let (stream, continuation) = AsyncStream.makeStream(of: [RootItem].self)
         Task { @concurrent [scan] in
             let found = scan()
-            await continuation.yield(Self.rows(found, query: text))
+            continuation.yield(Self.rows(found, query: text))
             continuation.finish()
         }
         return stream
     }
 
-    static func rows(_ windows: [OpenWindow], query: String) -> [RootItem] {
+    static nonisolated func rows(_ windows: [OpenWindow], query: String) -> [RootItem] {
         ranked(windows, query: query).map { .window(.window($0)) }
     }
 
     /// Windows whose title or app matches, best first. Without a query, all of them in the order they were read.
-    static func ranked(_ windows: [OpenWindow], query: String) -> [OpenWindow] {
+    static nonisolated func ranked(_ windows: [OpenWindow], query: String) -> [OpenWindow] {
         guard !query.isEmpty else { return windows }
         return windows
             .compactMap { window in Ranking.menuBarScore(query: query, name: window.title, owner: window.appName).map { (window, $0) } }

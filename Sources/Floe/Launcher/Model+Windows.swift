@@ -32,13 +32,19 @@ extension LauncherModel {
         if !window.isMinimized {
             actions.append(ItemAction(title: String(localized: "Minimize Window", bundle: .floe), symbol: "minus.rectangle") { [weak self] in
                 OpenWindows.minimize(window)
-                self?.refresh()
+                self?.rescanWindows()
             })
         }
         actions.append(ItemAction(title: String(localized: "Close Window", bundle: .floe), symbol: "xmark.rectangle") { [weak self] in
             OpenWindows.close(window)
-            self?.refresh()
+            self?.rescanWindows()
         })
         return actions
+    }
+
+    /// A refresh leaves a scope with the same query alone, so the scope is let go first and the windows are read again.
+    private func rescanWindows() {
+        activeScope = nil
+        refresh()
     }
 }

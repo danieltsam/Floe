@@ -101,7 +101,7 @@ final class LauncherModel: ObservableObject {
     var showActions: () -> Void = { /* set by the Actions button */ }
 
     /// The scope whose rows are on screen, when the query names one.
-    private(set) var activeScope: ScopeMatch?
+    var activeScope: ScopeMatch?
     /// True while a scope's rows are still on their way.
     @Published private(set) var isAwaitingResults = false
     /// Stands in for opening a scope's row. Tests set it: the real thing pastes and clicks outside the launcher.
