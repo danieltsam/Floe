@@ -24,18 +24,22 @@ nonisolated enum StoreSearch {
     }
 
     static func score(_ query: String, name: String) -> Int? {
-        let wanted = forms(query)
-        let candidate = forms(name)
-        return [Fuzzy.score(wanted.spaced, candidate.spaced), Fuzzy.score(wanted.joined, candidate.joined)].compactMap(\.self).max()
+        score(forms(query), name: forms(name))
+    }
+
+    /// The score with the query's and the name's forms already split, so a search of the whole catalog
+    /// splits the query once and each name once instead of both again for every candidate.
+    static func score(_ wanted: (spaced: String, joined: String), name candidate: (spaced: String, joined: String)) -> Int? {
+        [Fuzzy.score(wanted.spaced, candidate.spaced), Fuzzy.score(wanted.joined, candidate.joined)].compactMap(\.self).max()
     }
 
     /// Everything, in the catalog's order, for a query with nothing to match on.
     static func results(_ catalog: [StoreListing], query: String) -> [StoreListing] {
-        guard !forms(query).joined.isEmpty else { return catalog }
-        return catalog.enumerated()
-            .compactMap { index, listing in score(query, name: listing.name).map { (listing, $0, index) } }
-            // Equal scores keep the catalog's order, which a plain sort does not promise.
-            .sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.2 < $1.2 }
+        let wanted = forms(query)
+        guard !wanted.joined.isEmpty else { return catalog }
+        // sorted(by:) is stable, so equal scores keep the catalog's order.
+        return catalog.compactMap { listing in score(wanted, name: forms(listing.name)).map { (listing, $0) } }
+            .sorted { $0.1 > $1.1 }
             .map(\.0)
     }
 }

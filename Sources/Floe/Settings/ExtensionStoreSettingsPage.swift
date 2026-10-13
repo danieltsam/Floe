@@ -10,6 +10,9 @@ import SwiftUI
 struct ExtensionStoreSettingsPage: View {
     @ObservedObject private var store: ExtensionStore = .shared
     @State private var query = ""
+    /// The catalog against the query, as it was last worked out. The ranking runs when one of the two
+    /// changes, not on every pass of the view, where a row's own state would ask for it again.
+    @State private var matched: [StoreListing] = []
     @State private var selection: String?
     private let columns = [GridItem(.adaptive(minimum: 160, maximum: 220), spacing: 12, alignment: .top)]
 
@@ -26,8 +29,12 @@ struct ExtensionStoreSettingsPage: View {
                 .padding(12)
         }
         .task {
+            // The catalog may be here already, and when a load brings it, the change asks again below.
+            search()
             await store.loadCatalog()
         }
+        .onChange(of: query) { _, _ in search() }
+        .onChange(of: store.catalog) { _, _ in search() }
         .alert(store.menuBarOffer?.title ?? "", isPresented: offerIsShown, presenting: store.menuBarOffer) { offer in
             if offer.ready.isEmpty {
                 Button("OK", role: .cancel) { store.menuBarOffer = nil }
@@ -48,6 +55,10 @@ struct ExtensionStoreSettingsPage: View {
                 store.menuBarOffer = nil
             }
         })
+    }
+
+    private func search() {
+        matched = StoreSearch.results(store.catalog, query: query)
     }
 
     @ViewBuilder
@@ -74,7 +85,7 @@ struct ExtensionStoreSettingsPage: View {
             // A plain list beside the details: a split view inside Settings' own split view collapses
             // its list and pushes the window wider.
             // Matched once for each pass: the list and its empty state read the same rows.
-            let filtered = StoreSearch.results(store.catalog, query: query)
+            let filtered = matched
             HStack(spacing: 0) {
                 VStack(spacing: 0) {
                     TextField("Search extensions", text: $query)
