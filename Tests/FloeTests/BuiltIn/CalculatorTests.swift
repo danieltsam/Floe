@@ -254,6 +254,20 @@ struct CalculatorTests {
         #expect(powerToUnknown?.error == "Cannot convert Power to 'foo'.")
     }
 
+    @Test(arguments: ["how to code in rust", "how to", "sign in to github", "log in", "a to z", "2 ways to code in rust", "10 foo to bar", "all in one", "all in"])
+    func aSentenceWithAConversionWordIsNotAConversion(typed: String) {
+        #expect(calculator.evaluatePreview(typed) == nil)
+    }
+
+    @Test func aConversionStillAnswersOrSaysWhyNot() {
+        #expect(calculator.evaluatePreview("km to miles")?.result.hasSuffix("miles") == true)
+        #expect(calculator.evaluatePreview("5 km in miles")?.result.hasSuffix("miles") == true)
+        #expect(calculator.evaluatePreview("10 W to")?.error == nil, "a conversion half typed keeps its place")
+        #expect(calculator.evaluatePreview("10 parsec to kg")?.error == "Incompatible unit conversion.")
+        #expect(calculator.evaluatePreview("km to kg")?.error == "Cannot convert Length to Mass.")
+        #expect(calculator.evaluatePreview("kilopond to N")?.result == "9.80665 N")
+    }
+
     @Test func nonCalculationQueriesDoNotActivate() {
         #expect(calculator.evaluatePreview("Safari") == nil)
         #expect(calculator.evaluatePreview("Terminal") == nil)

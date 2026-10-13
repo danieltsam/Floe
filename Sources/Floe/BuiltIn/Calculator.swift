@@ -188,12 +188,13 @@ final class Calculator: @unchecked Sendable {
             return Self.timedOut
         }
         // And the sentence it refuses money with: it has no rates to convert by.
-        if case .failure(FendError.evaluationFailed("exchange rates are not available")) = evaluated {
+        // Only of an amount: "all in one" names the lek to fend and is no question about money.
+        if case .failure(FendError.evaluationFailed("exchange rates are not available")) = evaluated, Self.opensWithAQuantity(exprToEvaluate) {
             return CalculationPreview(error: String(localized: "To convert money, switch on exchange rates in Settings, Privacy.", bundle: .floe, comment: "A calculator error."))
         }
 
         // Check if query is an invalid unit conversion
-        if let unitError = unitConversionErrorMessage(exprToEvaluate, error: nil) {
+        if let unitError = unitConversionErrorMessage(exprToEvaluate, refused: Self.isRefusedConversion(evaluated)) {
             return CalculationPreview(result: "", error: unitError)
         }
 

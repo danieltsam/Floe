@@ -73,6 +73,19 @@ extension Calculator {
         return hasOperator && query.contains(where: { $0.isNumber || $0.isLetter })
     }
 
+    /// True of text that opens with a number, a sign, a bracket, a root or a currency's symbol: "10 W to", "$5 in".
+    /// A conversion word after anything else may be part of a sentence: "how to code in rust".
+    static func opensWithAQuantity(_ text: String) -> Bool {
+        guard let first = text.first(where: { !$0.isWhitespace }) else { return false }
+        return first.isNumber || first.isCurrencySymbol || "+-−.(√∛∜".contains(first)
+    }
+
+    /// fend's own words for two units that do not convert, which it also says of units this file has no name for.
+    static func isRefusedConversion(_ evaluated: Result<FendResult, Error>) -> Bool {
+        guard case let .failure(FendError.evaluationFailed(said)) = evaluated else { return false }
+        return said.hasPrefix("cannot convert")
+    }
+
     /// Checks if expression is incomplete and awaiting more input.
     func isIncompleteExpression(_ query: String) -> Bool {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -104,14 +117,15 @@ extension Calculator {
             #"\bas$"#,
         ]
         for pattern in conversionEndings where trimmed.range(of: pattern, options: .regularExpression) != nil {
-            return true
+            return Self.opensWithAQuantity(trimmed)
         }
 
         return false
     }
 
     /// Generates a friendly error message when a unit conversion fails (e.g. "Cannot convert Power to Temperature.").
-    func unitConversionErrorMessage(_ query: String, error: Error? = nil) -> String? {
+    /// Nil for a sentence: text that opens with no quantity and does not name a kind of unit on both sides.
+    func unitConversionErrorMessage(_ query: String, refused: Bool) -> String? {
         let lower = query.lowercased()
         guard let toRange = lower.range(of: #"\b(to|in|into|as)\b"#, options: .regularExpression) else {
             return nil
@@ -123,6 +137,7 @@ extension Calculator {
 
         let fromCategory = unitCategory(leftPart)
         let toCategory = unitCategory(rightPart)
+        guard Self.opensWithAQuantity(leftPart) || (fromCategory != nil && toCategory != nil) else { return nil }
 
         if let from = fromCategory, let to = toCategory, from != to {
             return String(localized: "Cannot convert \(from) to \(to).", bundle: .floe, comment: "A calculator error. Both placeholders are kinds of unit, such as Length and Time.")
@@ -132,10 +147,8 @@ extension Calculator {
             return String(localized: "Cannot convert \(from) to '\(rightPart)'.", bundle: .floe, comment: "A calculator error. The first placeholder is a kind of unit, such as Length; the second is what was typed.")
         }
 
-        if let errDesc = error?.localizedDescription, !errDesc.isEmpty, !errDesc.contains("expected") {
-            return errDesc
-        }
-
+        // "2 ways to code in rust" opens with a number and is no conversion: fend did not call it one.
+        guard refused || fromCategory != nil else { return nil }
         return String(localized: "Incompatible unit conversion.", bundle: .floe, comment: "A calculator error.")
     }
 
