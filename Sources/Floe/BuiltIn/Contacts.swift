@@ -168,17 +168,11 @@ struct ContactSearchScope: SearchScope {
     /// Asks for access and reads the address book. Nil while `results` has the people.
     func updates(for text: String, context _: SearchContext) -> AsyncStream<[RootItem]>? {
         guard cache.kept(for: 0, lasting: lifetime, now: now()) == nil else { return nil }
-        let (stream, continuation) = AsyncStream.makeStream(of: [RootItem].self)
-        Task { @concurrent [book, cache, lifetime, now] in
-            if await book.requestAccess() {
-                let people = cache.value(for: 0, lasting: lifetime, now: now()) { book.people() }
-                continuation.yield(ContactSearch.matching(people, query: text).map { RootItem.contact(.person($0)) })
-            } else {
-                continuation.yield([.contact(.access)])
-            }
-            continuation.finish()
+        return .once { [book, cache, lifetime, now] in
+            guard await book.requestAccess() else { return [.contact(.access)] }
+            let people = cache.value(for: 0, lasting: lifetime, now: now()) { book.people() }
+            return ContactSearch.matching(people, query: text).map { .contact(.person($0)) }
         }
-        return stream
     }
 
     private func rows(_ people: [ContactPerson], text: String) -> [RootItem] {

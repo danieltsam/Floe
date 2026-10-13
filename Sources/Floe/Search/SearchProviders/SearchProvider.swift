@@ -71,6 +71,11 @@ extension SearchContext {
         else { return nil }
         return text
     }
+
+    /// As `text(after:)`, and empty for the keyword alone: for a scope whose word by itself lists everything.
+    func text(afterOrAlone keyword: String) -> String? {
+        text(after: keyword) ?? (trimmed.lowercased() == keyword ? "" : nil)
+    }
 }
 
 /// What one provider adds to the root search for one query.

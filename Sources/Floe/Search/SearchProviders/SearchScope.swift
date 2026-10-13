@@ -99,3 +99,20 @@ final class SearchUpdates {
         task?.cancel()
     }
 }
+
+extension AsyncStream where Element == [RootItem] {
+    /// One batch of rows that takes a while to find, made off the main actor. Nil sends nothing, and a search
+    /// that moves on cancels the work. With a pause, nothing is asked until the typing has rested that long.
+    static func once(after pause: Duration = .zero, _ rows: @escaping @Sendable () async -> [RootItem]?) -> AsyncStream<[RootItem]> {
+        let (stream, continuation) = makeStream(of: [RootItem].self)
+        let work = Task { @concurrent in
+            try? await Task.sleep(for: pause)
+            if !Task.isCancelled, let rows = await rows(), !Task.isCancelled {
+                continuation.yield(rows)
+            }
+            continuation.finish()
+        }
+        continuation.onTermination = { _ in work.cancel() }
+        return stream
+    }
+}

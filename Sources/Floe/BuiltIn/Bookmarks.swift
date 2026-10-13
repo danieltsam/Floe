@@ -84,20 +84,11 @@ struct BookmarkSearchScope: SearchScope {
     }
 
     func updates(for text: String, context _: SearchContext) -> AsyncStream<[RootItem]>? {
-        let (stream, continuation) = AsyncStream.makeStream(of: [RootItem].self)
-        Task { @concurrent [read] in
-            let found = read()
-            continuation.yield(Self.ranked(found, query: text).prefix(Bookmarks.rowLimit).map(RootItem.bookmark))
-            continuation.finish()
-        }
-        return stream
+        .once { [read] in Self.ranked(read(), query: text).prefix(Bookmarks.rowLimit).map(RootItem.bookmark) }
     }
 
     /// Bookmarks whose title or site matches, best first.
     static nonisolated func ranked(_ bookmarks: [WebBookmark], query: String) -> [WebBookmark] {
-        bookmarks
-            .compactMap { bookmark in Ranking.menuBarScore(query: query, name: bookmark.title, owner: bookmark.label).map { (bookmark, $0) } }
-            .sorted { $0.1 > $1.1 }
-            .map(\.0)
+        bookmarks.ranked { Ranking.menuBarScore(query: query, name: $0.title, owner: $0.label) }
     }
 }

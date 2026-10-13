@@ -130,3 +130,12 @@ enum Ranking {
         [Fuzzy.score(query, name), Fuzzy.score(query, owner).map { $0 - 10 }].compactMap(\.self).max()
     }
 }
+
+extension Collection {
+    /// The elements a score keeps, the highest first. Equal scores keep the order they came in.
+    nonisolated func ranked(limit: Int? = nil, by score: (Element) -> Int?) -> [Element] {
+        compactMap { element in score(element).map { (element, $0) } }
+            .min(count: limit ?? count) { $0.1 > $1.1 }
+            .map(\.0)
+    }
+}

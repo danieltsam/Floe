@@ -17,10 +17,7 @@ struct WindowSearchScope: SearchScope {
     var scan: @Sendable () -> [OpenWindow] = OpenWindows.scan
 
     func text(in context: SearchContext) -> String? {
-        if let text = context.text(after: keyword) {
-            return text
-        }
-        return context.trimmed.lowercased() == keyword ? "" : nil
+        context.text(afterOrAlone: keyword)
     }
 
     func results(for _: String, context _: SearchContext) -> [RootItem] {
@@ -30,13 +27,7 @@ struct WindowSearchScope: SearchScope {
     /// Each window is a round trip to its app, so they are read off the main thread, fresh for every query.
     func updates(for text: String, context _: SearchContext) -> AsyncStream<[RootItem]>? {
         guard isTrusted() else { return nil }
-        let (stream, continuation) = AsyncStream.makeStream(of: [RootItem].self)
-        Task { @concurrent [scan] in
-            let found = scan()
-            continuation.yield(Self.rows(found, query: text))
-            continuation.finish()
-        }
-        return stream
+        return .once { [scan] in Self.rows(scan(), query: text) }
     }
 
     static nonisolated func rows(_ windows: [OpenWindow], query: String) -> [RootItem] {
@@ -46,9 +37,6 @@ struct WindowSearchScope: SearchScope {
     /// Windows whose title or app matches, best first. Without a query, all of them in the order they were read.
     static nonisolated func ranked(_ windows: [OpenWindow], query: String) -> [OpenWindow] {
         guard !query.isEmpty else { return windows }
-        return windows
-            .compactMap { window in Ranking.menuBarScore(query: query, name: window.title, owner: window.appName).map { (window, $0) } }
-            .sorted { $0.1 > $1.1 }
-            .map(\.0)
+        return windows.ranked { Ranking.menuBarScore(query: query, name: $0.title, owner: $0.appName) }
     }
 }

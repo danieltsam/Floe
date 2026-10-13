@@ -115,10 +115,7 @@ struct KeywordSearchScope: SearchScope {
 
     /// The word alone lists everything, as `receipts` does.
     func text(in context: SearchContext) -> String? {
-        if let text = context.text(after: keyword) {
-            return text
-        }
-        return context.trimmed.lowercased() == keyword ? "" : nil
+        context.text(afterOrAlone: keyword)
     }
 
     func results(for text: String, context: SearchContext) -> [RootItem] {

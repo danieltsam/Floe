@@ -74,14 +74,10 @@ struct RecentDocumentsScope: SearchScope {
     /// Spotlight is asked off the main thread; nothing is asked when the text names no app.
     func updates(for text: String, context: SearchContext) -> AsyncStream<[RootItem]>? {
         guard let app = RecentDocuments.app(named: text, in: context.apps) else { return nil }
-        let (stream, continuation) = AsyncStream.makeStream(of: [RootItem].self)
-        Task { @concurrent [recentlyUsed, opener] in
-            let files = RecentDocuments.documents(of: app.url, among: recentlyUsed(), opener: opener).map { used in
-                FileResult(url: used.url, name: used.url.lastPathComponent, displayPath: (used.url.path as NSString).abbreviatingWithTildeInPath, contentType: nil, lastUsed: used.date)
+        return .once { [recentlyUsed, opener] in
+            RecentDocuments.documents(of: app.url, among: recentlyUsed(), opener: opener).map { used in
+                .file(FileResult(url: used.url, name: used.url.lastPathComponent, displayPath: (used.url.path as NSString).abbreviatingWithTildeInPath, contentType: nil, lastUsed: used.date))
             }
-            continuation.yield(files.map(RootItem.file))
-            continuation.finish()
         }
-        return stream
     }
 }

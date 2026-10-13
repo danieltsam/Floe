@@ -38,12 +38,9 @@ struct PortSearchScope: SearchScope {
 
     func updates(for text: String, context _: SearchContext) -> AsyncStream<[RootItem]>? {
         guard let port = Int(text) else { return nil }
-        let (stream, continuation) = AsyncStream.makeStream(of: [RootItem].self)
-        Task { @concurrent [running, listening] in
+        return .once { [running, listening] in
             let pids = Set(listening(port))
-            continuation.yield(running().filter { pids.contains($0.pid) }.map(RootItem.process))
-            continuation.finish()
+            return running().filter { pids.contains($0.pid) }.map(RootItem.process)
         }
-        return stream
     }
 }

@@ -72,11 +72,6 @@ final class MenuBarSearchScope: SearchScope {
 
     /// Items whose name or owning app matches, best first.
     static func ranked(_ extras: [MenuBarExtra], query: String, names: [String: String]) -> [MenuBarExtra] {
-        extras
-            .compactMap { extra -> (MenuBarExtra, Int)? in
-                Ranking.menuBarScore(query: query, name: displayName(for: extra, names: names), owner: extra.ownerName).map { (extra, $0) }
-            }
-            .sorted { $0.1 > $1.1 }
-            .map(\.0)
+        extras.ranked { Ranking.menuBarScore(query: query, name: displayName(for: $0, names: names), owner: $0.ownerName) }
     }
 }
