@@ -8,13 +8,16 @@
 import AppKit
 
 extension LauncherModel {
-    /// A key that means something only on the kind of row that is selected: Tab completes a shell
-    /// suggestion, and Command-Y shows a file in Quick Look. False for any other key or row.
+    /// A key that means something only on the kind of row that is selected: Tab completes a shell suggestion
+    /// or lists an application's recently used files, and Command-Y shows a file in Quick Look. False for any other key or row.
     func handleRowKey(_ event: NSEvent, _ flags: NSEvent.ModifierFlags) -> Bool {
         guard results.indices.contains(selection) else { return false }
         switch (event.keyCode, results[selection].item) {
         case let (48, .shell(row, _)) where flags.isEmpty && row.origin != .typed:
             complete(with: row)
+        case let (48, .app(app)) where flags.isEmpty:
+            query = RecentDocuments.keyword + " " + app.name
+            focusToken += 1
         case let (16, .file(file)) where flags == .command:
             QuickLookPresenter.shared.show(file.url)
         default:

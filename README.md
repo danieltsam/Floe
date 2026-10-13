@@ -58,7 +58,7 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - Results are ranked by how often and how recently you use them, with fuzzy matching on scattered letters.
 - Give an application or command an alias or a hotkey, and mark favorites that stay at the top.
 - Set hotkeys for Emoji, Clipboard History, File Search and the system commands.
-- Narrow a search to one place with a scope: `files`, `menu`, `tabs`, `windows`, `bookmarks`.
+- Narrow a search to one place with a scope: `files`, `menu`, `tabs`, `windows`, `bookmarks`, `recent`.
 - Type a web address or a path in full to open it (`~/Downloads` gets the file actions).
 - Type `keywords` or `?` to list every word the search answers to, with an example of each.
 - Press the Up arrow to bring back the last 50 searches that opened something.
@@ -113,6 +113,7 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - Currency conversion with the European Central Bank's daily rates (opt-in).
 - `define <word>` shows what the Mac's dictionary says about it. Return opens the word in the Dictionary app.
 - `windows <title>` lists the open windows that match, to switch to one, minimize it or close it.
+- Tab on an application, or `recent <app>`, lists the recently used files that open in it.
 - `bookmarks <text>` finds a bookmark of Chrome, Brave, Edge, Arc, Vivaldi, Dia or Helium.
 - `time in tokyo` and `time 5pm in berlin` show the time somewhere else.
 - `uuid`, `password 24` and `lorem 3` make something to paste.

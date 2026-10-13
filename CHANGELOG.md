@@ -110,6 +110,7 @@ After you install:
 - **The calculator reads sums the way people type them.** `200 + 10%` is 220, `100 f to c` converts a temperature, `5 ft 10 in to cm` is 177.8 cm and `today + 3 days` is a date.
 - **`define tide` shows what the dictionary says about a word.** The answer comes from the dictionaries on your Mac, the ones switched on in the Dictionary app, so nothing is sent anywhere. Return opens the word in Dictionary, and the Actions menu copies the definition.
 - **`windows` lists your open windows**, and text after it narrows them by title or app. Return switches to one, out of the Dock if it is minimized. The Actions menu minimizes or closes it. It shows titles, not thumbnails, and needs Accessibility.
+- **Tab on an application lists the recently used files that open in it**, and so does `recent preview`. Spotlight says which files you used in the last 30 days, and macOS says which app opens each. It is not the app's own Open Recent list, which Floe may not read.
 - **`bookmarks invoice` finds a bookmark** of Chrome, Brave, Edge, Arc, Vivaldi, Dia or Helium. Floe reads the browser's own file when you type the word, and nothing leaves your Mac. Safari is not covered.
 - **`time in tokyo` shows the time there**, and how far it is from yours. `time 5pm in berlin` takes a time of day here to there.
 - **`uuid`, `password 24` and `lorem 3` make something to paste.** A password is copied so that clipboard managers leave it out.

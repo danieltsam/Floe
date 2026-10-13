@@ -1641,6 +1641,7 @@
     "Liquid Glass" : {
       "comment" : "A kind of glass material for the launcher, as a choice in a picker."
     },
+    "List the recently used files an application opens" : {},
     "List the timers that are running" : {},
     "Listening on the Port" : {},
     "Loading extensions…" : {},
@@ -1845,6 +1846,7 @@
     "No open window matches" : {},
     "No receipts yet" : {},
     "No recent files" : {},
+    "No recently used file opens in that app" : {},
     "No recipient" : {
       "comment" : "Beside a mail or message draft whose text names nobody to send it to."
     },
@@ -2181,6 +2183,7 @@
     "Recent" : {
       "comment" : "The heading over the menu bar items opened lately."
     },
+    "Recently Used Files" : {},
     "Recognize commands without the prefix" : {},
     "Record" : {
       "comment" : "Spoken for the button that starts recording a keyboard shortcut."

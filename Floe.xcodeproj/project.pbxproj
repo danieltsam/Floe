@@ -171,6 +171,7 @@
 		84F8DF17DCF1583210979E41 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D967FA03573F90C35F2D5E9B /* main.swift */; };
 		850B7B94E7F7EF68C083D50A /* SyncAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB6FF4189AA62999432BD2F /* SyncAvailability.swift */; };
 		85C59D3C54D8BFE231EE5FA2 /* Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0347FEC0F0A642505C519EC /* Shortcuts.swift */; };
+		863C1D99A8344123CA1CAEF7 /* RecentDocuments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10293FC6F3B888A56C80C673 /* RecentDocuments.swift */; };
 		86B68EECCB3D41E47E4ED450 /* AppPermissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E56A00A425C8E51794B5129 /* AppPermissions.swift */; };
 		872A804C723CB385C6456F7A /* WelcomeSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9E804FCFAE9C367F19FF6F /* WelcomeSettingsSection.swift */; };
 		8822F48836D72A8223C4ED0D /* HostRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA646DF9F19D7ED1E8C4DD0 /* HostRequest.swift */; };
@@ -362,6 +363,7 @@
 		0E5EB75BCD01E99E2C38A14F /* PermissionDecisions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionDecisions.swift; sourceTree = "<group>"; };
 		0EE91FCE25C5B0CA343E30A9 /* SettingsCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCatalog.swift; sourceTree = "<group>"; };
 		0FD171333B4433427EFD4C50 /* OnboardingStepIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepIndicator.swift; sourceTree = "<group>"; };
+		10293FC6F3B888A56C80C673 /* RecentDocuments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentDocuments.swift; sourceTree = "<group>"; };
 		12590EA11A0CFF4478B99322 /* SettingsMerge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMerge.swift; sourceTree = "<group>"; };
 		131B24A184BFA978BDBF3E32 /* Model+Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Events.swift"; sourceTree = "<group>"; };
 		13D930183FBABDD9AA57D1BD /* DiagnosticsSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsSettingsSection.swift; sourceTree = "<group>"; };
@@ -839,6 +841,7 @@
 				2A03C3284393A0228D0A522B /* Processes.swift */,
 				DCD165E46D914A7ED79C3DE0 /* Quicklinks.swift */,
 				00BD4AB165EA8BF5EDA5CABA /* Receipts.swift */,
+				10293FC6F3B888A56C80C673 /* RecentDocuments.swift */,
 				843B3C472EC58D16CB047C34 /* RecentFileUse.swift */,
 				F2C9473A53B6666AEE0D77E1 /* Reminders.swift */,
 				E68175260331547C85A71EBA /* ScriptCommands.swift */,
@@ -1570,6 +1573,7 @@
 				22BDA1B7F111A307F7D250EB /* ReadingWindow.swift in Sources */,
 				986F8CAC6A66B0930D4280AF /* Receipts.swift in Sources */,
 				7E20E68D0D19985CFA108534 /* ReceiptsSearchScope.swift in Sources */,
+				863C1D99A8344123CA1CAEF7 /* RecentDocuments.swift in Sources */,
 				EAB74146473AD34DAC1E7DC3 /* RecentFileUse.swift in Sources */,
 				2DB3E601CF97F2DDF0C51F46 /* Reminders.swift in Sources */,
 				680FA3F8DCF482E6FAA0A3FB /* ResidentBench.swift in Sources */,
