@@ -117,20 +117,17 @@ extension LauncherModel {
         }
     }
 
-    private func handleSessionKey(_ event: NSEvent, _ flags: NSEvent.ModifierFlags, _ session: ExtensionSession) -> Bool {
-        let actions = session.actions
+    /// The keys of an extension's view, for whichever of its states is on screen. Internal, so the
+    /// tests of routing can hand it events the way the key monitor does.
+    func handleSessionKey(_ event: NSEvent, _ flags: NSEvent.ModifierFlags, _ session: ExtensionSession) -> Bool {
         // In a form, arrows and Return belong to the fields; ⌘↵ submits.
-        if session.view?.type == "Form", !session.actionMenuOpen {
-            switch event.keyCode {
-            case 125, 126: return false
-            case 36 where flags != .command: return false
-            case 36:
-                if let action = actions.first {
-                    session.run(action)
-                }
-                return true
-            default: break
-            }
+        if let formKey = handleFormKey(event, flags, session) {
+            return formKey
+        }
+        // A shortcut an action declared is its own, menu open or not: ⇧↵ with the Actions menu on
+        // screen runs the action that declared it, and not the one the menu happens to highlight.
+        if !flags.isEmpty, runDeclaredShortcut(event, flags, session) {
+            return true
         }
         if session.actionMenuOpen, handleActionMenuKey(event, flags, session) {
             return true
@@ -145,16 +142,49 @@ extension LauncherModel {
         case 33 where flags == .command:
             session.send(["type": "pop"])
         case 36:
-            let index = flags == .command ? 1 : 0
-            if actions.indices.contains(index) {
-                session.run(actions[index])
-            }
+            runReturnAction(event, flags, session)
         case 40 where flags == .command:
             session.actionMenuOpen = true
         default:
-            guard !flags.isEmpty, let action = actions.first(where: { Shortcuts.matches($0.props["shortcut"], key: event.charactersIgnoringModifiers, flags: flags) }) else { return false }
-            session.run(action)
+            return false
         }
+        return true
+    }
+
+    /// A form's own keys, when the view on screen is one: arrows and Return belong to the fields,
+    /// and ⌘↵ submits. Nil when this is no form, or a key the fields have no claim on.
+    private func handleFormKey(_ event: NSEvent, _ flags: NSEvent.ModifierFlags, _ session: ExtensionSession) -> Bool? {
+        guard session.view?.type == "Form", !session.actionMenuOpen else { return nil }
+        switch event.keyCode {
+        case 125, 126: return false
+        case 36 where flags != .command: return false
+        case 36:
+            if let action = session.actions.first {
+                session.run(action)
+            }
+            return true
+        default: return nil
+        }
+    }
+
+    /// Return in a session: the main action, the second one with ⌘, or the action that declared Return
+    /// with the modifiers pressed — ⇧↵, ⌃↵ and ⌥↵ belong to it, and not to the main action.
+    private func runReturnAction(_ event: NSEvent, _ flags: NSEvent.ModifierFlags, _ session: ExtensionSession) {
+        let actions = session.actions
+        if let declared = flags.isEmpty ? nil : actions.first(where: { Shortcuts.matches($0.props["shortcut"], key: Shortcuts.pressed(event), flags: flags) }) {
+            session.run(declared)
+            return
+        }
+        let index = flags == .command ? 1 : 0
+        if actions.indices.contains(index) {
+            session.run(actions[index])
+        }
+    }
+
+    /// A key with modifiers that an action declared as its own shortcut, and false when none did.
+    private func runDeclaredShortcut(_ event: NSEvent, _ flags: NSEvent.ModifierFlags, _ session: ExtensionSession) -> Bool {
+        guard !flags.isEmpty, let action = session.actions.first(where: { Shortcuts.matches($0.props["shortcut"], key: Shortcuts.pressed(event), flags: flags) }) else { return false }
+        session.run(action)
         return true
     }
 

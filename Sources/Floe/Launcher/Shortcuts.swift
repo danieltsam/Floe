@@ -37,10 +37,36 @@ enum Shortcuts {
         return flags
     }
 
+    /// The pressed key as Raycast names it, so an action's `{ key: "enter" }` answers to a pressed
+    /// Return, whose characters are a carriage return and no letter at all. A key that is a letter
+    /// or a mark is pressed as its own character.
+    private static let namedKeys: [UInt16: String] = [
+        36: "enter", 76: "enter", 48: "tab", 49: "space", 51: "backspace", 53: "escape", 117: "delete",
+        123: "left", 124: "right", 125: "down", 126: "up", 115: "home", 119: "end", 116: "pageUp", 121: "pageDown",
+    ]
+
+    static func pressed(_ event: NSEvent) -> String? {
+        namedKeys[event.keyCode] ?? event.charactersIgnoringModifiers?.lowercased()
+    }
+
+    /// The names written beside the canonical ones: Floe's own Shortcut constants say "arrowDown"
+    /// where Raycast's docs say "down", and "return" and "esc" are other spellings of enter and escape.
+    private static func canonical(_ key: String) -> String {
+        switch key.lowercased() {
+        case "arrowup": "up"
+        case "arrowdown": "down"
+        case "arrowleft": "left"
+        case "arrowright": "right"
+        case "return": "enter"
+        case "esc": "escape"
+        default: key.lowercased()
+        }
+    }
+
     /// Whether a pressed key, with its modifiers, is the action's `{ modifiers, key }` shortcut.
     static func matches(_ shortcut: Any?, key pressed: String?, flags: NSEvent.ModifierFlags) -> Bool {
         guard let shortcut = shortcut as? [String: Any], let key = shortcut["key"] as? String else { return false }
-        return flags == Self.flags(shortcut["modifiers"] as? [String] ?? []) && pressed?.lowercased() == key.lowercased()
+        return flags == Self.flags(shortcut["modifiers"] as? [String] ?? []) && Self.canonical(key) == pressed.map(Self.canonical)
     }
 
     /// The shortcut as shown beside an action, such as ⌘⇧C.

@@ -48,6 +48,41 @@ struct ShortcutsTests {
         #expect(Shortcuts.matches(copy, key: nil, flags: [.command, .shift]) == false)
     }
 
+    @Test func namedKeysArePressedByTheirKeyCodeNotTheirCharacters() {
+        // Return's characters are a carriage return, so the key an action declares is the name it is
+        // matched by, and the names of the rest come from their key codes the same way.
+        func pressed(_ keyCode: UInt16, characters: String = "\r", flags: NSEvent.ModifierFlags = []) -> String? {
+            let event = NSEvent.keyEvent(
+                with: .keyDown, location: .zero, modifierFlags: flags, timestamp: 0,
+                windowNumber: 0, context: nil, characters: characters,
+                charactersIgnoringModifiers: characters, isARepeat: false, keyCode: keyCode
+            )
+            guard let event else { return nil }
+            return Shortcuts.pressed(event)
+        }
+        #expect(pressed(36) == "enter")
+        #expect(pressed(76) == "enter", "the keypad's Return is Enter too")
+        #expect(pressed(125) == "down")
+        #expect(pressed(48) == "tab")
+        #expect(pressed(51) == "backspace")
+        #expect(pressed(53) == "escape")
+        // A key that is a letter is pressed as that letter, with no modifiers in its name.
+        #expect(pressed(8, characters: "c", flags: .command) == "c")
+    }
+
+    @Test func enterShortcutsMatchTheirModifiersAndTheNamesWrittenBesideRaycasts() {
+        let fill: [String: Any] = ["modifiers": ["shift"], "key": "enter"]
+        #expect(Shortcuts.matches(fill, key: "enter", flags: .shift))
+        #expect(Shortcuts.matches(fill, key: "enter", flags: []) == false, "a bare Return is the main action, not this one")
+        #expect(Shortcuts.matches(fill, key: "enter", flags: .control) == false)
+        let fillWithControl: [String: Any] = ["modifiers": ["ctrl"], "key": "enter"]
+        #expect(Shortcuts.matches(fillWithControl, key: "enter", flags: .control))
+        // The names Floe's own Shortcut constants use, and Raycast's other spellings.
+        #expect(Shortcuts.matches(["modifiers": ["cmd"], "key": "arrowDown"], key: "down", flags: .command))
+        #expect(Shortcuts.matches(["modifiers": ["cmd"], "key": "return"], key: "enter", flags: .command))
+        #expect(Shortcuts.matches(["modifiers": ["cmd"], "key": "esc"], key: "escape", flags: .command))
+    }
+
     @Test func aShortcutWithoutModifiersMatchesTheBareKey() {
         #expect(Shortcuts.matches(["key": "r"], key: "r", flags: []))
     }

@@ -5,6 +5,7 @@
 //  Copyright (Floe) © 2026 René Jiménez
 //  Licensed under the GNU AGPLv3
 
+import AppKit
 @testable import Floe
 import Foundation
 import Testing
@@ -783,5 +784,52 @@ struct ExtensionSessionTests {
         render(planets)
         session.activateMenuEntry(at: 9)
         #expect(recorder.sent.isEmpty)
+    }
+
+    // MARK: Keys
+
+    private let model = LauncherModel(snapshot: CatalogSnapshot(apps: [], commands: []))
+
+    /// A Return keyDown with the given modifiers, the way the key monitor hands one to the model.
+    private func returnKey(_ flags: NSEvent.ModifierFlags = []) throws -> NSEvent {
+        try #require(NSEvent.keyEvent(
+            with: .keyDown, location: .zero, modifierFlags: flags, timestamp: 0, windowNumber: 0,
+            context: nil, characters: "\r", charactersIgnoringModifiers: "\r", isARepeat: false, keyCode: 36
+        ))
+    }
+
+    /// Actions as KeePassXC's are: the main one with no shortcut, and two that declared ⇧↵ and ⌃↵.
+    private func renderPasswordActions() {
+        render(Fixture.node("Detail", id: 5, children: [
+            Fixture.node("Detail.Metadata", id: 6),
+            Fixture.slot("actions", Fixture.node("ActionPanel", children: [
+                Fixture.action("Open Website", id: 11),
+                Fixture.action("Copy Password", id: 12, shortcut: ["modifiers": ["ctrl"], "key": "enter"]),
+                Fixture.action("Fill Password", id: 13, shortcut: ["modifiers": ["shift"], "key": "enter"]),
+            ])),
+        ]))
+    }
+
+    @Test func returnWithAModifierRunsTheActionThatDeclaredIt() throws {
+        renderPasswordActions()
+        _ = model.handleSessionKey(try returnKey(.shift), .shift, session)
+        #expect(recorder.sentEvents("onAction").map { $0["id"] as? Int } == [13], "⇧↵ is Fill Password's own shortcut")
+        _ = model.handleSessionKey(try returnKey(.control), .control, session)
+        #expect(recorder.sentEvents("onAction").map { $0["id"] as? Int } == [13, 12], "⌃↵ is Copy Password's")
+        _ = model.handleSessionKey(try returnKey(), [], session)
+        #expect(recorder.sentEvents("onAction").map { $0["id"] as? Int } == [13, 12, 11], "a bare ↵ is still the main action")
+    }
+
+    @Test func returnWithAModifierRunsItsActionEvenWithTheMenuOpen() throws {
+        renderPasswordActions()
+        session.actionMenuOpen = true
+        session.actionSelection = 0
+        _ = model.handleSessionKey(try returnKey(.shift), .shift, session)
+        #expect(recorder.sentEvents("onAction").map { $0["id"] as? Int } == [13], "the menu highlights Open Website, and ⇧↵ still runs Fill Password")
+        #expect(session.actionMenuOpen == false, "a run from the open menu closes it")
+        // With nothing declared for the modifiers, the menu keeps its Return: the highlighted entry runs.
+        session.actionMenuOpen = true
+        _ = model.handleSessionKey(try returnKey(.option), .option, session)
+        #expect(recorder.sentEvents("onAction").map { $0["id"] as? Int } == [13, 11], "⌥↵ stays the highlighted entry, the first one")
     }
 }
