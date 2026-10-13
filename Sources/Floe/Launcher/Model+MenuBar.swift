@@ -20,6 +20,7 @@ extension LauncherModel {
         }
         setup = nil
         isShowingClipboardHistory = false
+        closeNoteDesk()
         isSearchingMenuBar = true
         if !settings.rememberMenuBarQuery {
             menuBarSearch.query = ""

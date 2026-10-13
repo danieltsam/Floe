@@ -761,6 +761,9 @@
     "Border" : {
       "comment" : "The line drawn around the launcher panel."
     },
+    "Browse Notes" : {
+      "comment" : "The command that shows the user's notes in the panel, to read and write them."
+    },
     "Browser" : {
       "comment" : "The kind of app that opens web pages, as the label of the picker that chooses one."
     },
@@ -861,6 +864,7 @@
     "Choose Another" : {},
     "Choose Image…" : {},
     "Choose a clipboard app in Settings" : {},
+    "Choose a folder for your notes" : {},
     "Choose a folder for your notes in Settings" : {},
     "Choose an App" : {},
     "Choose…" : {},
@@ -1186,7 +1190,7 @@
       }
     },
     "Done" : {
-      "comment" : "Said after a command finished and printed nothing.\nThe button that closes the welcome window."
+      "comment" : "A button that ends writing a note.\nSaid after a command finished and printed nothing.\nThe button that closes the welcome window."
     },
     "Done (script finished)" : {
       "comment" : "Shown briefly when a script finished and printed nothing.",
@@ -1609,7 +1613,21 @@
     "Keeping your Mac awake" : {},
     "Keeps text, links, images and files you copy." : {},
     "Keeps text, links, images and files you copy. Pins survive Clear." : {},
+    "Kept in %@: %@" : {
+      "comment" : "Where the notes on screen are stored. The first placeholder is an app, such as Obsidian; the second is a folder's name.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Kept in %1$@: %2$@"
+          }
+        }
+      }
+    },
     "Kept in the Keychain" : {},
+    "Kept in the folder %@" : {
+      "comment" : "Where the notes on screen are stored. The placeholder is a folder's name."
+    },
     "Keyboard (System Settings)" : {
       "comment" : "The name of a pane of System Settings.",
       "extractionState" : "extracted_with_value",
@@ -1898,6 +1916,8 @@
     "No matching actions" : {},
     "No menu bar items found" : {},
     "No menu bar items match" : {},
+    "No note has that name" : {},
+    "No notes in this folder yet" : {},
     "No open tabs match" : {},
     "No open window matches" : {},
     "No package matches" : {
@@ -2061,7 +2081,7 @@
     "Open an email draft" : {},
     "Open an item's menu when you pick it in the search." : {},
     "Open in %@" : {
-      "comment" : "The placeholder is the name of an app."
+      "comment" : "A button. The placeholder is the name of an app.\nThe placeholder is the name of an app."
     },
     "Open in Contacts" : {
       "comment" : "Contacts is the name of Apple's app."
@@ -2152,6 +2172,8 @@
     "Press %@ to show or hide Floe from any app. You can change the hotkey in Settings." : {
       "comment" : "The placeholder is a keyboard shortcut."
     },
+    "Press ⌘N to make one." : {},
+    "Press ⌘N to write the first." : {},
     "Pressure" : {
       "comment" : "A kind of unit, named in a calculator error."
     },
@@ -2493,6 +2515,7 @@
     "Search field shape" : {},
     "Search files…" : {},
     "Search menu bar items…" : {},
+    "Search notes, or name a new one…" : {},
     "Search the menu bar" : {},
     "Search what you copied" : {},
     "Searching files…" : {},
@@ -2853,6 +2876,9 @@
     "The link that opens your clipboard app's history." : {},
     "The model gave no answer." : {},
     "The model's name, as the API lists it" : {},
+    "The note changed elsewhere. Yours is saved as %@." : {
+      "comment" : "The placeholder is the name of a file."
+    },
     "The oldest questions and answers were not sent with this one." : {
       "comment" : "A note under an AI answer in a long conversation: only the most recent questions and answers went along as context."
     },
@@ -2879,6 +2905,7 @@
     },
     "This file isn't a Floe settings export." : {},
     "This file was exported by a newer version of Floe." : {},
+    "This note is too large to show here, or is not text." : {},
     "This output can't be muted" : {},
     "This output has no volume to change" : {},
     "This source is not on this Mac, and Privacy allows only AI that runs on this Mac. Nothing is asked until one of them changes." : {},
@@ -2918,6 +2945,7 @@
     "To convert money, switch on exchange rates in Settings, Privacy." : {
       "comment" : "A calculator error."
     },
+    "To read and write notes here, choose a folder of notes, such as an Obsidian vault, as the notes app in Settings." : {},
     "Today" : {
       "comment" : "The heading over what was copied today."
     },
@@ -3159,6 +3187,9 @@
     "Window" : {
       "comment" : "The kind of a result, shown beside its title. Here an open window of an app.\nThe title of the Window menu in the menu bar."
     },
+    "Write" : {
+      "comment" : "A verb on a button: start changing the note on screen."
+    },
     "Writes a log for troubleshooting to ~/Library/Logs/Floe." : {},
     "Writes launch times, slow searches and failures to ~/Library/Logs/Floe. Never what you type or ask." : {},
     "Wrote the note %@" : {
@@ -3173,6 +3204,7 @@
     "Your Mac can sleep again" : {},
     "Your Settings" : {},
     "Your iCloud storage is full. Changes made on this Mac are not uploaded." : {},
+    "Your notes are kept in %@" : {},
     "a note" : {
       "comment" : "What a checkpoint holds when it has no files and no tabs."
     },

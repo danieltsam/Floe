@@ -136,6 +136,7 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - Send a link to another browser with Open With.
 - Keep a clipboard history: text with its formatting, links, images and files. Return pastes one, and copies marked private by a password manager are left out.
 - Or choose a clipboard manager, and Clipboard History opens it. Floe then saves no copies.
+- Browse Notes reads and writes the notes of a folder you chose, such as an Obsidian vault, in the panel. They are shown as Markdown, the files stay where your notes app keeps them, and the view says which app that is.
 
 ### Notes
 

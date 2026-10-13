@@ -10,7 +10,7 @@ import Foundation
 /// Floe's own commands that a hotkey can run from anywhere: its views and the system commands.
 extension LauncherModel {
     /// The views, in the order Settings lists them.
-    static let hotkeyViews: [RootItem] = [.menuBarSearch, .emojiSearch, .clipboardHistory, .fileSearch]
+    static let hotkeyViews: [RootItem] = [.menuBarSearch, .emojiSearch, .clipboardHistory, .fileSearch, .noteDesk]
 
     static var hotkeyItems: [RootItem] {
         hotkeyViews + SystemCommand.allCases.map(RootItem.system)
@@ -40,6 +40,9 @@ extension LauncherModel {
         case .fileSearch:
             reset()
             openFileSearch(with: "")
+        case .noteDesk:
+            reset()
+            openNoteDesk()
         case let .system(command):
             runSystemCommand(command)
         default:

@@ -73,6 +73,8 @@ final class LauncherModel: ObservableObject {
     @Published var isShowingClipboardHistory = false
     /// The clipboard history view's own state. Not published: its changes redraw its view only.
     lazy var clipboardHistory = ClipboardHistoryModel(usage: usage)
+    /// The notes of the user's folder, while the panel shows them instead of the root search.
+    @Published var noteDesk: NoteDeskModel?
     /// The question on screen and its answer, while the panel shows them instead of the root search.
     @Published var askAI: AskAIModel?
     /// Answers the question. A test replaces it: the real thing reaches the chosen AI source.
@@ -863,6 +865,7 @@ final class LauncherModel: ObservableObject {
         isShowingClipboardHistory = false
         isSearchingFiles = false
         fileSearch.cancel()
+        closeNoteDesk()
         closeAskAI()
         recalledQuery = nil
         query = ""

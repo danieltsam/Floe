@@ -87,6 +87,8 @@ extension LauncherModel {
             open(row)
         } else if case let .brew(package) = item {
             brew(Homebrew.primaryVerb(for: package), package)
+        } else if case .noteDesk = item {
+            openNoteDesk()
         } else {
             openTyped(item)
         }

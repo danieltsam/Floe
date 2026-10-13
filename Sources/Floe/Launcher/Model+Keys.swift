@@ -34,6 +34,9 @@ extension LauncherModel {
         if isSearchingFiles {
             return fileSearch.handleKey(event, flags)
         }
+        if let noteDesk {
+            return noteDesk.handleKey(event, flags)
+        }
         if let session, session.command.mode == "view" {
             return session.failure == nil ? handleSessionKey(event, flags, session) : handleFailureKey(event, flags, session)
         }

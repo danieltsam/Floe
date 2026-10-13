@@ -24,6 +24,8 @@ enum RootItem: Identifiable {
     case menuBarSearch
     case emojiSearch
     case clipboardHistory
+    /// The notes of the folder the user chose, to read and write in the panel.
+    case noteDesk
     /// Clipboard History while another app keeps the history: the same command, opened there.
     case clipboardApp(ClipboardDestination)
     case fileSearch
@@ -101,6 +103,7 @@ enum RootItem: Identifiable {
     static let emojiSearchKey = "builtin:emoji-search"
     static let clipboardHistoryKey = "builtin:clipboard-history"
     static let fileSearchKey = "builtin:file-search"
+    static let noteDeskKey = "builtin:notes"
 
     var id: String {
         switch self {
@@ -111,6 +114,7 @@ enum RootItem: Identifiable {
         case .emojiSearch: Self.emojiSearchKey
         case .clipboardHistory, .clipboardApp: Self.clipboardHistoryKey
         case .fileSearch: Self.fileSearchKey
+        case .noteDesk: Self.noteDeskKey
         case let .searchFiles(query): "files-for:\(query)"
         case .settings: "settings"
         case .extensionStore: "extension-store"
@@ -164,6 +168,7 @@ enum RootItem: Identifiable {
         case .emojiSearch: String(localized: "Search Emoji & Symbols", bundle: .floe)
         case .clipboardHistory, .clipboardApp: String(localized: "Clipboard History", bundle: .floe)
         case .fileSearch: String(localized: "Search Files", bundle: .floe)
+        case .noteDesk: String(localized: "Browse Notes", bundle: .floe, comment: "The command that shows the user's notes in the panel, to read and write them.")
         case let .searchFiles(query): String(localized: "Search Files for \"\(query)\"", bundle: .floe, comment: "The placeholder is what the user typed.")
         case .settings: String(localized: "Floe Settings", bundle: .floe)
         case .extensionStore: SearchPaneLabel.extensionStore.title
@@ -248,6 +253,7 @@ enum RootItem: Identifiable {
         case .emojiSearch: Self.emojiSearchKey
         case .clipboardHistory, .clipboardApp: Self.clipboardHistoryKey
         case .fileSearch: Self.fileSearchKey
+        case .noteDesk: Self.noteDeskKey
         case let .system(command): "system:\(command.rawValue)"
         case .snippet: id
         case let .focus(request, _): request == .toggle ? id : nil
@@ -264,7 +270,7 @@ extension RootItem {
         case let .command(command) where command.mode == "menu-bar": String(localized: "Menu Bar", bundle: .floe, comment: "The kind of a result, shown beside its title.")
         case .command: String(localized: "Command", bundle: .floe, comment: "The kind of a result, shown beside its title.")
         case .script: String(localized: "Script", bundle: .floe, comment: "The kind of a result, shown beside its title.")
-        case .menuBarSearch, .emojiSearch, .clipboardHistory, .settings, .extensionStore: "Floe"
+        case .menuBarSearch, .emojiSearch, .clipboardHistory, .noteDesk, .settings, .extensionStore: "Floe"
         case let .clipboardApp(destination): destination.label
         case .fileSearch, .searchFiles: String(localized: "Files", bundle: .floe, comment: "The kind of a result, shown beside its title.")
         case .calculator: String(localized: "Calculator", bundle: .floe)

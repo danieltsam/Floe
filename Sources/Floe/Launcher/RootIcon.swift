@@ -25,6 +25,8 @@ struct RootIcon: View {
             Text(verbatim: "😀").font(.system(size: 20))
         case .clipboardHistory:
             IconView(value: "icon:Clipboard", assetsPath: "", size: 24)
+        case .noteDesk:
+            SymbolTile(symbol: "note.text")
         case let .clipboardApp(destination):
             // The chosen app's icon says where the command goes; one that is gone keeps the clipboard.
             if let app = destination.app {

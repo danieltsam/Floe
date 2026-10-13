@@ -35,6 +35,8 @@ struct LauncherView: View {
                 ClipboardHistoryView(clipboard: model.clipboardHistory, launcher: model, focusToken: model.focusToken)
             } else if model.isSearchingFiles {
                 FileSearchView(search: model.fileSearch, spotlight: model.fileSearch.spotlight, launcher: model, focusToken: model.focusToken)
+            } else if let desk = model.noteDesk {
+                NoteDeskView(desk: desk, launcher: model, focusToken: model.focusToken)
             } else if let asking = model.askAI {
                 AskAIView(launcher: model, asking: asking)
             } else {

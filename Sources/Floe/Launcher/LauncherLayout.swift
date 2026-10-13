@@ -121,7 +121,7 @@ extension LauncherModel {
             showingCommand: session?.command.mode == "view",
             menuBarSearch: isSearchingMenuBar,
             clipboardHistory: isShowingClipboardHistory,
-            fileSearch: isSearchingFiles,
+            fileSearch: isSearchingFiles || noteDesk != nil,
             queryIsEmpty: query.isEmpty,
             askingAI: askAI != nil
         )
@@ -132,7 +132,7 @@ extension LauncherModel {
         // Published values arrive before they are stored, so the state is built from what is sent.
         let views = $setup.map { $0 != nil }
             .combineLatest($session.map { $0?.command.mode == "view" }, $isSearchingMenuBar, $isShowingClipboardHistory)
-        let searches = $isSearchingFiles.combineLatest($askAI.map { $0 != nil })
+        let searches = $isSearchingFiles.combineLatest($noteDesk.map { $0 != nil }).map { $0 || $1 }.combineLatest($askAI.map { $0 != nil })
         return views.combineLatest(searches, $query.map(\.isEmpty), settings.$launcherLayout)
             .map { views, searches, queryIsEmpty, layout in
                 LauncherPanelState(
