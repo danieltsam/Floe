@@ -110,7 +110,7 @@ enum SystemCommand: String, CaseIterable, Identifiable {
         case .toggleKeepAwake: String(localized: "caffeinate, awake, prevent sleep, no sleep", bundle: .floe, comment: "Words that find the Toggle Keep Awake command, separated by commas.")
         case .hideOtherApps: String(localized: "hide, hide other apps, hide others", bundle: .floe, comment: "Words that find the Hide Other Apps command, separated by commas.")
         case .quitAllApps: String(localized: "quit all apps, quit all, close all apps", bundle: .floe, comment: "Words that find the Quit All Apps command, separated by commas.")
-        case .quitFloe: String(localized: "quit floe, close floe, quit, close", bundle: .floe,comment: "Words that find the Quit Floe command, separated by commas")
+        case .quitFloe: String(localized: "quit floe, close floe, quit, close", bundle: .floe, comment: "Words that find the Quit Floe command, separated by commas")
         case .playPause: String(localized: "play, pause, resume, stop music, music, spotify", bundle: .floe, comment: "Words that find the Play/Pause command, separated by commas.")
         case .nextTrack: String(localized: "next song, skip, skip song, music, spotify", bundle: .floe, comment: "Words that find the Next Track command, separated by commas.")
         case .previousTrack: String(localized: "previous, previous song, last song, go back, music, spotify", bundle: .floe, comment: "Words that find the Previous Track command, separated by commas.")
