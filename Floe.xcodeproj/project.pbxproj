@@ -218,6 +218,7 @@
 		A6364F799336535D87ABDCFE /* SnippetsSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0249DC6940E1049818D55E /* SnippetsSettingsPage.swift */; };
 		A6C6CEA52FE88F03991F5AE9 /* Contacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208ECA39C6285356E6199F7A /* Contacts.swift */; };
 		A801729F67E721311FCDCD13 /* OutgoingDrafts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80740EC675CC466D11F41A52 /* OutgoingDrafts.swift */; };
+		AA9773F82E103CF7CF9F5940 /* CalculatorFormatter+Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD86360FB59649B01FDD998C /* CalculatorFormatter+Display.swift */; };
 		AA9C7E355B2F52EE97B6C97B /* TextGeneration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46789D9D3D1E774F7F4F3A5F /* TextGeneration.swift */; };
 		AB302CE215493130078A8283 /* TypedLocationSearchProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79E1E2A29B7742FF154E618 /* TypedLocationSearchProvider.swift */; };
 		ABF15CAE52D4077B3762371F /* WordDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC54F87B74836155DF9A1CCF /* WordDefinition.swift */; };
@@ -322,6 +323,7 @@
 		F6F6CC495F74091BFFB9F2D3 /* FileSearchScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20728F0A7A1F9A51B9C8D804 /* FileSearchScope.swift */; };
 		F79ECEE81B269EF3999DF3DA /* ExtensionListViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8AEDEB267607D5474C20D6F /* ExtensionListViews.swift */; };
 		F7A2E028912AD04F9BA46052 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2033FDF332D4135EDF2DEF /* ErrorView.swift */; };
+		F8687ACA1FC1CC74B6683D19 /* ShellSnapshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F03DB2DE4EDE128532158D5 /* ShellSnapshots.swift */; };
 		F95CF7B088BFC83C83907716 /* PanelProcess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F37AC1AE4AB51C03926598 /* PanelProcess.swift */; };
 		F97BEBDE3FD99ECD0125BE18 /* Focus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3FC87CB8661B6367471C15 /* Focus.swift */; };
 		FA8EA9B40FA7FF26B6D03FB3 /* HotkeyRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B83CE1B17D83A1AC6396FF /* HotkeyRecorder.swift */; };
@@ -362,6 +364,7 @@
 		0D8F40351A16F4BD9E39EB5E /* ReceiptsSearchScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptsSearchScope.swift; sourceTree = "<group>"; };
 		0E5EB75BCD01E99E2C38A14F /* PermissionDecisions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionDecisions.swift; sourceTree = "<group>"; };
 		0EE91FCE25C5B0CA343E30A9 /* SettingsCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCatalog.swift; sourceTree = "<group>"; };
+		0F03DB2DE4EDE128532158D5 /* ShellSnapshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellSnapshots.swift; sourceTree = "<group>"; };
 		0FD171333B4433427EFD4C50 /* OnboardingStepIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepIndicator.swift; sourceTree = "<group>"; };
 		10293FC6F3B888A56C80C673 /* RecentDocuments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentDocuments.swift; sourceTree = "<group>"; };
 		12590EA11A0CFF4478B99322 /* SettingsMerge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMerge.swift; sourceTree = "<group>"; };
@@ -635,6 +638,7 @@
 		DCCB9F3F8DDB2CECB63E93F0 /* QuicklinkSearchProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuicklinkSearchProvider.swift; sourceTree = "<group>"; };
 		DCD165E46D914A7ED79C3DE0 /* Quicklinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quicklinks.swift; sourceTree = "<group>"; };
 		DD2D070B65C29C80130B70B2 /* Model+Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Setup.swift"; sourceTree = "<group>"; };
+		DD86360FB59649B01FDD998C /* CalculatorFormatter+Display.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CalculatorFormatter+Display.swift"; sourceTree = "<group>"; };
 		DF06C3F297B3836936EA6CA5 /* ThawAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThawAppearance.swift; sourceTree = "<group>"; };
 		E1C94AC63D188A5B6B05B8A9 /* Browser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Browser.swift; sourceTree = "<group>"; };
 		E32F78329C981B25442EC7DA /* ShellCommand+Running.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShellCommand+Running.swift"; sourceTree = "<group>"; };
@@ -806,6 +810,7 @@
 				346C26CF75579A6E00675695 /* Calculator+Shorthand.swift */,
 				5606623F410AAA0E07344D5E /* CalculatorBlockView.swift */,
 				F74EB72FFA02A1DE5E406A34 /* CalculatorFormatter.swift */,
+				DD86360FB59649B01FDD998C /* CalculatorFormatter+Display.swift */,
 				1C151CC615A8A75880C8E1EB /* CalculatorFormatter+Result.swift */,
 				555B14F53474E2CB55338A18 /* CalculatorFormatter+Roots.swift */,
 				9F4B16687B47CF928DDD9310 /* CalculatorFormatter+Text.swift */,
@@ -850,6 +855,7 @@
 				01DE9A8F192C3A915D449B54 /* ShellCommand.swift */,
 				E32F78329C981B25442EC7DA /* ShellCommand+Running.swift */,
 				4879EB8733EBCA9F1DF5EF6C /* ShellCommand+Saving.swift */,
+				0F03DB2DE4EDE128532158D5 /* ShellSnapshots.swift */,
 				ED515CCCABAF96E696DF5D18 /* ShellSuggestions.swift */,
 				62EF04609C8CF763BA977245 /* Snippets.swift */,
 				2609D6E7C4247E7397CA71E3 /* SSHConnection.swift */,
@@ -1387,6 +1393,7 @@
 				FE1D8CA3B14F9AC9FD40FC6D /* Calculator+Shorthand.swift in Sources */,
 				933BC6B468E7DF6190BB068B /* Calculator.swift in Sources */,
 				E5B7363C3BF8EAB9297C352E /* CalculatorBlockView.swift in Sources */,
+				AA9773F82E103CF7CF9F5940 /* CalculatorFormatter+Display.swift in Sources */,
 				EDA84CF68209AF80B1ADEBA2 /* CalculatorFormatter+Result.swift in Sources */,
 				AD84C699A35719BC8FB473AE /* CalculatorFormatter+Roots.swift in Sources */,
 				CBD4E75613D543B26DCB2538 /* CalculatorFormatter+Text.swift in Sources */,
@@ -1625,6 +1632,7 @@
 				6CBE43C1A44F0870BE884A74 /* ShellCommand.swift in Sources */,
 				C74B57F3DEB3EBF2FFE145AF /* ShellCommandSearchProvider.swift in Sources */,
 				C9BAEA1DB299E5B8BD25CDDC /* ShellCommandsSettingsSection.swift in Sources */,
+				F8687ACA1FC1CC74B6683D19 /* ShellSnapshots.swift in Sources */,
 				98567844EDD7930E94C53A48 /* ShellSuggestions.swift in Sources */,
 				85C59D3C54D8BFE231EE5FA2 /* Shortcuts.swift in Sources */,
 				E740D0C6E19CC54CE1FDBC1B /* Snippets.swift in Sources */,
