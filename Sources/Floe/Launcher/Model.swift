@@ -45,22 +45,12 @@ final class LauncherModel: ObservableObject {
     let setupForm = SetupFormModel()
     /// Bumped whenever the panel is shown so the search field can take focus again.
     @Published var focusToken = 0
-    /// Every command found, including those of disabled extensions; the settings window lists these.
-    @Published private(set) var allCommands: [ExtensionCommand] = []
-    /// Every script command found in the Scripts folder.
-    @Published private(set) var allScripts: [ScriptCommand] = []
-    /// System Settings' panes, found once at launch: they only change with the system.
-    private(set) var settingsPanes: [SystemSettingsPane] = []
-    /// The hosts of the SSH configuration, read again each time the panel opens.
-    private(set) var sshHosts: [SSHHost] = []
+    /// The apps, commands, scripts, panes and hosts the search finds; the model refreshes when a part changes.
+    let catalog: CatalogStore
     /// How a host's connection is opened. Tests replace it, so they open nothing.
     var sshConnector = SSHConnector.system
     /// The shortcuts of Apple's Shortcuts app and their runs. Nothing is read while the switch in Privacy is off.
     lazy var shortcutLibrary = AppleShortcutLibrary()
-    /// Files in the Scripts folder that failed to parse, for the settings pane.
-    @Published private(set) var scriptFailures: [ScriptFailure] = []
-    /// True until the first apps and commands scans have both published, or a snapshot was injected.
-    @Published private(set) var isLoadingCatalog = true
 
     /// True while the panel shows the file search instead of the root search.
     @Published var isSearchingFiles = false
@@ -116,7 +106,7 @@ final class LauncherModel: ObservableObject {
     lazy var definitionSearch = DefinitionSearch()
 
     let settings: AppSettings
-    private let isResident: Bool
+    let isResident: Bool
     /// How the terminal and the editor are looked up. Tests replace it, so they do not read this Mac's apps;
     /// replacing it also drops what the roles resolved to, the way a changed choice does.
     var appLookup = AppLookup.system {
@@ -171,17 +161,6 @@ final class LauncherModel: ObservableObject {
     var checkpoints: [Checkpoint] = []
     /// Where in the remembered searches the field stands, while the Up arrow walks back through them.
     var recalledQuery: Int?
-    private let scanner: any CatalogScanning
-    /// Bumped per request, so a result can tell whether its request is still the newest one.
-    private var appsGeneration = 0
-    private var commandsGeneration = 0
-    private var scriptsGeneration = 0
-    private var appsTask: Task<Void, Never>?
-    private var commandsTask: Task<Void, Never>?
-    private var scriptsTask: Task<Void, Never>?
-    private var hasLoadedApps = false
-    private var hasLoadedCommands = false
-    private var hasLoadedScripts = false
     private var didAutorun = false
     private var pendingReset: DispatchWorkItem?
     private var isPanelShown = false
@@ -189,7 +168,6 @@ final class LauncherModel: ObservableObject {
     private var toastLine: (session: ObjectIdentifier, id: Int, line: String)?
     /// Watches the open command's extension while it is one being developed (see HotReload.swift).
     private var sourceWatcher: DirectoryWatcher?
-    @Published private(set) var apps: [AppEntry] = []
     var commands: [ExtensionCommand] {
         CommandLookup.enabled(allCommands, disabledExtensions: settings.disabledExtensions, disabledCommands: settings.disabledCommands, enabledCommands: settings.enabledCommands)
     }
@@ -235,23 +213,16 @@ final class LauncherModel: ObservableObject {
         self.isResident = isResident
         self.scopes = scopes ?? (isResident ? [] : RootSearch.standardScopes())
         self.sources = sources ?? (isResident ? [] : RootSearch.standardSources())
-        self.scanner = scanner
         self.settings = settings
         self.usage = usage
-        if let snapshot {
-            apps = snapshot.apps
-            allCommands = snapshot.commands
-            allScripts = snapshot.scripts
-            scriptFailures = snapshot.scriptFailures
-            settingsPanes = snapshot.settingsPanes
-            sshHosts = snapshot.sshHosts
-            hasLoadedApps = true
-            hasLoadedCommands = true
-            hasLoadedScripts = true
-            isLoadingCatalog = false
-        }
+        catalog = CatalogStore(scanner: scanner, settings: settings, snapshot: snapshot)
+        catalog.onChange = { [weak self] in self?.catalogChanged($0) }
         guard !isResident else { return }
         connectModes()
+        // The empty-state view reads whether the catalog is loading, which the model does not publish itself.
+        catalog.$isLoading.removeDuplicates().dropFirst()
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &cancellables)
         EmojiCatalog.preload()
         CalendarAgenda.shared.onChange = { [weak self] in self?.refresh() }
         // The roles' apps and the clipboard destination are cached for the search (see `preferredApps`);
@@ -264,129 +235,6 @@ final class LauncherModel: ObservableObject {
                 .store(in: &cancellables)
         }
         refresh()
-    }
-
-    /// Kicks off the initial scans in the worker. Called after the panel and its subscriptions exist,
-    /// so their publications are heard from the start.
-    func startCatalogLoading() {
-        reloadApps()
-        reloadCommands()
-        reloadScripts()
-        guard !isResident else { return }
-        Task { @concurrent [weak self, scanner] in
-            let panes = await scanner.scanSettingsPanes()
-            await self?.finishSettingsPanes(panes)
-        }
-    }
-
-    @MainActor
-    private func finishSettingsPanes(_ panes: [SystemSettingsPane]) {
-        settingsPanes = panes
-        // Nothing to redraw without a query: the panes are only searched for.
-        if !query.isEmpty {
-            refresh()
-        }
-    }
-
-    @discardableResult
-    func reloadSSHHosts() -> Task<Void, Never> {
-        Task { @concurrent [weak self, scanner] in
-            let hosts = await scanner.scanSSHHosts()
-            await self?.finishSSHHosts(hosts)
-        }
-    }
-
-    @MainActor
-    private func finishSSHHosts(_ hosts: [SSHHost]) {
-        guard hosts != sshHosts else { return }
-        sshHosts = hosts
-        // Nothing to redraw without a query: the hosts are only searched for.
-        if !query.isEmpty {
-            refresh()
-        }
-    }
-
-    func reloadCommands() {
-        commandsGeneration += 1
-        let generation = commandsGeneration
-        // Read once, here: the worker never sees the mutable settings object.
-        let includeRaycast = settings.includeRaycastExtensions
-        isLoadingCatalog = true
-        commandsTask = Task { @concurrent [weak self, scanner] in
-            let commands = await scanner.scanCommands(includeRaycast: includeRaycast)
-            await self?.finishCommands(generation: generation, commands: commands)
-        }
-    }
-
-    func reloadScripts() {
-        scriptsGeneration += 1
-        let generation = scriptsGeneration
-        isLoadingCatalog = true
-        scriptsTask = Task { @concurrent [weak self, scanner] in
-            let scan = await scanner.scanScripts()
-            await self?.finishScripts(generation: generation, scan: scan)
-        }
-    }
-
-    /// Publication happens on the main actor; a stale generation is dropped without touching state,
-    /// so rescans keep the previous results visible while they run.
-    @MainActor
-    private func finishScripts(generation: Int, scan: ScriptScan) {
-        guard generation == scriptsGeneration else { return }
-        scriptsTask = nil
-        // The folder is scanned each time the panel opens and is nearly always the same: then nothing is redrawn.
-        let isSame = hasLoadedScripts && scan.commands == allScripts && scan.failures == scriptFailures
-        hasLoadedScripts = true
-        isLoadingCatalog = !hasLoadedApps || !hasLoadedCommands || !hasLoadedScripts
-        guard !isSame else { return }
-        allScripts = scan.commands
-        scriptFailures = scan.failures
-        refresh()
-    }
-
-    /// Joins the script scan in flight, following any newer request that replaces it while the
-    /// caller waits.
-    @MainActor
-    func waitForScripts() async {
-        while let task = scriptsTask {
-            await task.value
-        }
-    }
-
-    /// Publication happens on the main actor; a stale generation is dropped without touching state,
-    /// so rescans keep the previous results visible while they run.
-    @MainActor
-    private func finishApps(generation: Int, apps newApps: [AppEntry]) {
-        guard generation == appsGeneration else { return }
-        appsTask = nil
-        hasLoadedApps = true
-        isLoadingCatalog = !hasLoadedApps || !hasLoadedCommands || !hasLoadedScripts
-        apps = newApps
-        // What is installed decides the roles' fallbacks, so a change resolves them again.
-        invalidateResolvedApps()
-        Log.catalog.info("Applications scanned: \(newApps.count)")
-        refresh()
-    }
-
-    @MainActor
-    private func finishCommands(generation: Int, commands newCommands: [ExtensionCommand]) {
-        guard generation == commandsGeneration else { return }
-        commandsTask = nil
-        hasLoadedCommands = true
-        isLoadingCatalog = !hasLoadedApps || !hasLoadedCommands || !hasLoadedScripts
-        allCommands = newCommands
-        Log.catalog.info("Extension commands scanned: \(newCommands.count)")
-        refresh()
-    }
-
-    /// Joins the command scan in flight, following any newer request that replaces it while the
-    /// caller waits. Suspending leaves the main actor free, and results are published before the
-    /// joined task finishes, so a caller that returns sees the current catalog or nothing pending.
-    @MainActor
-    func waitForCommands() async {
-        while let task = commandsTask {
-            await task.value
-        }
     }
 
     /// Recomputes foreground search results; the resident never constructs search-only sources.
@@ -482,16 +330,6 @@ final class LauncherModel: ObservableObject {
         }
     }
 
-    func reloadApps() {
-        appsGeneration += 1
-        let generation = appsGeneration
-        isLoadingCatalog = true
-        appsTask = Task { @concurrent [weak self, scanner] in
-            let apps = await scanner.scanApps()
-            await self?.finishApps(generation: generation, apps: apps)
-        }
-    }
-
     /// `FLOE_AUTORUN=extension/command` opens a command at startup, for screenshots and debugging.
     /// It waits for the command load that is current when it runs and attempts the command once;
     /// later rescans never rerun it.
@@ -500,7 +338,7 @@ final class LauncherModel: ObservableObject {
         launch: ((ExtensionCommand) -> Void)? = nil
     ) {
         Task { @MainActor [weak self] in
-            await self?.waitForCommands()
+            await self?.catalog.waitForCommands()
             guard let self, !didAutorun else { return }
             didAutorun = true
             guard let target, let command = commands.first(where: { $0.id == target }) else { return }
@@ -742,7 +580,7 @@ final class LauncherModel: ObservableObject {
     private func reload(_ watched: ExtensionSession, changed paths: [String]) {
         guard session === watched else { return }
         if HotReload.changesManifest(paths) {
-            reloadCommands()
+            catalog.reloadCommands()
         }
         if pendingReset == nil {
             retry()

@@ -11,8 +11,8 @@ extension LauncherModel {
     /// Reads again what may have changed while the panel was away: scripts, hosts, shortcuts, permissions and
     /// stale search data. Called once the panel is on screen, so none of it holds the shortcut up.
     func panelDidShow() {
-        reloadScripts()
-        reloadSSHHosts()
+        catalog.reloadScripts()
+        catalog.reloadSSHHosts()
         reloadShortcuts()
         // A grant made in System Settings with no request from Floe is noticed here.
         menuBarSearch.warm()

@@ -11,7 +11,7 @@ import ThawUI
 
 /// The settings page of one extension: its switch and icon, its preferences, and a line for each command.
 struct ExtensionSettingsView: View {
-    @ObservedObject var catalog: SettingsCatalog
+    @ObservedObject var catalog: CatalogStore
     @ObservedObject var settings: AppSettings
     let commands: [ExtensionCommand]
     var onRemoved: () -> Void = { /* nowhere to go from a preview */ }

@@ -1,5 +1,5 @@
 //
-//  SettingsCatalogTests.swift
+//  CatalogStoreTests.swift
 //  Project: Floe
 //
 //  Copyright (Floe) © 2026 René Jiménez
@@ -30,7 +30,8 @@ private actor FixedScanner: CatalogScanning {
     }
 }
 
-struct SettingsCatalogTests {
+@MainActor
+struct CatalogStoreTests {
     private let planets = Fixture.command("planets", extension: "sample", title: "Planets")
     private let forecast = Fixture.command("forecast", extension: "weather", title: "Forecast")
     private let safari = AppEntry(name: "Safari", url: URL(fileURLWithPath: "/Applications/Safari.app"))
@@ -53,7 +54,7 @@ struct SettingsCatalogTests {
 
     @Test func aSnapshotFillsTheCatalogWithoutAScan() throws {
         let (scratch, settings) = try makeSettings()
-        let catalog = SettingsCatalog(
+        let catalog = CatalogStore(
             scanner: FixedScanner(apps: [], commands: []),
             settings: settings,
             snapshot: CatalogSnapshot(apps: [safari], commands: [planets])
@@ -65,7 +66,7 @@ struct SettingsCatalogTests {
 
     @Test func theSettingsProcessScansItsOwnCatalog() async throws {
         let (scratch, settings) = try makeSettings()
-        let catalog = SettingsCatalog(scanner: FixedScanner(apps: [safari], commands: [[planets]]), settings: settings)
+        let catalog = CatalogStore(scanner: FixedScanner(apps: [safari], commands: [[planets]]), settings: settings)
         #expect(catalog.allCommands.isEmpty, "construction scans nothing")
         catalog.reloadAll()
         await waitFor("commands") { catalog.allCommands.map(\.id) == [planets.id] }
@@ -77,13 +78,31 @@ struct SettingsCatalogTests {
     @Test func aRescanReplacesTheCommandsAndReadsTheRaycastSwitch() async throws {
         let (scratch, settings) = try makeSettings()
         let scanner = FixedScanner(apps: [], commands: [[planets], [planets, forecast]])
-        let catalog = SettingsCatalog(scanner: scanner, settings: settings)
+        let catalog = CatalogStore(scanner: scanner, settings: settings)
         catalog.reloadCommands()
         await waitFor("first scan") { catalog.allCommands.map(\.id) == [planets.id] }
         settings.includeRaycastExtensions = false
         catalog.reloadCommands()
         await waitFor("second scan") { catalog.allCommands.map(\.id) == [planets.id, forecast.id] }
         #expect(await scanner.includeRaycast == [true, false])
+        withExtendedLifetime(scratch) {}
+    }
+
+    @Test func itIsLoadingUntilAppsCommandsAndScriptsAreEachScannedAndSaysWhichPartChanged() async throws {
+        let (scratch, settings) = try makeSettings()
+        let catalog = CatalogStore(scanner: FixedScanner(apps: [safari], commands: [[planets]]), settings: settings)
+        var changed: [CatalogStore.Part] = []
+        catalog.onChange = { changed.append($0) }
+        #expect(catalog.isLoading)
+        catalog.reloadAll()
+        await waitFor("all three parts") { !catalog.isLoading }
+        #expect(Set(changed.map { "\($0)" }) == ["apps", "commands", "scripts"], "each part's first scan is a change")
+
+        changed = []
+        catalog.reloadScripts()
+        #expect(catalog.isLoading, "a rescan is loading until it answers")
+        await waitFor("the rescan") { !catalog.isLoading }
+        #expect(changed.isEmpty, "the same scripts again change nothing")
         withExtendedLifetime(scratch) {}
     }
 }

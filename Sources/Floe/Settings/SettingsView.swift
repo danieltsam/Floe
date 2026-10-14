@@ -11,13 +11,13 @@ import SwiftUI
 import ThawUI
 
 struct SettingsView: View {
-    @ObservedObject var catalog: SettingsCatalog
+    @ObservedObject var catalog: CatalogStore
     @ObservedObject var settings: AppSettings
     @ObservedObject var selection: SettingsSelection
     @State private var search: SearchModel
 
     /// `search` is passed in only by the benchmark, which types into it.
-    init(catalog: SettingsCatalog, settings: AppSettings, selection: SettingsSelection, search: SearchModel? = nil) {
+    init(catalog: CatalogStore, settings: AppSettings, selection: SettingsSelection, search: SearchModel? = nil) {
         self.catalog = catalog
         self.settings = settings
         self.selection = selection
@@ -125,11 +125,11 @@ struct SettingsView: View {
 }
 
 struct GeneralSettingsView: View {
-    @ObservedObject var catalog: SettingsCatalog
+    @ObservedObject var catalog: CatalogStore
     @ObservedObject var settings: AppSettings
 
     /// Writes a starter script into the Scripts folder and reveals it, so it can be edited.
-    static func makeScript(catalog: SettingsCatalog) {
+    static func makeScript(catalog: CatalogStore) {
         Paths.prepareSupportFolders()
         var index = catalog.allScripts.count + 1
         var file = Paths.scripts.appendingPathComponent("script-\(index).sh")

@@ -47,7 +47,7 @@ final class LauncherSettingsLink {
         let sync = sync
         PreferenceStore.onSaved = { sync.extensionSettingsChanged() }
         // An extension installed after its record arrived takes the record once the scan lists it.
-        model.$allCommands.dropFirst()
+        model.catalog.$allCommands.dropFirst()
             .sink { _ in sync.extensionSettingsChanged() }
             .store(in: &cancellables)
         ThawAppearanceFollower.shared.$status
@@ -159,8 +159,8 @@ final class LauncherSettingsLink {
     /// Refreshes the command or script catalog requested by Settings.
     private func rescan(_ scan: LinkScan?) {
         switch scan {
-        case .scripts: model.reloadScripts()
-        case .commands: model.reloadCommands()
+        case .scripts: model.catalog.reloadScripts()
+        case .commands: model.catalog.reloadCommands()
         case nil: break
         }
     }

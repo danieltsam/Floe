@@ -80,7 +80,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
         SnippetStore.shared.onSaved = { [channel] in channel.send(.settings(LinkMessage.Kind.storeChanged.rawValue, LinkStore.snippets.rawValue)) }
         QuicklinkStore.shared.onSaved = { [channel] in channel.send(.settings(LinkMessage.Kind.storeChanged.rawValue, LinkStore.quicklinks.rawValue)) }
         PreferenceStore.onSaved = { [channel] in channel.send(.settings(LinkMessage.Kind.storeChanged.rawValue, LinkStore.preferences.rawValue)) }
-        appWatcher = AppFolderWatcher { [weak self] in self?.model.reloadApps() }
+        appWatcher = AppFolderWatcher { [weak self] in self?.model.catalog.reloadApps() }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self, self.panel?.isKeyWindow == true else { return event }
             return self.model.handlePanelKey(event, layout: self.settings.launcherLayout) ? nil : event
@@ -131,8 +131,8 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
             settings.reload()
             SnippetStore.shared.reload()
             QuicklinkStore.shared.reload()
-            model.reloadCommands()
-            model.reloadScripts()
+            model.catalog.reloadCommands()
+            model.catalog.reloadScripts()
             model.refresh()
         case let .timers(timers):
             model.runningTimers.mirror(timers)
@@ -173,14 +173,14 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
             }
         case let .command(id, data):
             PanelWork.perform { [model] in
-                await model.waitForCommands()
+                await model.catalog.waitForCommands()
                 guard let command = model.commands.first(where: { $0.id == id }) else { return }
                 let arguments = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
                 model.run(command, arguments: arguments)
             }
         case let .script(id):
             PanelWork.perform { [model] in
-                await model.waitForScripts()
+                await model.catalog.waitForScripts()
                 if let script = model.allScripts.first(where: { $0.id == id }) {
                     model.run(script)
                 }

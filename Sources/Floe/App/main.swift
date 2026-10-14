@@ -83,12 +83,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = item
         NSApp.mainMenu = MainMenu.make(target: self, about: #selector(openAbout), settings: #selector(openSettings), includesWindowMenu: false)
 
-        appWatcher = AppFolderWatcher { [weak self] in self?.model.reloadApps() }
+        appWatcher = AppFolderWatcher { [weak self] in self?.model.catalog.reloadApps() }
         // Without duplicates: a reload of the settings saved by the settings process sends every value again.
-        settings.$toggleHotkey.removeDuplicates().combineLatest(settings.$commandHotkeys.removeDuplicates(), model.$allCommands, model.$apps)
+        settings.$toggleHotkey.removeDuplicates().combineLatest(settings.$commandHotkeys.removeDuplicates(), model.catalog.$allCommands, model.catalog.$apps)
             .sink { [weak self] _, _, _, _ in DispatchQueue.main.async { self?.registerHotkeys() } }
             .store(in: &cancellables)
-        model.$allScripts
+        model.catalog.$allScripts
             .sink { [weak self] _ in DispatchQueue.main.async { self?.registerHotkeys() } }
             .store(in: &cancellables)
         // The switch is in the settings process, which stays in front: the launcher only changes its own policy.
@@ -96,17 +96,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .sink { NSApp.setActivationPolicy($0 ? .regular : .accessory) }
             .store(in: &cancellables)
         settings.$includeRaycastExtensions.removeDuplicates().dropFirst()
-            .sink { [weak self] _ in DispatchQueue.main.async { self?.model.reloadCommands() } }
+            .sink { [weak self] _ in DispatchQueue.main.async { self?.model.catalog.reloadCommands() } }
             .store(in: &cancellables)
         // Shortcuts and Spotlight list the commands by name, so they hear about every rescan.
-        model.$allCommands
+        model.catalog.$allCommands
             .sink { _ in DispatchQueue.main.async { FloeShortcuts.updateAppShortcutParameters() } }
             .store(in: &cancellables)
         let menuBarCommands = MenuBarCommands(model: model)
         let backgroundScheduler = BackgroundScheduler(model: model, menuBarCommands: menuBarCommands)
         self.menuBarCommands = menuBarCommands
         self.backgroundScheduler = backgroundScheduler
-        model.$allCommands
+        model.catalog.$allCommands
             .combineLatest(settings.$disabledExtensions.removeDuplicates(), settings.$disabledCommands.combineLatest(settings.$enabledCommands).removeDuplicates(by: ==), settings.$menuBarCommands.removeDuplicates())
             .sink { [weak self] _, _, _, _ in
                 // After the publishers' willSet, so enabledCommands reads the new values.
@@ -301,7 +301,7 @@ if options.benchSearch {
 // Catches slow page switches.
 if options.benchSettings {
     _ = NSApplication.shared
-    let catalog = SettingsCatalog(snapshot: .scanningNow(includeRaycast: AppSettings.shared.includeRaycastExtensions))
+    let catalog = CatalogStore(snapshot: .scanningNow(includeRaycast: AppSettings.shared.includeRaycastExtensions))
     let selection = SettingsSelection()
     let window = NSWindow(contentRect: NSRect(x: -4000, y: -4000, width: 820, height: 560), styleMask: [.titled], backing: .buffered, defer: false)
     let search = SearchModel()

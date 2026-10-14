@@ -114,8 +114,8 @@ permissions, settings, indexes and background commands as the installed app.
     (`HostRequest.swift`), the manifest, the store, menu bar commands, the background scheduler, OAuth, hot reload,
     and the views an extension's forms and errors are drawn with.
   - `Settings`: the settings model (`Settings.swift`), its window, pages and sections, settings search entries,
-    import and export, and the Keychain and preference stores. `SettingsMode.swift` is the settings process, and
-    `SettingsCatalog.swift` the commands, scripts and apps it lists.
+    import and export, and the Keychain and preference stores. `SettingsMode.swift` is the settings process. It lists
+    commands, scripts and apps from a `CatalogStore` (in `Launcher`) of its own, as the launcher does.
   - `Sync`: settings sync through iCloud, by CloudKit or the key-value store, written to be moved to Thaw as it is.
     It knows records, not Floe's settings (see "Settings sync").
   - `Picker`: `Floe --pick`.

@@ -11,7 +11,7 @@ import SwiftUI
 /// The settings window. Only the settings process makes one (see SettingsMode.swift).
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
-    private let catalog: SettingsCatalog
+    private let catalog: CatalogStore
     let selection = SettingsSelection()
     /// Called once the window has closed.
     var onClose: () -> Void = { /* set by the settings process */ }
@@ -19,7 +19,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     /// Room for the sidebar, a readable pane and the toolbar's search field.
     private static let minimumSize = NSSize(width: 720, height: 460)
 
-    init(catalog: SettingsCatalog) {
+    init(catalog: CatalogStore) {
         self.catalog = catalog
     }
 

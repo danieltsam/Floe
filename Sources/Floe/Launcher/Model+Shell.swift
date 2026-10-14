@@ -126,7 +126,7 @@ extension LauncherModel {
         guard !title.isEmpty else { return }
         do {
             _ = try ShellCommand.save(command, as: title)
-            reloadScripts()
+            catalog.reloadScripts()
             showHUD(String(localized: "Saved \(title)", bundle: .floe, comment: "Shown briefly after saving. The placeholder is the name the user gave."))
         } catch {
             showHUD(error.localizedDescription)

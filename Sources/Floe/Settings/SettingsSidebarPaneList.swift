@@ -12,7 +12,7 @@ import ThawUI
 /// Thaw 3's settings sidebar: a standard source list, so selection, keyboard and VoiceOver
 /// come from AppKit rather than from hand-drawn rows.
 struct SettingsSidebarPaneList: View {
-    @ObservedObject var catalog: SettingsCatalog
+    @ObservedObject var catalog: CatalogStore
     @ObservedObject var settings: AppSettings
     @ObservedObject var selection: SettingsSelection
 

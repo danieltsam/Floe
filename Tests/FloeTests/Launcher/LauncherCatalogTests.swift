@@ -162,7 +162,7 @@ struct LauncherCatalogTests {
         #expect(model.allCommands.map(\.id) == [planets.id])
         model.query = "planets"
         #expect(model.results.first?.item.id == "command:sample/planets", "a preloaded model ranks normally")
-        await model.waitForCommands()
+        await model.catalog.waitForCommands()
     }
 
     // MARK: Publication
@@ -208,7 +208,7 @@ struct LauncherCatalogTests {
         await scanner.openAppScan(at: 0)
         await waitFor("initial apps") { model.apps.map(\.name) == [safari.name] }
 
-        model.reloadCommands()
+        model.catalog.reloadCommands()
         await waitFor("second command scan") { scanner.startedScans.value >= 3 }
         #expect(model.isLoadingCatalog, "the newer request keeps the load marked as running")
 
@@ -229,7 +229,7 @@ struct LauncherCatalogTests {
         model.startCatalogLoading()
         await waitFor("scanner.startedScans.value >= 1") { scanner.startedScans.value >= 1 }
 
-        model.reloadApps()
+        model.catalog.reloadApps()
         await waitFor("scanner.startedScans.value >= 2") { scanner.startedScans.value >= 2 }
 
         await scanner.openAppScan(at: 0)
@@ -248,7 +248,7 @@ struct LauncherCatalogTests {
         await scanner.openCommandScan(at: 0)
         await waitFor("!model.isLoadingCatalog") { !model.isLoadingCatalog }
 
-        model.reloadCommands()
+        model.catalog.reloadCommands()
         await waitFor("scanner.startedScans.value >= 3") { scanner.startedScans.value >= 3 }
         #expect(model.allCommands.map(\.id) == [planets.id], "results stay while the rescan runs")
 
@@ -266,7 +266,7 @@ struct LauncherCatalogTests {
         await waitFor("scanner.startedScans.value >= 2") { scanner.startedScans.value >= 2 }
         await scanner.openAppScan(at: 0)
         await scanner.openCommandScan(at: 0)
-        await model.waitForCommands()
+        await model.catalog.waitForCommands()
         await waitFor("!model.isLoadingCatalog") { !model.isLoadingCatalog }
         #expect(model.allCommands.isEmpty, "empty success is still success")
     }
@@ -280,10 +280,10 @@ struct LauncherCatalogTests {
 
         let firstDone = Gate()
         let secondDone = Gate()
-        Task { await model.waitForCommands(); await firstDone.open() }
-        Task { await model.waitForCommands(); await secondDone.open() }
+        Task { await model.catalog.waitForCommands(); await firstDone.open() }
+        Task { await model.catalog.waitForCommands(); await secondDone.open() }
 
-        model.reloadCommands()
+        model.catalog.reloadCommands()
         await waitFor("the second command scan") { scanner.startedCommandScans.value >= 2 }
         await scanner.openCommandScan(at: 0)
         await scanner.openCommandScan(at: 1)
@@ -295,7 +295,7 @@ struct LauncherCatalogTests {
     @Test func readinessReturnsImmediatelyWhenNothingIsLoading() async {
         let scanner = ControlledScanner(apps: [], commands: [])
         let model = LauncherModel(scanner: scanner, settings: makeSettings())
-        await model.waitForCommands()
+        await model.catalog.waitForCommands()
         #expect(scanner.startedScans.value == 0)
     }
 
@@ -360,7 +360,7 @@ struct LauncherCatalogTests {
             Task { await recorder.record(command) }
         }
         await scanner.openCommandScan(at: 0)
-        await model.waitForCommands()
+        await model.catalog.waitForCommands()
         try? await Task.sleep(for: .milliseconds(20))
         #expect(await recorder.commands.isEmpty)
     }

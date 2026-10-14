@@ -274,10 +274,10 @@ struct SSHSearchTests {
         model.query = "bast"
         #expect(!ids(model.results).contains(bastion.id))
         await scanner.replace(with: [web, bastion])
-        await model.reloadSSHHosts().value
+        await model.catalog.reloadSSHHosts().value
         #expect(model.results.first?.id == bastion.id)
         await scanner.replace(with: [])
-        await model.reloadSSHHosts().value
+        await model.catalog.reloadSSHHosts().value
         #expect(!ids(model.results).contains(bastion.id), "a host taken out of the configuration is gone")
     }
 }

@@ -31,7 +31,7 @@ enum SettingsExit {
 
 final class SettingsAppDelegate: NSObject, NSApplicationDelegate {
     private let settings = AppSettings.shared
-    private let catalog = SettingsCatalog()
+    private let catalog = CatalogStore()
     private lazy var window = SettingsWindowController(catalog: catalog)
     private let launcherPid = getppid()
     private lazy var link = ProcessLink(role: .settings, gate: LinkGate(ownPid: getpid()) { [launcherPid] in launcherPid })

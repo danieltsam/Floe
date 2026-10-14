@@ -193,7 +193,7 @@ extension LauncherModel {
         if [.putBack, .deleted, .alreadyDeleted].contains(outcome) {
             markReceiptUndone(receipt.id)
             if receipt.kind == .extensionRemoved {
-                reloadCommands()
+                catalog.reloadCommands()
             }
         } else if case let .trashed(moved) = outcome {
             // The move to the Trash leaves a receipt of its own, so the note can be put back.
