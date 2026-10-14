@@ -19,18 +19,10 @@ struct EventEnvironment {
 
 /// Calendar events, as the launcher adds and opens them.
 final class EventRows {
-    /// What events ask of the launcher.
-    struct Host {
-        var showHUD: (String) -> Void = { _ in }
-        /// Hides the panel and goes back to the root search.
-        var leave: () -> Void = {}
-        var record: (Receipt) -> Void = { _ in }
-        /// Opens a link in the browser the role says.
-        var openLink: (URL) -> Void = { _ in }
-    }
-
     var environment = EventEnvironment()
-    var host = Host()
+    var host = RowHost()
+    /// Opens a link in the browser the role says.
+    var openLink: (URL) -> Void = { _ in }
 
     /// Adds the event and leaves a receipt that can delete it. The task is for a test to wait on.
     @discardableResult
@@ -61,7 +53,7 @@ final class EventRows {
     /// Opens an event of the day's agenda: its meeting when it has a link to one, else the calendar.
     func open(_ event: CalendarEvent) {
         if let destination = event.meetingURL ?? event.calendarURL {
-            host.openLink(destination)
+            openLink(destination)
         }
         host.leave()
     }
@@ -82,13 +74,5 @@ extension EventRows: RowOwner {
         default: return false
         }
         return true
-    }
-
-    func actions(for _: RootItem) -> [ItemAction?]? {
-        nil
-    }
-
-    func handleKey(_: UInt16, flags _: NSEvent.ModifierFlags, on _: RootItem) -> Bool {
-        false
     }
 }

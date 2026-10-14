@@ -102,7 +102,9 @@ The aim is code where no feature reaches into another. Each part knows only what
   for settings make the concrete stores and connect features, stores and messages. They are the only code that names
   the shared instances.
 - **`LauncherModel` routes.** It keeps the query, the results and which mode is on screen, and hands work to the
-  feature that owns it. New work goes in a feature of its own, not in the model.
+  feature that owns it. New work goes in a feature of its own, not in the model. A feature that owns rows is a
+  `RowOwner`: it says what Return, its Actions menu and its keys do on them. `LauncherFeatures` holds the features
+  and is the one place that connects them to the model.
 
 ## Layout
 

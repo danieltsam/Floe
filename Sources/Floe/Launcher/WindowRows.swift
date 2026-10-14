@@ -1,5 +1,5 @@
 //
-//  Model+Windows.swift
+//  WindowRows.swift
 //  Project: Floe
 //
 //  Copyright (Floe) © 2026 René Jiménez
@@ -7,7 +7,10 @@
 
 import AppKit
 
-extension LauncherModel {
+/// Open windows the search found: Return brings one forward, and its menu minimizes or closes it.
+final class WindowRows {
+    var host = RowHost()
+
     static func title(for row: WindowRow) -> String {
         switch row {
         case .window: String(localized: "Switch to Window", bundle: .floe)
@@ -19,8 +22,7 @@ extension LauncherModel {
     func open(_ row: WindowRow) {
         switch row {
         case let .window(window):
-            panelHost.hidePanel()
-            reset()
+            host.leave()
             OpenWindows.focus(window)
         case .access:
             MenuBarExtras.requestAccess()
@@ -32,19 +34,31 @@ extension LauncherModel {
         if !window.isMinimized {
             actions.append(ItemAction(title: String(localized: "Minimize Window", bundle: .floe), symbol: "minus.rectangle") { [weak self] in
                 OpenWindows.minimize(window)
-                self?.rescanWindows()
+                self?.host.rescan()
             })
         }
         actions.append(ItemAction(title: String(localized: "Close Window", bundle: .floe), symbol: "xmark.rectangle") { [weak self] in
             OpenWindows.close(window)
-            self?.rescanWindows()
+            self?.host.rescan()
         })
         return actions
     }
+}
 
-    /// A refresh leaves a scope with the same query alone, so the scope is let go first and the windows are read again.
-    private func rescanWindows() {
-        activeScope = nil
-        refresh()
+extension WindowRows: RowOwner {
+    func returnTitle(for item: RootItem) -> String? {
+        guard case let .window(row) = item else { return nil }
+        return Self.title(for: row)
+    }
+
+    func open(_ item: RootItem, flags _: NSEvent.ModifierFlags) -> Bool {
+        guard case let .window(row) = item else { return false }
+        open(row)
+        return true
+    }
+
+    func actions(for item: RootItem) -> [ItemAction?]? {
+        guard case let .window(.window(window)) = item else { return nil }
+        return windowActions(for: window)
     }
 }

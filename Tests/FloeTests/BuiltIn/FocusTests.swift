@@ -66,8 +66,8 @@ struct FocusTests {
         let settings = AppSettings(defaults: defaults)
         settings.focusShortcut = shortcut
         let model = LauncherModel(settings: settings, usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
-        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
-        model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
+        model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.shortcutLibrary.tool = stand.tool
         model.linkOpener = stand.opener
         return model
@@ -166,14 +166,14 @@ struct FocusTests {
         }
         #expect(stand.runs.map(\.input) == ["60"])
 
-        await model.focusRows.setFocus(request, shortcut: shortcut)?.value
-        await model.focusRows.setFocus(FocusRequest(change: .off), shortcut: shortcut)?.value
-        await model.focusRows.setFocus(.toggle, shortcut: shortcut)?.value
+        await model.features.focus.setFocus(request, shortcut: shortcut)?.value
+        await model.features.focus.setFocus(FocusRequest(change: .off), shortcut: shortcut)?.value
+        await model.features.focus.setFocus(.toggle, shortcut: shortcut)?.value
         let run = ["run", "--input-path", "<input>", "--", "Set Focus"]
         #expect(stand.runs.suffix(3) == [.init(arguments: run, input: "60"), .init(arguments: run, input: "off"), .init(arguments: run, input: "toggle")])
         #expect(said.isEmpty, "only a failure is heard of")
         #expect(stand.opened.isEmpty)
-        #expect(model.receiptRows.store.all.isEmpty)
+        #expect(model.features.receipts.store.all.isEmpty)
         let files = stand.state.withLock { $0.files }
         #expect(files.count == 4)
         #expect(!files.suffix(3).contains { FileManager.default.fileExists(atPath: $0) }, "each input file is gone once its run ends")
@@ -204,11 +204,11 @@ struct FocusTests {
         let model = model(in: folder, stand: stand, shortcut: "Set Focus")
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.focusRows.setFocus(.toggle, shortcut: "Set Focus")?.value
+        await model.features.focus.setFocus(.toggle, shortcut: "Set Focus")?.value
         #expect(said == ["Set Focus failed: Error: The shortcut “Set Focus” could not be found."])
 
         stand.state.withLock { $0.answer = ShortcutsToolResult(succeeded: false) }
-        await model.focusRows.setFocus(.toggle, shortcut: "Set Focus")?.value
+        await model.features.focus.setFocus(.toggle, shortcut: "Set Focus")?.value
         #expect(said.last == "Set Focus failed. Open it in Shortcuts to see why.")
     }
 
@@ -234,7 +234,7 @@ struct FocusTests {
         let toggle = try #require(model.results.first?.item)
         #expect(toggle.rowLabel == "No Shortcut named in Settings")
         #expect(model.primaryActionTitle(for: toggle) == "Open Shortcuts")
-        #expect(model.focusRows.setFocus(.toggle, shortcut: "") == nil)
+        #expect(model.features.focus.setFocus(.toggle, shortcut: "") == nil)
         #expect(stand.opened.count == 2)
         #expect(stand.runs.isEmpty)
     }

@@ -21,16 +21,8 @@ struct ReminderEnvironment {
 
 /// Reminders, as the launcher adds them.
 final class ReminderRows {
-    /// What reminders ask of the launcher.
-    struct Host {
-        var showHUD: (String) -> Void = { _ in }
-        /// Hides the panel and goes back to the root search.
-        var leave: () -> Void = {}
-        var record: (Receipt) -> Void = { _ in }
-    }
-
     var environment = ReminderEnvironment()
-    var host = Host()
+    var host = RowHost()
 
     /// Adds the reminder and leaves a receipt that can delete it. The task is for a test to wait on.
     @discardableResult
@@ -66,13 +58,5 @@ extension ReminderRows: RowOwner {
         guard case let .reminderDraft(draft) = item else { return false }
         addReminder(draft)
         return true
-    }
-
-    func actions(for _: RootItem) -> [ItemAction?]? {
-        nil
-    }
-
-    func handleKey(_: UInt16, flags _: NSEvent.ModifierFlags, on _: RootItem) -> Bool {
-        false
     }
 }

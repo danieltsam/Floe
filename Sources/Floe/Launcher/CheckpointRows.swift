@@ -160,8 +160,4 @@ extension CheckpointRows: RowOwner {
         guard case let .checkpoint(checkpoint) = item else { return nil }
         return checkpointActions(checkpoint)
     }
-
-    func handleKey(_: UInt16, flags _: NSEvent.ModifierFlags, on _: RootItem) -> Bool {
-        false
-    }
 }

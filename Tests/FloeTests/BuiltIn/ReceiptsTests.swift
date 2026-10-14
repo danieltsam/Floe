@@ -20,7 +20,7 @@ struct ReceiptsTests {
     private func model(in folder: URL) -> LauncherModel {
         let defaults = UserDefaults(suiteName: "floe-receipts-\(UUID().uuidString)")!
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
-        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         return model
     }
 
@@ -119,25 +119,25 @@ struct ReceiptsTests {
         let folder = try scratch()
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
-        model.shellRows.environment.run = { _, _ in ("first line", "all of it") }
-        model.shellRows.environment.endProcess = { _, _ in true }
-        model.shellRows.environment.showOutput = { _, _ in }
+        model.features.shell.environment.run = { _, _ in ("first line", "all of it") }
+        model.features.shell.environment.endProcess = { _, _ in true }
+        model.features.shell.environment.showOutput = { _, _ in }
 
-        model.shellRows.runShellCommand("uptime", terminal: nil)
-        for _ in 0 ..< 100 where model.receiptRows.store.all.isEmpty {
+        model.features.shell.runShellCommand("uptime", terminal: nil)
+        for _ in 0 ..< 100 where model.features.receipts.store.all.isEmpty {
             try? await Task.sleep(for: .milliseconds(10))
         }
-        model.shellRows.end(RunningProcess(pid: 400, path: "/x/ThawNotch", memory: 0), force: false)
-        #expect(model.receiptRows.store.all.map(\.title) == ["Quit ThawNotch", "Ran uptime"])
-        #expect(model.receiptRows.store.all.last?.detail == "first line")
+        model.features.shell.end(RunningProcess(pid: 400, path: "/x/ThawNotch", memory: 0), force: false)
+        #expect(model.features.receipts.store.all.map(\.title) == ["Quit ThawNotch", "Ran uptime"])
+        #expect(model.features.receipts.store.all.last?.detail == "first line")
 
-        model.shellRows.runShellCommand("man ls", terminal: nil)
+        model.features.shell.runShellCommand("man ls", terminal: nil)
         try? await Task.sleep(for: .milliseconds(80))
-        #expect(model.receiptRows.store.all.count == 2, "reading a manual changed nothing")
+        #expect(model.features.receipts.store.all.count == 2, "reading a manual changed nothing")
 
         model.settings.keepsReceipts = false
-        model.shellRows.end(RunningProcess(pid: 401, path: "/x/Other", memory: 0), force: false)
-        #expect(model.receiptRows.store.all.count == 2)
+        model.features.shell.end(RunningProcess(pid: 401, path: "/x/Other", memory: 0), force: false)
+        #expect(model.features.receipts.store.all.count == 2)
     }
 
     @Test func returnOnAReceiptPutsBackWhatCanBeAndShowsTheRest() throws {
@@ -147,7 +147,7 @@ struct ReceiptsTests {
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
         var shown: [String] = []
-        model.shellRows.environment.showOutput = { title, _ in shown.append(title) }
+        model.features.shell.environment.showOutput = { title, _ in shown.append(title) }
         let file = folder.appendingPathComponent("draft.md")
         try Data("x".utf8).write(to: file)
         let receipt = try ReceiptStore.trash(file)
@@ -160,7 +160,7 @@ struct ReceiptsTests {
         model.activate(row)
         #expect(FileManager.default.fileExists(atPath: file.path))
         #expect(said == ["Put draft.md back"])
-        let after = try #require(model.receiptRows.store.all.first)
+        let after = try #require(model.features.receipts.store.all.first)
         #expect(after.undone != nil)
 
         let done = RootItem.receipt(after)

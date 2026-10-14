@@ -7,8 +7,8 @@
 
 import AppKit
 
-/// The rows that came after the first set: the shell's, receipts, checkpoints, reminders, events, timers, contacts, drafts, Focus and keywords. One place answers what Return does on
-/// each, what its button says and what its menu holds, so the switches over every kind of row stay as they are.
+/// Rows that no feature owns yet: keywords, dictionary definitions, answers, bookmarks and the notes desk. What Return
+/// does on each, what its button says and what its menu holds. Owned rows are asked of their feature first.
 extension LauncherModel {
     /// What Return does on one of these rows, as its button says it. Nil for any other row.
     static func laterTitle(for item: RootItem) -> String? {
@@ -21,21 +21,16 @@ extension LauncherModel {
         if case let .answer(row) = item {
             return row.link == nil ? String(localized: "Copy to Clipboard", bundle: .floe) : row.linkTitle ?? String(localized: "Open", bundle: .floe, comment: "A verb on a button: open the selected result.")
         }
-        return keywordRowTitle(for: item) ?? draftTitle(for: item)
-    }
-
-    /// What Return does on a row that makes or stops something from what was typed. Nil for any other row.
-    private static func draftTitle(for item: RootItem) -> String? {
-        switch item {
-        default: nil
-        }
+        return nil
     }
 
     /// Return on one of these rows.
     func openLater(_ item: RootItem) {
         if openByOwner(item) {
             return
-        } else if !openKeywordRow(item) {
+        } else if case .noteDesk = item {
+            openNoteDesk()
+        } else {
             openTyped(item)
         }
     }
@@ -91,7 +86,7 @@ extension LauncherModel {
         if case let .definition(definition) = item {
             return [ItemAction(title: String(localized: "Copy Definition", bundle: .floe), symbol: "doc.on.doc") { [weak self] in self?.copy(definition) }]
         }
-        return keywordRowActions(for: item) ?? ownerActions(for: item) ?? []
+        return ownerActions(for: item) ?? []
     }
 
     /// Hands a note to the app the user chose. What is written into a folder of notes leaves a receipt.

@@ -9,14 +9,7 @@ import AppKit
 
 /// People from Contacts, and drafts of an email or a message to someone, as the launcher opens and reaches them.
 final class ContactRows {
-    /// What contacts ask of the launcher.
-    struct Host {
-        var showHUD: (String) -> Void = { _ in }
-        /// Opens a link through the system once the panel is gone. Nil opens nothing.
-        var reach: (URL?) -> Void = { _ in }
-    }
-
-    var host = Host()
+    var host = RowHost()
 
     /// Return on a person opens their card in Contacts. On the row that stands in for them, the pane where access is given.
     func open(_ row: ContactRow) {
@@ -82,9 +75,5 @@ extension ContactRows: RowOwner {
     func actions(for item: RootItem) -> [ItemAction?]? {
         guard case let .contact(.person(person)) = item else { return nil }
         return contactActions(for: person)
-    }
-
-    func handleKey(_: UInt16, flags _: NSEvent.ModifierFlags, on _: RootItem) -> Bool {
-        false
     }
 }

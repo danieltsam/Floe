@@ -19,3 +19,18 @@ protocol RowOwner: AnyObject {
     /// A key pressed on the selected row. False when it is not this owner's to take.
     func handleKey(_ keyCode: UInt16, flags: NSEvent.ModifierFlags, on item: RootItem) -> Bool
 }
+
+/// An owner answers only for what its rows have: no title of their own, no menu and no keys of their own by default.
+extension RowOwner {
+    func returnTitle(for _: RootItem) -> String? {
+        nil
+    }
+
+    func actions(for _: RootItem) -> [ItemAction?]? {
+        nil
+    }
+
+    func handleKey(_: UInt16, flags _: NSEvent.ModifierFlags, on _: RootItem) -> Bool {
+        false
+    }
+}

@@ -110,10 +110,10 @@ struct ProcessesTests {
     @Test func returnAsksAProcessToQuitAndTheActionForcesIt() throws {
         let defaults = try #require(UserDefaults(suiteName: "floe-process-tests-\(UUID().uuidString)"))
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
-        model.receiptRows.store = ReceiptStore(file: FileManager.default.temporaryDirectory.appendingPathComponent("floe-receipts-\(UUID().uuidString).json"))
+        model.features.receipts.store = ReceiptStore(file: FileManager.default.temporaryDirectory.appendingPathComponent("floe-receipts-\(UUID().uuidString).json"))
         var ended: [String] = []
         var refuse = false
-        model.shellRows.environment.endProcess = { process, force in
+        model.features.shell.environment.endProcess = { process, force in
             ended.append("\(process.pid) \(force ? "forced" : "asked")")
             return !refuse
         }
@@ -124,10 +124,10 @@ struct ProcessesTests {
         #expect(model.primaryActionTitle(for: item) == "Quit")
         #expect(model.rootActions(for: item).map { $0?.title ?? "-" } == ["Quit", "Force Quit…", "-", "Show in Finder", "Copy Process ID"])
         model.activate(item)
-        model.shellRows.environment.confirmsForceQuit = { _ in false }
+        model.features.shell.environment.confirmsForceQuit = { _ in false }
         model.rootActions(for: item)[1]?.run()
         #expect(ended == ["400 asked"], "a no to the question ends nothing")
-        model.shellRows.environment.confirmsForceQuit = { _ in true }
+        model.features.shell.environment.confirmsForceQuit = { _ in true }
         model.rootActions(for: item)[1]?.run()
         refuse = true
         model.activate(item)

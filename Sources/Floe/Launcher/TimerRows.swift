@@ -52,25 +52,17 @@ final class RunningTimers {
 /// Timers, as the launcher starts, ends and stops them. The resident runs the countdowns; the panel process
 /// keeps a copy of the list and sends what it is asked to the resident.
 final class TimerRows {
-    /// What timers ask of the launcher.
-    struct Host {
-        var showHUD: (String) -> Void = { _ in }
-        /// Hides the panel and goes back to the root search.
-        var leave: () -> Void = {}
-        var record: (Receipt) -> Void = { _ in }
-        /// Sends a request to the resident, in the panel process. Nil in the resident.
-        var toResident: () -> ((PanelPacket) -> Void)? = { nil }
-    }
-
     var environment = TimerEnvironment()
-    var host = Host()
+    var host = RowHost()
+    /// Sends a request to the resident, in the panel process. Nil in the resident.
+    var toResident: () -> ((PanelPacket) -> Void)? = { nil }
     let running = RunningTimers()
 
     /// Starts the countdown and leaves a receipt that can stop it. The task is for a test to wait on.
     @discardableResult
     func startTimer(_ draft: TimerDraft) -> Task<Void, Never> {
         host.leave()
-        if let residentRequests = host.toResident() {
+        if let residentRequests = toResident() {
             residentRequests(.startTimer(draft))
             return Task {
                 // The resident owns the countdown; this task acknowledges only the forwarded request.
@@ -109,7 +101,7 @@ final class TimerRows {
     func stopTimer(_ identifier: String) -> Bool {
         guard let id = UUID(uuidString: identifier) else { return false }
         let removed = running.remove(id) != nil
-        host.toResident()?(.stopTimer(id))
+        toResident()?(.stopTimer(id))
         return removed
     }
 }
@@ -130,13 +122,5 @@ extension TimerRows: RowOwner {
         default: return false
         }
         return true
-    }
-
-    func actions(for _: RootItem) -> [ItemAction?]? {
-        nil
-    }
-
-    func handleKey(_: UInt16, flags _: NSEvent.ModifierFlags, on _: RootItem) -> Bool {
-        false
     }
 }

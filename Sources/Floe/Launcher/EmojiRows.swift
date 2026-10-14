@@ -9,20 +9,13 @@ import AppKit
 
 /// Emoji the search found: Return pastes one into the app in front, Command-Return only copies it.
 final class EmojiRows {
-    /// What emoji ask of the launcher.
-    struct Host {
-        var showHUD: (String) -> Void = { _ in }
-        /// Hides the panel and goes back to the root search.
-        var leave: () -> Void = {}
-        /// Counts a use, so the emoji comes up sooner next time.
-        var recordUse: (String) -> Void = { _ in }
-    }
-
-    var host = Host()
+    var host = RowHost()
+    /// Counts a use, so the emoji comes up sooner next time.
+    var recordUse: (String) -> Void = { _ in }
 
     /// Copies an emoji without pasting.
     func copy(_ entry: EmojiResult) {
-        host.recordUse(entry.id)
+        recordUse(entry.id)
         NSPasteboard.general.copy(entry.character)
         host.showHUD(String(localized: "Copied \(entry.character)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
     }
@@ -30,7 +23,7 @@ final class EmojiRows {
     /// Pastes an emoji into the app in front: onto the clipboard plus Command-V once the panel is gone,
     /// when Accessibility allows it; otherwise the copy and a HUD that says so.
     func paste(_ entry: EmojiResult) {
-        host.recordUse(entry.id)
+        recordUse(entry.id)
         NSPasteboard.general.copy(entry.character)
         guard AXIsProcessTrusted() else {
             host.showHUD(String(localized: "Copied", bundle: .floe, comment: "Shown briefly after something was put on the clipboard."))
@@ -57,13 +50,5 @@ extension EmojiRows: RowOwner {
             paste(entry)
         }
         return true
-    }
-
-    func actions(for _: RootItem) -> [ItemAction?]? {
-        nil
-    }
-
-    func handleKey(_: UInt16, flags _: NSEvent.ModifierFlags, on _: RootItem) -> Bool {
-        false
     }
 }

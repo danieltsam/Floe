@@ -128,8 +128,4 @@ extension ReceiptRows: RowOwner {
         guard case let .receipt(receipt) = item else { return nil }
         return receiptActions(receipt)
     }
-
-    func handleKey(_: UInt16, flags _: NSEvent.ModifierFlags, on _: RootItem) -> Bool {
-        false
-    }
 }

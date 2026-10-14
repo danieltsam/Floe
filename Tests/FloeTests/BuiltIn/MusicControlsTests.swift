@@ -55,9 +55,9 @@ struct MusicControlsTests {
     private func model(in folder: URL, stand: Stand, said: @escaping (String) -> Void, asked: @escaping (String) -> Void = { _ in }) -> LauncherModel {
         let defaults = UserDefaults(suiteName: "floe-music-\(UUID().uuidString)")!
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
-        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
-        model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
-        model.musicRemote.environment = MusicEnvironment(isRunning: { stand.isRunning($0) }, run: stand.runner, askForAutomation: asked)
+        model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
+        model.features.music.environment = MusicEnvironment(isRunning: { stand.isRunning($0) }, run: stand.runner, askForAutomation: asked)
         model.panelHost.showHUD = said
         return model
     }
@@ -177,11 +177,11 @@ struct MusicControlsTests {
         #expect(stand.state.withLock { $0.ranOnMain } == false)
 
         stand.state.withLock { $0.open = [Self.appleMusic, Self.spotify] }
-        await model.musicRemote.controlMusic(.playPause).value
-        await model.musicRemote.controlMusic(.previousTrack).value
+        await model.features.music.controlMusic(.playPause).value
+        await model.features.music.controlMusic(.previousTrack).value
         #expect(stand.scripts.dropFirst() == [#"tell application id "com.spotify.client" to playpause"#, #"tell application id "com.spotify.client" to previous track"#])
         #expect(said.isEmpty, "the music says it")
-        #expect(model.receiptRows.store.all.isEmpty)
+        #expect(model.features.receipts.store.all.isEmpty)
     }
 
     @Test func nowPlayingShowsTheTrackAndItsArtist() async throws {
@@ -194,15 +194,15 @@ struct MusicControlsTests {
         }
         var said: [String] = []
         let model = model(in: folder, stand: stand) { said.append($0) }
-        await model.musicRemote.controlMusic(.nowPlaying).value
+        await model.features.music.controlMusic(.nowPlaying).value
         #expect(said == ["So What · Miles Davis"])
         #expect(stand.scripts == [MusicScripts.script(.nowPlaying, for: .spotify)])
 
         stand.state.withLock { $0.answer = .text("") }
-        await model.musicRemote.controlMusic(.nowPlaying).value
+        await model.features.music.controlMusic(.nowPlaying).value
         #expect(said.last == "Nothing is playing in Spotify")
         stand.state.withLock { $0.answer = .failed }
-        await model.musicRemote.controlMusic(.nextTrack).value
+        await model.features.music.controlMusic(.nextTrack).value
         #expect(said.last == "Spotify did not answer")
     }
 
@@ -213,12 +213,12 @@ struct MusicControlsTests {
         var said: [String] = []
         let model = model(in: folder, stand: stand) { said.append($0) }
         for command in [MusicCommand.nextTrack, .previousTrack, .nowPlaying] {
-            await model.musicRemote.controlMusic(command).value
+            await model.features.music.controlMusic(command).value
         }
         #expect(said == Array(repeating: "Neither Spotify nor Music is open", count: 3))
         #expect(stand.scripts.isEmpty)
 
-        await model.musicRemote.controlMusic(.playPause).value
+        await model.features.music.controlMusic(.playPause).value
         #expect(stand.scripts == [#"tell application id "com.apple.Music" to play"#])
         #expect(said.count == 3)
     }
@@ -234,12 +234,12 @@ struct MusicControlsTests {
         var said: [String] = []
         var asked: [String] = []
         let model = model(in: folder, stand: stand, said: { said.append($0) }, asked: { asked.append($0) })
-        await model.musicRemote.controlMusic(.playPause).value
+        await model.features.music.controlMusic(.playPause).value
         #expect(asked == ["Spotify"])
         #expect(said.isEmpty)
 
         stand.state.withLock { $0.open = [] }
-        await model.musicRemote.controlMusic(.playPause).value
+        await model.features.music.controlMusic(.playPause).value
         #expect(asked == ["Spotify", "Music"], "starting Music is scripting it too")
     }
 }

@@ -33,8 +33,8 @@ struct OutgoingDraftsTests {
     private func model(in folder: URL, opened: Opened) -> LauncherModel {
         let defaults = UserDefaults(suiteName: "floe-drafts-\(UUID().uuidString)")!
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
-        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
-        model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
+        model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.linkOpener = opened.opener
         return model
     }
@@ -231,7 +231,7 @@ struct OutgoingDraftsTests {
         model.activate(message)
         #expect(opened.links.last == "sms:+15551234567&body=running%20late")
         #expect(said.isEmpty, "the app shows the draft, so nothing is said")
-        #expect(model.receiptRows.store.all.isEmpty, "nothing was sent or changed")
+        #expect(model.features.receipts.store.all.isEmpty, "nothing was sent or changed")
 
         model.query = "mail"
         #expect(model.results.first?.item.id != "mail-draft", "the word alone is an ordinary search")

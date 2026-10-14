@@ -101,17 +101,8 @@ final class LauncherModel: ObservableObject {
     var clipboardOpener = ClipboardOpener.system
     var linkOpener = LinkOpener.system
     let usage: UsageStore
-    /// Shell commands and running processes. Tests replace parts of its environment.
-    lazy var shellRows = makeShellRows()
-    lazy var checkpointRows = makeCheckpointRows()
-    lazy var timerRows = makeTimerRows()
-    lazy var reminderRows = makeReminderRows()
-    lazy var eventRows = makeEventRows()
-    lazy var receiptRows = makeReceiptRows()
-    lazy var contactRows = makeContactRows()
-    lazy var focusRows = makeFocusRows()
-    lazy var musicRemote = makeMusicRemote()
-    lazy var emojiRows = makeEmojiRows()
+    /// The launcher's features, each handed what it asks of the launcher.
+    lazy var features = LauncherFeatures(model: self)
     /// Where in the remembered searches the field stands, while the Up arrow walks back through them.
     var recalledQuery: Int?
     private var didAutorun = false
@@ -269,7 +260,7 @@ final class LauncherModel: ObservableObject {
     /// Executes the selected root result, including routing Settings rows to their requested page.
     func activate(_ item: RootItem) {
         // An emoji keeps its own count of uses and remembers no query.
-        if emojiRows.open(item, flags: []) {
+        if features.emoji.open(item, flags: []) {
             return
         }
         if item.isScopeResult {
@@ -366,7 +357,7 @@ final class LauncherModel: ObservableObject {
             return
         }
         if let control = command.music {
-            musicRemote.controlMusic(control)
+            features.music.controlMusic(control)
             return
         }
         command.perform { [weak self] in self?.panelHost.showHUD($0) }

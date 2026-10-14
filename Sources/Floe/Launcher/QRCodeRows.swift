@@ -1,5 +1,5 @@
 //
-//  Model+QRCode.swift
+//  QRCodeRows.swift
 //  Project: Floe
 //
 //  Copyright (Floe) © 2026 René Jiménez
@@ -7,18 +7,20 @@
 
 import AppKit
 
-extension LauncherModel {
+/// The QR code for what was typed after "qr": Return copies the picture.
+final class QRCodeRows {
+    var host = RowHost()
+
     /// Return on a QR code: the picture goes to the clipboard.
     func copyQRCode(for text: String) {
         guard let image = ScreenTools.qrCode(for: text) else {
-            panelHost.showHUD(String(localized: "That is too long for a QR code", bundle: .floe))
+            host.showHUD(String(localized: "That is too long for a QR code", bundle: .floe))
             return
         }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.writeObjects([NSImage(cgImage: image, size: .zero)])
-        panelHost.hidePanel()
-        reset()
-        panelHost.showHUD(String(localized: "Copied the QR code", bundle: .floe))
+        host.leave()
+        host.showHUD(String(localized: "Copied the QR code", bundle: .floe))
     }
 
     func qrCodeActions(for text: String) -> [ItemAction?] {
@@ -30,9 +32,8 @@ extension LauncherModel {
             ItemAction(title: String(localized: "Save to Downloads", bundle: .floe), symbol: "arrow.down.circle") { [weak self] in
                 guard let self, let folder = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first,
                       let file = writeQRCode(for: text, to: folder) else { return }
-                panelHost.hidePanel()
-                reset()
-                panelHost.showHUD(String(localized: "Saved \(file.lastPathComponent)", bundle: .floe, comment: "Shown briefly after saving. The placeholder is the name of the file."))
+                host.leave()
+                host.showHUD(String(localized: "Saved \(file.lastPathComponent)", bundle: .floe, comment: "Shown briefly after saving. The placeholder is the name of the file."))
             },
         ]
     }
@@ -48,5 +49,23 @@ extension LauncherModel {
             number += 1
         }
         return (try? data.write(to: file, options: .withoutOverwriting)) == nil ? nil : file
+    }
+}
+
+extension QRCodeRows: RowOwner {
+    func returnTitle(for item: RootItem) -> String? {
+        guard case .qrCode = item else { return nil }
+        return String(localized: "Copy Image", bundle: .floe, comment: "A button that copies a picture.")
+    }
+
+    func open(_ item: RootItem, flags _: NSEvent.ModifierFlags) -> Bool {
+        guard case let .qrCode(text) = item else { return false }
+        copyQRCode(for: text)
+        return true
+    }
+
+    func actions(for item: RootItem) -> [ItemAction?]? {
+        guard case let .qrCode(text) = item else { return nil }
+        return qrCodeActions(for: text)
     }
 }

@@ -9,18 +9,9 @@ import AppKit
 
 /// Focus, as the launcher sets it: through the Shortcut the user named in Settings.
 final class FocusRows {
-    /// What Focus asks of the launcher.
-    struct Host {
-        var showHUD: (String) -> Void = { _ in }
-        /// Hides the panel and goes back to the root search.
-        var leave: () -> Void = {}
-        /// Opens a link through the system once the panel is gone.
-        var reach: (URL?) -> Void = { _ in }
-        /// Runs the Shortcut by its name with text as its input, saying what came of it. The task is for a test to wait on.
-        var runShortcut: (_ name: String, _ input: String, _ say: @escaping (String) -> Void) -> Task<Void, Never>? = { _, _, _ in nil }
-    }
-
-    var host = Host()
+    var host = RowHost()
+    /// Runs the Shortcut by its name with text as its input, saying what came of it. The task is for a test to wait on.
+    var runShortcut: (_ name: String, _ input: String, _ say: @escaping (String) -> Void) -> Task<Void, Never>? = { _, _, _ in nil }
 
     /// Runs the Shortcut with what was asked as its input. With none named, opens Shortcuts and says what to do there.
     /// The task is for a test to wait on, and nil when nothing ran.
@@ -32,7 +23,7 @@ final class FocusRows {
             return nil
         }
         host.leave()
-        return host.runShortcut(shortcut, request.input) { [weak self] in self?.host.showHUD($0) }
+        return runShortcut(shortcut, request.input) { [weak self] in self?.host.showHUD($0) }
     }
 }
 
@@ -49,13 +40,5 @@ extension FocusRows: RowOwner {
         guard case let .focus(request, shortcut) = item else { return false }
         setFocus(request, shortcut: shortcut)
         return true
-    }
-
-    func actions(for _: RootItem) -> [ItemAction?]? {
-        nil
-    }
-
-    func handleKey(_: UInt16, flags _: NSEvent.ModifierFlags, on _: RootItem) -> Bool {
-        false
     }
 }

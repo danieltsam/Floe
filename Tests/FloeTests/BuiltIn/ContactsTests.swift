@@ -83,8 +83,8 @@ struct ContactsTests {
             settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []),
             scopes: [stand.scope], sources: []
         )
-        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
-        model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
+        model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.linkOpener = stand.opener
         return model
     }
@@ -256,7 +256,7 @@ struct ContactsTests {
         model.activate(row)
         #expect(stand.opened == ["addressbook://A1%3AABPerson"])
         #expect(hidden == 1)
-        #expect(model.receiptRows.store.all.isEmpty)
+        #expect(model.features.receipts.store.all.isEmpty)
 
         for title in ["Call", "FaceTime", "Message", "Email"] {
             let action = try #require(model.rootActions(for: row).compactMap(\.self).first { $0.title == title })
