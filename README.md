@@ -118,6 +118,7 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - `time in tokyo` and `time 5pm in berlin` show the time somewhere else.
 - `uuid`, `password 24` and `lorem 3` make something to paste.
 - `translate hola mundo` and `translate to german good morning` translate with Apple's translation, on this Mac. The row says it is Apple's, and that it can be rough.
+- `output` and `input` list the sound devices; Return makes one the device in use. AirPods show their battery.
 - `battery`, `disk`, `memory` and `ip` show a fact about this Mac, under the other results.
 - `brew ripgrep` finds a Homebrew package; Return installs or upgrades it in your terminal. `brew` alone lists what is installed.
 - `base64`, `unbase64`, `urlencode`, `urldecode`, `uppercase`, `lowercase`, `titlecase` and `sha256` change the text after them, or the clipboard.
@@ -280,4 +281,4 @@ Open to partnerships, integrations, and sponsorships. [Get in touch](https://git
 
 [AGPL-3.0](LICENSE). Code ported from other projects keeps its own terms; [LICENSES](LICENSES/README.md) says which license covers which folder.
 
-[Credits](CREDITS.md) lists what Floe is built from, including [Thaw](https://github.com/thaw-app/Thaw), [Droppy Code](https://getdroppycode.app) by Jordy Spruit and [Barometer](https://github.com/mackid1993/Barometer) by mackid1993. Raycast is a trademark of Raycast Technologies Inc. Floe is not affiliated with Raycast.
+[Credits](CREDITS.md) lists what Floe is built from, including [Thaw](https://github.com/thaw-app/Thaw), [Droppy Code](https://getdroppycode.app) by Jordy Spruit, [Barometer](https://github.com/mackid1993/Barometer) by mackid1993 and [Audio Priority Bar](https://github.com/camguillory/Audio-Priority-Bar) by Camille Guillory. Raycast is a trademark of Raycast Technologies Inc. Floe is not affiliated with Raycast.

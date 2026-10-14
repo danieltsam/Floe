@@ -124,6 +124,7 @@ targets:
           thaw: https://github.com/thaw-app/Thaw
           droppyCode: https://gitlab.com/droppyformac1/droppy-code
           barometer: https://github.com/mackid1993/Barometer
+          audioPriorityBar: https://github.com/camguillory/Audio-Priority-Bar
           sponsor: https://github.com/sponsors/diazdesandi
           discord: https://discord.gg/KDfWjWDnR4
           translate: https://crowdin.com/project/floe

@@ -69,6 +69,10 @@ DEPENDENCIES = [
     Dependency("Barometer", "barometer", "GPL-3.0",
                "Barometer by mackid1993. Floe reads the battery, the memory in use and the network address "
                "with its system sources, cut down for a row in the search", group="origin"),
+    Dependency("Audio Priority Bar", "audioPriorityBar", "MIT",
+               "Audio Priority Bar by Camille Guillory, originally by tobi. Floe lists the sound devices, makes one "
+               "the default and reads the battery of Bluetooth headphones with its sources, cut down for a list "
+               "in the search", group="origin"),
     Dependency("CompactSlider", "compactSlider", "MIT", "Used by ThawUI", "swift", "compactslider"),
     Dependency("Sparkle", "sparkle", "MIT", "Checks for updates and installs them", "swift", "sparkle",
                optional=True),

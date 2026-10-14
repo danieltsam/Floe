@@ -852,6 +852,9 @@
     "Capsule" : {
       "comment" : "A shape for the search field."
     },
+    "Case %@" : {
+      "comment" : "The battery of the earbuds' charging case. The placeholder is a percentage."
+    },
     "Cask" : {
       "comment" : "Beside a Homebrew package. A cask is an app Homebrew installs."
     },
@@ -896,6 +899,8 @@
     "Choose a folder for your notes" : {},
     "Choose a folder for your notes in Settings" : {},
     "Choose an App" : {},
+    "Choose the device sound plays through" : {},
+    "Choose the microphone" : {},
     "Choose…" : {},
     "Claude stopped before finishing." : {},
     "Clear" : {
@@ -1099,6 +1104,9 @@
     "Couldn't turn Wi-Fi on" : {},
     "Couldn’t save the note: %@" : {
       "comment" : "The placeholder is the reason the system gave."
+    },
+    "Couldn’t switch to %@" : {
+      "comment" : "The placeholder is the name of a sound device."
     },
     "Credits" : {
       "comment" : "The title of the page that thanks contributors."
@@ -1595,6 +1603,9 @@
       "comment" : "The heading of an important note in the release notes."
     },
     "Import…" : {},
+    "In Use" : {
+      "comment" : "Beside the sound device that sound goes through now."
+    },
     "In the menu bar" : {},
     "Include extension settings" : {},
     "Include extensions installed in Raycast" : {},
@@ -1710,6 +1721,9 @@
     "Launcher layout" : {},
     "Layout" : {
       "comment" : "The heading over the settings for how the launcher is arranged."
+    },
+    "Left %@" : {
+      "comment" : "The battery of the left earbud. The placeholder is a percentage."
     },
     "Length" : {
       "comment" : "A kind of unit, named in a calculator error."
@@ -1969,6 +1983,7 @@
     },
     "No shortcuts match" : {},
     "No snippets yet." : {},
+    "No sound device matches" : {},
     "No sound output" : {},
     "No timer is running" : {},
     "None" : {
@@ -2419,6 +2434,9 @@
       "comment" : "Language & Region and Translation Languages are named as System Settings names them."
     },
     "Return to root search" : {},
+    "Right %@" : {
+      "comment" : "The battery of the right earbud. The placeholder is a percentage."
+    },
     "Rounded" : {
       "comment" : "A shape for the search field."
     },
@@ -2708,6 +2726,15 @@
         }
       }
     },
+    "Sound Input" : {
+      "comment" : "The heading over the microphones."
+    },
+    "Sound Output" : {
+      "comment" : "The heading over the devices sound can play through."
+    },
+    "Sound plays through %@" : {
+      "comment" : "The placeholder is the name of a sound device."
+    },
     "Source Code" : {},
     "Speed" : {
       "comment" : "A kind of unit, named in a calculator error."
@@ -2910,6 +2937,9 @@
     "The launcher is following Thaw's tint." : {},
     "The link that makes a note, with {text} where the text goes." : {},
     "The link that opens your clipboard app's history." : {},
+    "The microphone is %@" : {
+      "comment" : "The placeholder is the name of a sound device."
+    },
     "The model gave no answer." : {},
     "The model's name, as the API lists it" : {},
     "The note changed elsewhere. Yours is saved as %@." : {
@@ -3144,7 +3174,13 @@
       "comment" : "The kind of a result, shown beside its title."
     },
     "Use Its Own" : {},
+    "Use as Microphone" : {
+      "comment" : "A button that makes the selected device the one that records."
+    },
     "Use as fallback" : {},
+    "Use for Sound Output" : {
+      "comment" : "A button that makes the selected device the one sound plays through."
+    },
     "Use {query} where the search text goes." : {},
     "Users & Groups (System Settings)" : {
       "comment" : "The name of a pane of System Settings.",

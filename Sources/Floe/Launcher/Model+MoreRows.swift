@@ -39,6 +39,9 @@ extension LauncherModel {
         if case let .brew(package) = item {
             return title(for: Homebrew.primaryVerb(for: package))
         }
+        if case let .soundDevice(row) = item {
+            return title(for: row.device.role)
+        }
         return draftTitle(for: item)
     }
 
@@ -89,6 +92,8 @@ extension LauncherModel {
             brew(Homebrew.primaryVerb(for: package), package)
         } else if case .noteDesk = item {
             openNoteDesk()
+        } else if case let .soundDevice(row) = item {
+            use(row)
         } else {
             openTyped(item)
         }

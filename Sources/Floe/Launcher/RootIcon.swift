@@ -102,7 +102,7 @@ struct RootIcon: View {
         case .extensionStore, .system, .note, .snippet, .event, .clipboardEntry,
              .menuBarAccess, .askAI, .webAddress, .checkpoint, .checkpointDraft,
              .reminderDraft, .eventDraft, .contact, .outgoing, .focus, .keyword,
-             .definition, .answer, .bookmark, .brew, .timer, .receipt, .shell:
+             .definition, .answer, .bookmark, .brew, .soundDevice, .timer, .receipt, .shell:
             symbolIcon
         }
     }
@@ -152,6 +152,8 @@ struct RootIcon: View {
             SymbolTile(symbol: "book")
         case let .brew(package):
             SymbolTile(symbol: package.isCask ? "macwindow" : "shippingbox")
+        case let .soundDevice(row):
+            SymbolTile(symbol: row.symbol)
         case .timer:
             SymbolTile(symbol: "timer")
         case let .receipt(receipt):

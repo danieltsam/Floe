@@ -343,9 +343,9 @@ struct SearchScopeTests {
         #expect(scope.updates(for: "clock", context: context) != nil, "a scan as old as its lifetime is made again")
     }
 
-    @Test func theStandardScopesAreFilesClipboardMenuSSHProcessesPortsShortcutsTimersContactsWindowsBookmarksHomebrewTranslationRecentFilesAndKeywords() {
-        #expect(RootSearch.standardScopes().map(\.keyword) == ["files", "clipboard", "menu", "ssh", "kill", "port", "receipts", "shortcuts", "timers", "contact", "windows", "bookmarks", "brew", "translate", "recent", "keywords", "?"])
-        #expect(RootSearch.standardScopes().map(\.title) == ["Files", "Clipboard History", "Menu Bar Items", "SSH Hosts", "Running Processes", "Listening on the Port", "Receipts", "Shortcuts", "Timers", "Contacts", "Open Windows", "Bookmarks", "Homebrew", "Translation", "Recently Used Files", "Keywords", "Keywords"])
+    @Test func theStandardScopesAreFilesClipboardMenuSSHProcessesPortsShortcutsTimersContactsWindowsBookmarksHomebrewSoundTranslationRecentFilesAndKeywords() {
+        #expect(RootSearch.standardScopes().map(\.keyword) == ["files", "clipboard", "menu", "ssh", "kill", "port", "receipts", "shortcuts", "timers", "contact", "windows", "bookmarks", "brew", "output", "input", "translate", "recent", "keywords", "?"])
+        #expect(RootSearch.standardScopes().map(\.title) == ["Files", "Clipboard History", "Menu Bar Items", "SSH Hosts", "Running Processes", "Listening on the Port", "Receipts", "Shortcuts", "Timers", "Contacts", "Open Windows", "Bookmarks", "Homebrew", "Sound Output", "Sound Input", "Translation", "Recently Used Files", "Keywords", "Keywords"])
     }
 
     // MARK: The new rows
