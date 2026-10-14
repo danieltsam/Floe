@@ -114,8 +114,8 @@ extension LauncherModel {
         let item = results[selection].item
         if case let .emoji(entry) = item, flags == .command {
             copyEmojiResult(entry)
-        } else if case let .run(command, terminal) = item.shellAction, !flags.isEmpty {
-            runShellCommand(command, terminal: terminal, with: flags)
+        } else if !flags.isEmpty, openByOwner(item, flags: flags) {
+            // A row whose owner gives Return with a key held a meaning of its own.
         } else {
             activate(item)
         }

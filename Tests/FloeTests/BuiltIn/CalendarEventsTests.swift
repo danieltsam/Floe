@@ -270,7 +270,7 @@ struct CalendarEventsTests {
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
         var shown: [String] = []
-        model.shell.showOutput = { title, _ in shown.append(title) }
+        model.shellRows.environment.showOutput = { title, _ in shown.append(title) }
         await model.addEvent(EventDraft(title: "lunch", start: Self.time(9, 13))).value
         let receipt = try #require(model.receipts.all.first)
         let row = RootItem.receipt(receipt)

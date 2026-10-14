@@ -119,24 +119,24 @@ struct ReceiptsTests {
         let folder = try scratch()
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
-        model.shell.run = { _, _ in ("first line", "all of it") }
-        model.shell.endProcess = { _, _ in true }
-        model.shell.showOutput = { _, _ in }
+        model.shellRows.environment.run = { _, _ in ("first line", "all of it") }
+        model.shellRows.environment.endProcess = { _, _ in true }
+        model.shellRows.environment.showOutput = { _, _ in }
 
-        model.runShellCommand("uptime", terminal: nil)
+        model.shellRows.runShellCommand("uptime", terminal: nil)
         for _ in 0 ..< 100 where model.receipts.all.isEmpty {
             try? await Task.sleep(for: .milliseconds(10))
         }
-        model.end(RunningProcess(pid: 400, path: "/x/ThawNotch", memory: 0), force: false)
+        model.shellRows.end(RunningProcess(pid: 400, path: "/x/ThawNotch", memory: 0), force: false)
         #expect(model.receipts.all.map(\.title) == ["Quit ThawNotch", "Ran uptime"])
         #expect(model.receipts.all.last?.detail == "first line")
 
-        model.runShellCommand("man ls", terminal: nil)
+        model.shellRows.runShellCommand("man ls", terminal: nil)
         try? await Task.sleep(for: .milliseconds(80))
         #expect(model.receipts.all.count == 2, "reading a manual changed nothing")
 
         model.settings.keepsReceipts = false
-        model.end(RunningProcess(pid: 401, path: "/x/Other", memory: 0), force: false)
+        model.shellRows.end(RunningProcess(pid: 401, path: "/x/Other", memory: 0), force: false)
         #expect(model.receipts.all.count == 2)
     }
 
@@ -147,7 +147,7 @@ struct ReceiptsTests {
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
         var shown: [String] = []
-        model.shell.showOutput = { title, _ in shown.append(title) }
+        model.shellRows.environment.showOutput = { title, _ in shown.append(title) }
         let file = folder.appendingPathComponent("draft.md")
         try Data("x".utf8).write(to: file)
         let receipt = try ReceiptStore.trash(file)

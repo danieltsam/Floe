@@ -31,7 +31,7 @@ struct NoteAndCheckpointReceiptsTests {
         model.checkpointing.tabs = { [] }
         model.checkpointing.openFile = { _ in }
         model.checkpointing.confirmsDelete = { _ in false }
-        model.shell.showOutput = { _, _ in }
+        model.shellRows.environment.showOutput = { _, _ in }
         model.settings.notesApp = .folder
         model.settings.notesFolder = folder.appendingPathComponent("Notes").path
         return model

@@ -101,8 +101,8 @@ final class LauncherModel: ObservableObject {
     var clipboardOpener = ClipboardOpener.system
     var linkOpener = LinkOpener.system
     let usage: UsageStore
-    /// What the shell rows reach outside the launcher through. Tests replace its parts.
-    var shell = ShellEnvironment()
+    /// Shell commands and running processes. Tests replace parts of its environment.
+    lazy var shellRows = makeShellRows()
     /// Where receipts are kept. Tests give one of their own.
     var receipts = ReceiptStore.shared
     var checkpointStore = CheckpointStore.shared

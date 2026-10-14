@@ -19,7 +19,7 @@ extension LauncherModel {
     /// Hands the command to the terminal: there it shows what it does and asks for a password when it needs one.
     func brew(_ verb: Homebrew.Verb, _ package: BrewPackage) {
         let terminal = searchContext().preferredApps.first { $0.role == .terminal }?.app
-        runShellCommand(Homebrew.command(verb, package), terminal: terminal, inTerminal: true)
+        shellRows.runShellCommand(Homebrew.command(verb, package), terminal: terminal, inTerminal: true)
     }
 
     func brewActions(for package: BrewPackage) -> [ItemAction?] {

@@ -113,7 +113,7 @@ struct ProcessesTests {
         model.receipts = ReceiptStore(file: FileManager.default.temporaryDirectory.appendingPathComponent("floe-receipts-\(UUID().uuidString).json"))
         var ended: [String] = []
         var refuse = false
-        model.shell.endProcess = { process, force in
+        model.shellRows.environment.endProcess = { process, force in
             ended.append("\(process.pid) \(force ? "forced" : "asked")")
             return !refuse
         }
@@ -124,10 +124,10 @@ struct ProcessesTests {
         #expect(model.primaryActionTitle(for: item) == "Quit")
         #expect(model.rootActions(for: item).map { $0?.title ?? "-" } == ["Quit", "Force Quit…", "-", "Show in Finder", "Copy Process ID"])
         model.activate(item)
-        model.shell.confirmsForceQuit = { _ in false }
+        model.shellRows.environment.confirmsForceQuit = { _ in false }
         model.rootActions(for: item)[1]?.run()
         #expect(ended == ["400 asked"], "a no to the question ends nothing")
-        model.shell.confirmsForceQuit = { _ in true }
+        model.shellRows.environment.confirmsForceQuit = { _ in true }
         model.rootActions(for: item)[1]?.run()
         refuse = true
         model.activate(item)

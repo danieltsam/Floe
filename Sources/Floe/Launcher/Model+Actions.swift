@@ -41,7 +41,7 @@ extension LauncherModel {
         case .menuBarItem: String(localized: "Click Item", bundle: .floe)
         case .browserTab(.tab): String(localized: "Switch to Tab", bundle: .floe)
         case .webAddress: openInBrowserTitle
-        default: Self.laterTitle(for: item) ?? String(localized: "Open", bundle: .floe, comment: "A verb on a button: open the selected result.")
+        default: ownerReturnTitle(for: item) ?? Self.laterTitle(for: item) ?? String(localized: "Open", bundle: .floe, comment: "A verb on a button: open the selected result.")
         }
     }
 

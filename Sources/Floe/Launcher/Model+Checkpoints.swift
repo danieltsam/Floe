@@ -75,7 +75,7 @@ extension LauncherModel {
             panelHost.showHUD(checkpoint.note.isEmpty ? String(localized: "Resumed \(checkpoint.name)", bundle: .floe, comment: "The placeholder is a checkpoint's name.") : checkpoint.note)
         } else {
             panelHost.showHUD(String(localized: "\(missing.count) of \(checkpoint.items.count) are missing", bundle: .floe, comment: "Both placeholders are numbers: how many of a checkpoint's files are gone, and how many things it holds."))
-            shell.showOutput(checkpoint.name, checkpoint.details())
+            shellRows.environment.showOutput(checkpoint.name, checkpoint.details())
         }
     }
 
@@ -99,7 +99,7 @@ extension LauncherModel {
         [
             ItemAction(title: String(localized: "Show Details", bundle: .floe), symbol: "doc.text") { [weak self] in
                 self?.panelHost.hidePanel()
-                self?.shell.showOutput(checkpoint.name, checkpoint.details())
+                self?.shellRows.environment.showOutput(checkpoint.name, checkpoint.details())
             },
             ItemAction(title: String(localized: "Save Again", bundle: .floe, comment: "An action that saves a checkpoint over itself with what is open now."), symbol: "arrow.triangle.2.circlepath") { [weak self] in
                 self?.saveCheckpoint(named: checkpoint.name, note: checkpoint.note)

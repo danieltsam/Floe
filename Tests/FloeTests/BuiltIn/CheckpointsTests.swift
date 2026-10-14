@@ -167,7 +167,7 @@ struct CheckpointsTests {
         var opened: [String] = []
         model.checkpointing.openFile = { opened.append($0.path) }
         var shown: [String] = []
-        model.shell.showOutput = { title, text in shown.append("\(title)|\(text.contains("Missing: "))") }
+        model.shellRows.environment.showOutput = { title, text in shown.append("\(title)|\(text.contains("Missing: "))") }
         let here = folder.appendingPathComponent("index.html")
         try Data().write(to: here)
 

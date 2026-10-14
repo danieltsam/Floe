@@ -397,7 +397,7 @@ struct RemindersTests {
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
         var shown: [String] = []
-        model.shell.showOutput = { title, _ in shown.append(title) }
+        model.shellRows.environment.showOutput = { title, _ in shown.append(title) }
         await model.addReminder(ReminderDraft(title: "call mom", due: Self.time(9, 17))).value
         let receipt = try #require(model.receipts.all.first)
         let row = RootItem.receipt(receipt)

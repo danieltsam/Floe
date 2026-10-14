@@ -12,11 +12,8 @@ import AppKit
 extension LauncherModel {
     /// What Return does on one of these rows, as its button says it. Nil for any other row.
     static func laterTitle(for item: RootItem) -> String? {
-        if let action = item.shellAction {
-            return action.title
-        }
         if case let .receipt(receipt) = item {
-            return Self.undoTitle(for: receipt) ?? String(localized: "Show Details", bundle: .floe)
+            return undoTitle(for: receipt) ?? String(localized: "Show Details", bundle: .floe)
         }
         if case .checkpoint = item {
             return String(localized: "Resume", bundle: .floe, comment: "A verb on a button: open what a checkpoint holds.")
@@ -67,8 +64,8 @@ extension LauncherModel {
 
     /// Return on one of these rows.
     func openLater(_ item: RootItem) {
-        if let action = item.shellAction {
-            perform(action)
+        if openByOwner(item) {
+            return
         } else if case let .checkpoint(checkpoint) = item {
             resume(checkpoint)
         } else if case let .checkpointDraft(name, note) = item {
@@ -149,7 +146,7 @@ extension LauncherModel {
         if case let .definition(definition) = item {
             return [ItemAction(title: String(localized: "Copy Definition", bundle: .floe), symbol: "doc.on.doc") { [weak self] in self?.copy(definition) }]
         }
-        return keywordRowActions(for: item) ?? shellActions(for: item)
+        return keywordRowActions(for: item) ?? ownerActions(for: item) ?? []
     }
 
     /// Hands a note to the app the user chose. What is written into a folder of notes leaves a receipt.
@@ -206,7 +203,7 @@ extension LauncherModel {
 
     func showDetails(of receipt: Receipt) {
         panelHost.hidePanel()
-        shell.showOutput(receipt.title, receipt.text)
+        shellRows.environment.showOutput(receipt.title, receipt.text)
     }
 
     private func receiptActions(_ receipt: Receipt) -> [ItemAction?] {
@@ -216,7 +213,7 @@ extension LauncherModel {
         }
         if receipt.kind == .command {
             actions.append(ItemAction(title: String(localized: "Run Again", bundle: .floe), symbol: "arrow.clockwise") { [weak self] in
-                self?.runShellCommand(receipt.subject, terminal: nil)
+                self?.shellRows.runShellCommand(receipt.subject, terminal: nil)
             })
         }
         return actions + [

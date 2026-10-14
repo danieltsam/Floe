@@ -179,13 +179,13 @@ struct ShellHintButtons: View {
         switch action {
         case let .run(command, terminal):
             ShortcutHintButton(title: String(localized: "Output", bundle: .floe, comment: "A button that runs a command and shows what it printed.")) {
-                model.runShellCommand(command, terminal: terminal, showingOutput: true)
+                model.shellRows.runShellCommand(command, terminal: terminal, showingOutput: true)
             } hint: {
                 KeyCapView(text: "⌥")
                 KeyCapView(systemImage: "return")
             }
         case let .complete(row):
-            ShortcutHintButton(title: ShellAction.complete(row).title) { model.complete(with: row) } hint: {
+            ShortcutHintButton(title: ShellAction.complete(row).title) { model.shellRows.complete(with: row) } hint: {
                 KeyCapView(text: "⇥")
             }
         case .quit, nil:
