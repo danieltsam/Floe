@@ -127,7 +127,6 @@ final class ClipboardHistoryStore: ObservableObject {
         self.remote = remote
         self.limits = limits
         worker = ClipboardHistoryWorker(files: files, maxQueuedBytes: limits.maxQueuedBytes, storedPNG: storedPNG)
-        worker.start()
         Task { @MainActor [weak self, wakes = worker.wakes] in
             for await _ in wakes {
                 self?.applyEvents()

@@ -75,7 +75,7 @@ private final nonisolated class LiveBytes: Sendable {
     }
 }
 
-/// One at a time: a test that holds its worker at a gate keeps a thread of the pool, and the pool is small.
+/// One at a time: several tests hold their worker at a gate while the main thread acts.
 @MainActor
 @Suite("Clipboard history", .serialized)
 final class ClipboardHistoryTests {

@@ -142,8 +142,8 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
     private let files: ClipboardFiles
     private let maxQueuedBytes: Int
     private let storedPNG: @Sendable (Data) -> Data?
-    private let ticks: AsyncStream<Void>
-    private let tick: AsyncStream<Void>.Continuation
+    /// Its own thread, not the shared task pool: a wait for the worker can never be a wait for a free thread.
+    private let runner = DispatchQueue(label: "org.thaw.floe.clipboard-worker", qos: .utility)
     private let shared = Shared()
     private let wake: AsyncStream<Void>.Continuation
 
@@ -159,34 +159,29 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
         self.files = files
         self.maxQueuedBytes = maxQueuedBytes
         self.storedPNG = storedPNG
-        // The jobs wait in `shared.queue`, where one can be dropped; the stream only says there are some.
-        (ticks, tick) = AsyncStream.makeStream(of: Void.self, bufferingPolicy: .bufferingNewest(1))
         (wakes, wake) = AsyncStream.makeStream(of: Void.self, bufferingPolicy: .bufferingNewest(1))
     }
 
     deinit {
-        tick.finish()
+        wake.finish()
     }
 
-    /// Starts the one task that runs the jobs.
-    func start() {
-        Task.detached { [ticks, files, storedPNG, shared, wake] in
-            for await _ in ticks {
-                while let job = shared.queue.withLock({ $0.next() }) {
-                    // The pool frees what decoding an image leaves behind before the next job starts.
-                    let events = autoreleasepool { Self.run(job, files: files, storedPNG: storedPNG) }
-                    guard !events.isEmpty else { continue }
-                    shared.events.withLock { $0 += events }
-                    wake.yield()
-                }
+    /// Runs the waiting jobs in order. The jobs wait in shared.queue, where one can be dropped before it starts.
+    private func tick() {
+        runner.async { [files, storedPNG, shared, wake] in
+            while let job = shared.queue.withLock({ $0.next() }) {
+                // The pool frees what decoding an image leaves behind before the next job starts.
+                let events = autoreleasepool { Self.run(job, files: files, storedPNG: storedPNG) }
+                guard !events.isEmpty else { continue }
+                shared.events.withLock { $0 += events }
+                wake.yield()
             }
-            wake.finish()
         }
     }
 
     private func enqueue(_ job: Job) {
         shared.queue.withLock { $0.jobs.append(job) }
-        tick.yield()
+        tick()
     }
 
     /// Reads the saved list, once for any number of asks still waiting.
@@ -203,7 +198,7 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
                 queue.jobs.append(.load)
             }
         }
-        tick.yield()
+        tick()
     }
 
     /// Queues a copy, making room for it first: this never waits for the worker.
@@ -216,7 +211,7 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
                 queue.shed(to: maxQueuedBytes)
             }
         }
-        tick.yield()
+        tick()
     }
 
     /// Drops every copy not started yet, so none is decoded or written and its data is freed now.
@@ -247,7 +242,7 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
             }
             queue.jobs.insert(.store(files), at: save ?? queue.jobs.endIndex)
         }
-        tick.yield()
+        tick()
     }
 
     func remove(_ names: [String]) {
@@ -263,7 +258,7 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
             }
             queue.unsaved = entries
         }
-        tick.yield()
+        tick()
     }
 
     /// Blocks until every job asked for so far has run, or the time is up.
