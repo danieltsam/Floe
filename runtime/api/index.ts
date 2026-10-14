@@ -496,8 +496,9 @@ export const environment = {
   // True only for an extension run from the checkout, as it is in Raycast for one being developed.
   // Extensions switch to sample data and extra logging on it.
   get isDevelopment() { return process.env.FLOE_DEVELOPMENT === "1"; },
-  appearance: "dark",
-  theme: "dark",
+  // What the app looked like when it started this command, which is when an extension picks its pictures.
+  get appearance() { return process.env.FLOE_APPEARANCE === "light" ? "light" : "dark"; },
+  get theme() { return process.env.FLOE_APPEARANCE === "light" ? "light" : "dark"; },
   textSize: "medium",
   get launchType() { return ctx.launchType; },
   // The app sets FLOE_AI when AI.ask has something to answer it: an installed tool or a filled-in API.

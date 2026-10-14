@@ -124,10 +124,20 @@ extension ExtensionSession {
     /// Tells the host which render references this app reads; a host that writes another kind sends whole renders.
     static let referencesVariable = "FLOE_RENDER_REFERENCES"
     static let accessOff = "off"
+    /// Tells the host whether the app is drawn light or dark, for `environment.appearance`.
+    static let appearanceVariable = "FLOE_APPEARANCE"
 
     /// What the host starts with: the login shell's environment, the command's preferences, whether `AI.ask`
-    /// has a tool to run on, and whether what the extension reaches is recorded.
-    static func hostVariables(_ base: [String: String], preferences: Data?, hasAI: Bool, launchType: String = "userInitiated", recordsAccess: Bool = true, isDevelopment: Bool = false) -> [String: String] {
+    /// has a tool to run on, whether what the extension reaches is recorded, and the app's appearance.
+    static func hostVariables(
+        _ base: [String: String],
+        preferences: Data?,
+        hasAI: Bool,
+        launchType: String = "userInitiated",
+        recordsAccess: Bool = true,
+        isDevelopment: Bool = false,
+        isDark: Bool? = nil
+    ) -> [String: String] {
         var variables = base
         // Preferences go through the environment so the host has them before the command's first line runs.
         if let preferences {
@@ -139,6 +149,7 @@ extension ExtensionSession {
         variables[referencesVariable] = String(KeptRender.referenceVersion)
         variables[accessVariable] = recordsAccess ? nil : accessOff
         variables[developmentVariable] = isDevelopment ? "1" : nil
+        variables[appearanceVariable] = isDark.map { $0 ? "dark" : "light" }
         return variables
     }
 

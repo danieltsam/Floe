@@ -549,6 +549,14 @@ describe("AI", () => {
     delete process.env.FLOE_DEVELOPMENT;
   });
 
+  test("the appearance is the one the app passes, and dark when it passes none", () => {
+    delete process.env.FLOE_APPEARANCE;
+    expect([api.environment.appearance, api.environment.theme]).toEqual(["dark", "dark"]);
+    process.env.FLOE_APPEARANCE = "light";
+    expect([api.environment.appearance, api.environment.theme]).toEqual(["light", "light"]);
+    delete process.env.FLOE_APPEARANCE;
+  });
+
   test("extensions can use AI when the app found a tool for it", () => {
     delete process.env.FLOE_AI;
     expect(api.environment.canAccess(api.AI)).toBe(false);

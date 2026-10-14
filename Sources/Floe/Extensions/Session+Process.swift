@@ -5,7 +5,7 @@
 //  Copyright (Floe) © 2026 René Jiménez
 //  Licensed under the GNU AGPLv3
 
-import Foundation
+import AppKit
 import Subprocess
 import System
 
@@ -78,7 +78,8 @@ extension ExtensionSession {
             hasAI: AIAnswer.isAvailable(for: command.extensionName),
             launchType: launchType,
             recordsAccess: recordsAccess(),
-            isDevelopment: Self.isUnderDevelopment(command.extensionDir)
+            isDevelopment: Self.isUnderDevelopment(command.extensionDir),
+            isDark: NSApp?.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         )
         return Environment.custom(Dictionary(uniqueKeysWithValues: variables.map { (Environment.Key(stringLiteral: $0.key), $0.value) }))
     }
