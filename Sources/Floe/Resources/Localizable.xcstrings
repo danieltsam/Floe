@@ -500,6 +500,9 @@
     },
     "A search that starts with a program on this Mac and has a flag, a path or a pipe in it gets a Run row under the other results." : {},
     "A search that starts with the prefix runs as a command in your shell, with everything your account may do. Nothing asks first." : {},
+    "A search that starts with “maps” sends the text after it to Apple Maps, to find the place. Floe asks for no location, and nothing is sent for any other search." : {
+      "comment" : "The word in quotation marks is typed as it is and stays in English."
+    },
     "A source that sends questions elsewhere is refused, for Ask AI and for extensions. Nothing else is asked in its place." : {},
     "AI" : {
       "comment" : "The heading over the settings for artificial intelligence.\nThe kind of a result, shown beside its title. Short for artificial intelligence."
@@ -1391,6 +1394,9 @@
     "Find a person in Contacts" : {
       "comment" : "Contacts is the name of Apple's app."
     },
+    "Find a place with Apple Maps. What you type is sent to Apple" : {
+      "comment" : "Apple Maps is the name of Apple's service."
+    },
     "Find an emoji or a symbol" : {},
     "Find an item in the menu bar and open its menu." : {},
     "Find files by name" : {},
@@ -1570,6 +1576,9 @@
           }
         }
       }
+    },
+    "Get Directions" : {
+      "comment" : "A button that opens the way to a place in Maps."
     },
     "Get Thaw" : {},
     "Getting the selected text needs Accessibility access. Turn it on under System Settings › Privacy & Security › Accessibility." : {},
@@ -1834,6 +1843,7 @@
     "Make a note" : {},
     "Make a random password" : {},
     "Make paragraphs of placeholder text" : {},
+    "Maps" : {},
     "Mass" : {
       "comment" : "A kind of unit, named in a calculator error."
     },
@@ -1986,6 +1996,7 @@
     "No package matches" : {
       "comment" : "Shown when no Homebrew package has the name typed."
     },
+    "No place matches" : {},
     "No receipts yet" : {},
     "No recent files" : {},
     "No recently used file opens in that app" : {},
@@ -2155,6 +2166,9 @@
     "Open in Dictionary" : {
       "comment" : "Dictionary is the name of Apple's app."
     },
+    "Open in Maps" : {
+      "comment" : "Maps is the name of Apple's app."
+    },
     "Open in Shortcuts" : {
       "comment" : "Shortcuts is the name of Apple's app."
     },
@@ -2222,10 +2236,16 @@
     "Pinned" : {
       "comment" : "The heading over the copies the user pinned."
     },
+    "Place" : {
+      "comment" : "The kind of a result, shown beside its title. Here a place on the map."
+    },
     "Placeholder Text" : {
       "comment" : "The kind of a result, shown beside its title. Here lorem ipsum, the filler text designers use."
     },
     "Placeholders: {clipboard} {date} {time} {datetime} {uuid} {day}" : {},
+    "Places" : {
+      "comment" : "The heading over the places Apple Maps found."
+    },
     "Play/Pause" : {
       "comment" : "A command that pauses the music, or plays it again."
     },

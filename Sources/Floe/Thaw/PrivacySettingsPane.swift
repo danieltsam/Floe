@@ -144,6 +144,7 @@ struct PrivacySettingsPane: View {
                     Text("A source that sends questions elsewhere is refused, for Ask AI and for extensions. Nothing else is asked in its place.")
                 }
                 row("iCloud", SettingsSyncText.privacyLine(isOn: settings.syncsWithICloud, includesExtensions: settings.syncsExtensionSettings, passwords: Keychain.vault.isOn))
+                row("Maps", String(localized: "A search that starts with “maps” sends the text after it to Apple Maps, to find the place. Floe asks for no location, and nothing is sent for any other search.", bundle: .floe, comment: "The word in quotation marks is typed as it is and stays in English."))
                 row("Release notes", String(localized: "Opening What’s New from About reads Floe’s changelog from GitHub and keeps the last copy.", bundle: .floe))
                 row("Extensions", String(localized: "Each extension makes its own requests, and the images it shows are loaded from wherever it points.", bundle: .floe))
             }

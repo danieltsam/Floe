@@ -121,6 +121,7 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - Pick Color from Screen shows the system's eyedropper and copies the color as hex.
 - Copy Text from Screen reads the text, or the QR code, in the part of the screen you drag over. It needs Screen Recording.
 - `qr https://example.com` makes a QR code to copy, look at or save.
+- `maps coffee in lisbon` finds places with Apple Maps; Return shows one in Maps. What you type after `maps` is sent to Apple.
 - `output` and `input` list the sound devices; Return makes one the device in use. AirPods show their battery.
 - `battery`, `disk`, `memory` and `ip` show a fact about this Mac, under the other results. `battery` also lists a connected mouse, keyboard or headphones that report one.
 - `brew ripgrep` finds a Homebrew package; Return installs or upgrades it in your terminal. `brew` alone lists what is installed.

@@ -17,6 +17,7 @@ extension LauncherModel {
         case let .brew(package): title(for: Homebrew.primaryVerb(for: package))
         case let .soundDevice(row): title(for: row.device.role)
         case .qrCode: String(localized: "Copy Image", bundle: .floe, comment: "A button that copies a picture.")
+        case .place: String(localized: "Open in Maps", bundle: .floe, comment: "Maps is the name of Apple's app.")
         default: nil
         }
     }
@@ -29,6 +30,7 @@ extension LauncherModel {
         case .noteDesk: openNoteDesk()
         case let .soundDevice(row): use(row)
         case let .qrCode(text): copyQRCode(for: text)
+        case let .place(place): reach(Places.link(to: place))
         default: return false
         }
         return true
@@ -40,6 +42,7 @@ extension LauncherModel {
         case let .window(.window(window)): windowActions(for: window)
         case let .brew(package): brewActions(for: package)
         case let .qrCode(text): qrCodeActions(for: text)
+        case let .place(place): placeActions(for: place)
         default: nil
         }
     }
