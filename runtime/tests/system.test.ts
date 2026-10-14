@@ -614,6 +614,7 @@ describe("constants", () => {
     expect(api.OAuth.RedirectMethod.Web).toBe("web");
     expect(api.Keyboard.Shortcut.Common.Copy).toEqual({ modifiers: ["cmd", "shift"], key: "c" });
     expect(api.Keyboard.Shortcut.Common.Refresh).toEqual({ modifiers: ["cmd"], key: "r" });
+    expect(api.Keyboard.Shortcut.Common.Save).toEqual({ modifiers: ["cmd"], key: "s" });
   });
 });
 

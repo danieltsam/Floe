@@ -24,9 +24,13 @@ type Props = Record<string, any>;
 function slot(name: string, element: unknown) {
   return element ? h("_slot", { name, key: `_slot_${name}` }, element as React.ReactNode) : null;
 }
+// A shortcut can be given per platform, as { macOS, Windows }. The app reads { modifiers, key }, so it gets the Mac's.
+const macShortcut = (shortcut: any) =>
+  shortcut && typeof shortcut === "object" && ("macOS" in shortcut || "Windows" in shortcut) ? shortcut.macOS : shortcut;
 function host(type: string, slots: string[] = []) {
   const component = (props: Props) => {
     const { children, ...rest } = props;
+    if (rest.shortcut) rest.shortcut = macShortcut(rest.shortcut);
     const slotted = slots.map((name) => {
       const element = rest[name];
       delete rest[name];
@@ -189,7 +193,7 @@ function action(defaultTitle: string, defaultIcon: string, run: (props: Props, n
     return h("Action", {
       title: props.title ?? defaultTitle,
       icon: props.icon ?? `icon:${defaultIcon}`,
-      shortcut: props.shortcut,
+      shortcut: macShortcut(props.shortcut),
       style: props.style,
       onAction: () => run(props, navigation),
     });
@@ -231,7 +235,7 @@ export const Action = Object.assign(BaseAction, {
     props.onTrash?.(props.paths);
   }),
   SubmitForm: (props: Props) =>
-    h("Action", { title: props.title ?? "Submit", icon: props.icon, shortcut: props.shortcut, isSubmit: true, onSubmit: props.onSubmit }),
+    h("Action", { title: props.title ?? "Submit", icon: props.icon, shortcut: macShortcut(props.shortcut), isSubmit: true, onSubmit: props.onSubmit }),
   OpenWith: action("Open With", "Finder", (props) => open(props.path)),
   ToggleQuickLook: action("Quick Look", "Eye", () => unsupported("Quick Look")),
   CreateSnippet: action("Create Snippet", "Document", () => unsupported("Snippets")),
@@ -559,6 +563,7 @@ export const Keyboard = {
       Refresh: shortcut(["cmd"], "r"),
       Remove: shortcut(["ctrl"], "x"),
       RemoveAll: shortcut(["ctrl", "shift"], "x"),
+      Save: shortcut(["cmd"], "s"),
       ToggleQuickLook: shortcut(["cmd"], "y"),
     },
   },
