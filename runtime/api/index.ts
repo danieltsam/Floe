@@ -391,6 +391,9 @@ function clipboardParams(content: ClipboardContent): { text?: string; html?: str
   return { text: typeof content === "string" ? content : "" };
 }
 
+// An offset of 1 to 5 asks for a copy before the current one. The current one is asked for as it always was.
+const olderCopy = (options?: Props) => (Number.isInteger(options?.offset) && options?.offset > 0 ? { offset: options.offset } : {});
+
 export const Clipboard = {
   copy(content: ClipboardContent, options?: Props): Promise<void> {
     const params = clipboardParams(content);
@@ -402,12 +405,12 @@ export const Clipboard = {
     send({ type: "paste", text: params.text ?? "", html: params.html, file: params.file });
     return done;
   },
-  async readText(_options?: Props): Promise<string | undefined> {
-    const result = await request<{ text: string; html?: string; file?: string }>("clipboard.read");
+  async readText(options?: Props): Promise<string | undefined> {
+    const result = await request<{ text: string; html?: string; file?: string }>("clipboard.read", olderCopy(options));
     return result.text || undefined;
   },
-  async read(_options?: Props): Promise<{ text: string; html?: string; file?: string }> {
-    return request("clipboard.read");
+  async read(options?: Props): Promise<{ text: string; html?: string; file?: string }> {
+    return request("clipboard.read", olderCopy(options));
   },
   clear(): Promise<void> {
     send({ type: "copy", text: "" });

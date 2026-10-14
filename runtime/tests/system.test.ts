@@ -322,6 +322,21 @@ describe("Clipboard", () => {
     expect(await read).toEqual({ text: "on the clipboard", html: "<p>on</p>" });
   });
 
+  // An extension reads the copy before the last one, or the last six, by their offsets.
+  test("read and readText name the older copy they want by its offset, and nothing for the current one", async () => {
+    void api.Clipboard.read();
+    void api.Clipboard.readText({ offset: 0 });
+    void api.Clipboard.read({ offset: 1 });
+    void api.Clipboard.readText({ offset: 5 });
+    expect(sent("request").map(({ method, params }) => [method, params])).toEqual([
+      ["clipboard.read", {}],
+      ["clipboard.read", {}],
+      ["clipboard.read", { offset: 1 }],
+      ["clipboard.read", { offset: 5 }],
+    ]);
+    for (const { id } of sent("request")) handleReply({ id, result: { text: "" } });
+  });
+
   test("an empty clipboard reads as undefined text", async () => {
     const text = api.Clipboard.readText();
     handleReply({ id: sent("request")[0].id, result: { text: "" } });
