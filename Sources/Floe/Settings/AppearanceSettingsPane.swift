@@ -12,7 +12,7 @@ import ThawUI
 /// The preview draws them at miniature scale, so a change reads without summoning the panel.
 struct AppearanceSettingsPane: View {
     @ObservedObject var settings: AppSettings
-    @ObservedObject private var follower = ThawAppearanceFollower.shared
+    @ObservedObject var follower: ThawAppearanceFollower
     @Environment(\.colorScheme) private var colorScheme
     @State private var thawIsInstalled = Thaw.applicationURL != nil
 

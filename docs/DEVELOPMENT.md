@@ -94,8 +94,8 @@ The aim is code where no feature reaches into another. Each part knows only what
   `Ranking`, `CommandLookup` and `UpdateLogic` work the same way. These carry the tests.
 - **A feature is handed what it uses.** A feature model takes its stores and an environment, a struct of closures for
   the system, the disk and the other processes, through `init`. `ShellEnvironment`, `AppLookup`, `ModeHost` and
-  `ActionHost` are environments; `ClipboardHistoryModel` is given its store. A feature does not read `.shared`, and a
-  test hands it fakes.
+  `ActionHost` are environments; `ClipboardHistoryModel` is given its store. A settings page is handed its stores from
+  the process's `SettingsStores`. A feature does not read `.shared`, and a test hands it fakes.
 - **Each state has one owner.** One process writes a store; the others keep a copy and read it again when told. The
   stores every process saves announce and reload through `SharedStores`, not through hooks set in each process.
 - **Each process is wired in one place.** `main.swift` for the resident, `PanelMode` for the panel and `SettingsMode`

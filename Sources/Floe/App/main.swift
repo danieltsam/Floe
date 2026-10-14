@@ -305,7 +305,7 @@ if options.benchSettings {
     let selection = SettingsSelection()
     let window = NSWindow(contentRect: NSRect(x: -4000, y: -4000, width: 820, height: 560), styleMask: [.titled], backing: .buffered, defer: false)
     let search = SearchModel()
-    window.contentView = NSHostingView(rootView: SettingsView(catalog: catalog, settings: .shared, selection: selection, search: search))
+    window.contentView = NSHostingView(rootView: SettingsView(catalog: catalog, stores: .live(), selection: selection, search: search))
     window.orderFrontRegardless()
     let pages: [(String, SettingsPage)] = [("general", .general), ("applications", .applications), ("privacy", .privacy), ("about", .about), ("extension", .extensionPage("kill-process"))]
     for (name, page) in pages {

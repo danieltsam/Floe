@@ -297,6 +297,7 @@
 		C9355782C74610B86425EBFC /* MenuBarOffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2CA2E30AF5B70539D91FF7 /* MenuBarOffer.swift */; };
 		C970B52A7B428A83D32F4329 /* SystemSettingsPanes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70CF65BDA95BF501847A21BE /* SystemSettingsPanes.swift */; };
 		C9BAEA1DB299E5B8BD25CDDC /* ShellCommandsSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E988DE65E609D0E3B8F836 /* ShellCommandsSettingsSection.swift */; };
+		CA6F48A770106DB4DD682E37 /* SettingsStores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA1420E83E4D30EBC897A57 /* SettingsStores.swift */; };
 		CABB2AAE0CB58A33DCC1A8A0 /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56AB9468971A521D2FC58DD1 /* LauncherLayout.swift */; };
 		CB95D1A1C45DFF7DDFC766A8 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5254060A4A42F0A46B71A696 /* Keychain.swift */; };
 		CBD4E75613D543B26DCB2538 /* CalculatorFormatter+Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4B16687B47CF928DDD9310 /* CalculatorFormatter+Text.swift */; };
@@ -476,6 +477,7 @@
 		3C178B96CB145E8FEA3F3778 /* SystemStores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemStores.swift; sourceTree = "<group>"; };
 		3C88D79A84B3FAC5F8E4332D /* HotkeyRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyRegistry.swift; sourceTree = "<group>"; };
 		3E273FBD36E3C7B1016D6E96 /* ClipboardHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistoryView.swift; sourceTree = "<group>"; };
+		3EA1420E83E4D30EBC897A57 /* SettingsStores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStores.swift; sourceTree = "<group>"; };
 		3EA18EB6B58207A689ABA635 /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
 		3F4985D458BAC986B45EABD6 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		3FC0C0537C1703FB936504D4 /* PermissionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionViews.swift; sourceTree = "<group>"; };
@@ -1051,6 +1053,7 @@
 				B44B60602E2E024D1E6485FA /* SettingsSearchContent.swift */,
 				B0F9AD2AB64B9F4E07E881FF /* SettingsSearchEntries.swift */,
 				35F8F20630467F0633497F89 /* SettingsSidebarPaneList.swift */,
+				3EA1420E83E4D30EBC897A57 /* SettingsStores.swift */,
 				F50E9D3C5E5A2B3411933263 /* SettingsSync.swift */,
 				AD6E736E94FFB03FFF4F6845 /* SettingsTransfer.swift */,
 				888F73FD3AD3B70CCCED4500 /* SettingsView.swift */,
@@ -1776,6 +1779,7 @@
 				3363EA52A0ACF53EE624C1A2 /* SettingsSearchEntries.swift in Sources */,
 				3708D44C226149ED3BCE44C0 /* SettingsSearchNavigation.swift in Sources */,
 				0DCF27A2B10428D7E854DB9E /* SettingsSidebarPaneList.swift in Sources */,
+				CA6F48A770106DB4DD682E37 /* SettingsStores.swift in Sources */,
 				95227000B5D08D69A24D8F6E /* SettingsSync.swift in Sources */,
 				2C40C06B4FFD0149F302B4C5 /* SettingsSyncService.swift in Sources */,
 				1DA318B37ECA5A026EFA2D65 /* SettingsTransfer.swift in Sources */,

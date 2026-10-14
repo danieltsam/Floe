@@ -32,6 +32,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
     /// The resident's clipboard history, read again when it says it saved; changes are sent to it.
     private let clipboard: ClipboardHistoryStore
     private let settings = AppSettings.shared
+    private lazy var onboarding = OnboardingWindowController(settings: settings, permissions: .shared)
     private var panel: LauncherPanel?
     private var keyMonitor: Any?
     private var appWatcher: AppFolderWatcher?
@@ -90,7 +91,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
             guard let self, self.panel?.isKeyWindow == true else { return event }
             return self.model.handlePanelKey(event, layout: self.settings.launcherLayout) ? nil : event
         }
-        OnboardingWindowController.shared.openLauncher = { [weak self] in self?.show() }
+        onboarding.openLauncher = { [weak self] in self?.show() }
         channel.receive = { [weak self] in self?.receive($0) }
         channel.onClose = { [weak self] in self?.end() }
         channel.start()
@@ -159,7 +160,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
             }
         case .hide: hide()
         case .onboarding:
-            if !OnboardingWindowController.shared.showIfNeeded() {
+            if !onboarding.showIfNeeded() {
                 show()
             }
         case let .hud(text): ThawHUD.show(text: text)
@@ -243,7 +244,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
               Date().timeIntervalSince(lastActivity) >= 0.75,
               !PanelWork.isBusy, !ModalGuard.isActive,
               model.runner.session == nil, model.setup == nil,
-              !OnboardingWindowController.shared.isOpen,
+              !onboarding.isOpen,
               !NSApp.windows.contains(where: \.isVisible)
         else { return }
         reportedIdle = true

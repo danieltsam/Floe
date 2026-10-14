@@ -19,10 +19,22 @@ import ThawUI
 /// What the app may see and where anything goes: the permissions it holds and the network calls it makes.
 struct PrivacySettingsPane: View {
     @ObservedObject var settings: AppSettings
-    var permissions: AppPermissions = .shared
-    @ObservedObject var fileIndex: FileIndexStatus = .shared
+    @ObservedObject var fileIndex: FileIndexStatus
+    private let permissions: AppPermissions
+    private let usage: UsageStore
+    private let receipts: ReceiptStore
+    private let updates: UpdatesManager
     @State private var forgotSearches = false
     @State private var forgotReceipts = false
+
+    init(settings: AppSettings, stores: SettingsStores) {
+        self.settings = settings
+        fileIndex = stores.fileIndex
+        permissions = stores.permissions
+        usage = stores.usage
+        receipts = stores.receipts
+        updates = stores.updates
+    }
 
     var body: some View {
         Form {
@@ -83,7 +95,7 @@ struct PrivacySettingsPane: View {
                     set: { remembers in
                         settings.remembersSearches = remembers
                         if !remembers {
-                            UsageStore.shared.forgetQueries()
+                            usage.forgetQueries()
                         }
                     }
                 )) {
@@ -92,7 +104,7 @@ struct PrivacySettingsPane: View {
                 }
                 LabeledContent("Remembered searches") {
                     Button("Forget Them") {
-                        UsageStore.shared.forgetQueries()
+                        usage.forgetQueries()
                         forgotSearches = true
                     }
                     .disabled(!settings.remembersSearches || forgotSearches)
@@ -111,7 +123,7 @@ struct PrivacySettingsPane: View {
                     set: { keeps in
                         settings.keepsReceipts = keeps
                         if !keeps {
-                            ReceiptStore.shared.forget()
+                            receipts.forget()
                         }
                     }
                 )) {
@@ -120,7 +132,7 @@ struct PrivacySettingsPane: View {
                 }
                 LabeledContent("Receipts kept") {
                     Button("Forget Them") {
-                        ReceiptStore.shared.forget()
+                        receipts.forget()
                         forgotReceipts = true
                     }
                     .disabled(!settings.keepsReceipts || forgotReceipts)
@@ -128,7 +140,7 @@ struct PrivacySettingsPane: View {
             }
             ThawSection("Network Access") {
                 if let host = PrivacyNetwork.updateHost {
-                    AutomaticUpdateCheckToggle()
+                    AutomaticUpdateCheckToggle(updatesManager: updates)
                     row("Updates", String(localized: "Checking asks \(host) whether a newer version exists. Floe asked before it started doing this.", bundle: .floe, comment: "The placeholder is the address of a server."))
                 }
                 row("Extension Store", String(localized: "The Extension Store lists and downloads extensions from GitHub, and their packages from the npm registry.", bundle: .floe))

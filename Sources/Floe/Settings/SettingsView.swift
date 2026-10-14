@@ -15,11 +15,13 @@ struct SettingsView: View {
     @ObservedObject var settings: AppSettings
     @ObservedObject var selection: SettingsSelection
     @State private var search: SearchModel
+    private let stores: SettingsStores
 
-    /// `search` is passed in only by the benchmark, which types into it.
-    init(catalog: CatalogStore, settings: AppSettings, selection: SettingsSelection, search: SearchModel? = nil) {
+    /// The search is passed in only by the benchmark, which types into it.
+    init(catalog: CatalogStore, stores: SettingsStores, selection: SettingsSelection, search: SearchModel? = nil) {
         self.catalog = catalog
-        self.settings = settings
+        self.stores = stores
+        settings = stores.settings
         self.selection = selection
         _search = State(initialValue: search ?? SearchModel())
     }
@@ -42,7 +44,7 @@ struct SettingsView: View {
                 .scrollEdgeEffectStyle(.soft, for: .top)
         }
         .settingsSearchField(search)
-        .updateConsentSheet()
+        .updateConsentSheet(stores.updates)
     }
 
     @ViewBuilder
@@ -59,26 +61,28 @@ struct SettingsView: View {
     private var pane: some View {
         switch selection.page {
         case .general:
-            GeneralSettingsView(catalog: catalog, settings: settings)
+            GeneralSettingsView(catalog: catalog, settings: settings, updates: stores.updates, sync: stores.sync, showWelcome: stores.showWelcome)
         case .applications:
             ApplicationSettingsView(catalog: catalog, settings: settings)
         case .quicklinks:
-            QuicklinksSettingsPage()
+            QuicklinksSettingsPage(store: stores.quicklinks)
         case .snippets:
-            SnippetsSettingsPage()
+            SnippetsSettingsPage(store: stores.snippets)
         case .extensionStore:
-            ExtensionStoreSettingsPage()
+            ExtensionStoreSettingsPage(store: stores.extensions, settings: settings)
         case .appearance:
-            AppearanceSettingsPane(settings: settings)
+            AppearanceSettingsPane(settings: settings, follower: stores.appearance)
         case .privacy:
-            PrivacySettingsPane(settings: settings)
+            PrivacySettingsPane(settings: settings, stores: stores)
         case .about:
-            AboutSettingsPane()
+            AboutSettingsPane(updatesManager: stores.updates)
         case let .extensionPage(name):
             ExtensionSettingsView(
                 catalog: catalog,
                 settings: settings,
                 commands: catalog.allCommands.filter { $0.extensionName == name },
+                extensions: stores.extensions,
+                access: stores.extensionAccess,
                 onRemoved: { selection.page = .extensionStore }
             )
             .id(name)
@@ -127,6 +131,9 @@ struct SettingsView: View {
 struct GeneralSettingsView: View {
     @ObservedObject var catalog: CatalogStore
     @ObservedObject var settings: AppSettings
+    let updates: UpdatesManager
+    let sync: SettingsSyncStatus
+    let showWelcome: () -> Void
 
     /// Writes a starter script into the Scripts folder and reveals it, so it can be edited.
     static func makeScript(catalog: CatalogStore) {
@@ -215,7 +222,7 @@ struct GeneralSettingsView: View {
                 )
                 LaunchAtLoginToggle(settings: settings)
                 Toggle("Show in Dock", isOn: $settings.showInDock)
-                AutomaticUpdateCheckToggle()
+                AutomaticUpdateCheckToggle(updatesManager: updates)
                 Picker(selection: $settings.popToRootDelay) {
                     Text("Immediately").tag(0)
                     Text("After 30 seconds").tag(30)
@@ -269,12 +276,12 @@ struct GeneralSettingsView: View {
                 ThawSupportNotice()
             }
             MenuBarCommandsSettingsSection(catalog: catalog, settings: settings)
-            WelcomeSettingsSection()
+            WelcomeSettingsSection(showWelcome: showWelcome)
             DiagnosticsSettingsSection(settings: settings)
             PreferredAppsSettingsSection(settings: settings)
             ClipboardSettingsSection(settings: settings)
             AISettingsSection(settings: settings)
-            SyncSettingsSection(settings: settings)
+            SyncSettingsSection(settings: settings, sync: sync)
             ThawSection("Your Settings") {
                 LabeledContent {
                     HStack {
