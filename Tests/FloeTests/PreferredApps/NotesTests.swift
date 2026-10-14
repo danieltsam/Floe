@@ -195,7 +195,7 @@ struct NotesTests {
         let folder = try scratchFolder()
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = makeModel(app: .folder)
-        model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
 
         model.query = "todo renew passport"

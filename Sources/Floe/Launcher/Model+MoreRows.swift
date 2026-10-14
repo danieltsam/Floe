@@ -12,9 +12,6 @@ import AppKit
 extension LauncherModel {
     /// What Return does on one of these rows, as its button says it. Nil for any other row.
     static func laterTitle(for item: RootItem) -> String? {
-        if case let .receipt(receipt) = item {
-            return undoTitle(for: receipt) ?? String(localized: "Show Details", bundle: .floe)
-        }
         if case .keyword = item {
             return String(localized: "Type Keyword", bundle: .floe, comment: "A button that puts the selected keyword into the search field, for the user to go on typing.")
         }
@@ -39,27 +36,10 @@ extension LauncherModel {
         }
     }
 
-    /// What undoing a receipt is called: a file is put back, what Floe added is deleted, a note goes to the Trash. Nil when it cannot be undone.
-    private static func undoTitle(for receipt: Receipt) -> String? {
-        guard receipt.canUndo else { return nil }
-        switch receipt.kind {
-        case .reminder: return String(localized: "Delete Reminder", bundle: .floe)
-        case .event: return String(localized: "Delete Event", bundle: .floe)
-        case .checkpoint: return String(localized: "Delete Checkpoint", bundle: .floe)
-        case .timer: return String(localized: "Stop Timer", bundle: .floe)
-        case .note: return String(localized: "Move to Trash", bundle: .floe)
-        default: return String(localized: "Put Back", bundle: .floe, comment: "A verb on a button: take a file out of the Trash and put it where it was.")
-        }
-    }
-
     /// Return on one of these rows.
     func openLater(_ item: RootItem) {
         if openByOwner(item) {
             return
-        } else if case let .receipt(receipt) = item, receipt.canUndo {
-            undo(receipt)
-        } else if case let .receipt(receipt) = item {
-            showDetails(of: receipt)
         } else if !openKeywordRow(item) {
             openTyped(item)
         }
@@ -116,9 +96,6 @@ extension LauncherModel {
 
     /// The Actions menu of one of these rows, after what Return does.
     func laterActions(for item: RootItem) -> [ItemAction?] {
-        if case let .receipt(receipt) = item {
-            return receiptActions(receipt)
-        }
         if case let .contact(.person(person)) = item {
             return contactActions(for: person)
         }
@@ -136,71 +113,5 @@ extension LauncherModel {
                 self?.panelHost.showHUD(message)
             }
         }
-    }
-
-    /// Keeps a receipt of something Floe did, unless the user switched that off.
-    func record(_ receipt: Receipt) {
-        guard settings.keepsReceipts else { return }
-        if let residentRequests = panelHost.residentRequests {
-            residentRequests(.receipt(receipt))
-        } else {
-            receipts.add(receipt)
-        }
-    }
-
-    /// Marks completion through the resident when this model is only a foreground reader.
-    private func markReceiptUndone(_ id: UUID) {
-        if let residentRequests = panelHost.residentRequests {
-            residentRequests(.receiptUndone(id, Date()))
-        } else {
-            receipts.markUndone(id)
-        }
-    }
-
-    /// Takes back what a receipt records and says what came of it. The list stays, read again.
-    func undo(_ receipt: Receipt) {
-        let delete: (String) throws -> Bool = switch receipt.kind {
-        case .event: eventRows.environment.delete
-        case .checkpoint: checkpointRows.deleteCheckpoint
-        case .timer: timerRows.stopTimer
-        default: reminderRows.environment.delete
-        }
-        let outcome = ReceiptUndo.undo(receipt, delete: delete)
-        if [.putBack, .deleted, .alreadyDeleted].contains(outcome) {
-            markReceiptUndone(receipt.id)
-            if receipt.kind == .extensionRemoved {
-                catalog.reloadCommands()
-            }
-        } else if case let .trashed(moved) = outcome {
-            // The move to the Trash leaves a receipt of its own, so the note can be put back.
-            markReceiptUndone(receipt.id)
-            record(moved)
-        }
-        panelHost.showHUD(ReceiptUndo.message(for: outcome, subject: receipt.subject, kind: receipt.kind))
-        refresh()
-    }
-
-    func showDetails(of receipt: Receipt) {
-        panelHost.hidePanel()
-        shellRows.environment.showOutput(receipt.title, receipt.text)
-    }
-
-    private func receiptActions(_ receipt: Receipt) -> [ItemAction?] {
-        var actions: [ItemAction?] = []
-        if receipt.canUndo {
-            actions.append(ItemAction(title: String(localized: "Show Details", bundle: .floe), symbol: "doc.text") { [weak self] in self?.showDetails(of: receipt) })
-        }
-        if receipt.kind == .command {
-            actions.append(ItemAction(title: String(localized: "Run Again", bundle: .floe), symbol: "arrow.clockwise") { [weak self] in
-                self?.shellRows.runShellCommand(receipt.subject, terminal: nil)
-            })
-        }
-        return actions + [
-            nil,
-            ItemAction(title: String(localized: "Copy", bundle: .floe, comment: "A verb: put the selection on the clipboard."), symbol: "doc.on.doc") { [weak self] in
-                NSPasteboard.general.copy(receipt.text)
-                self?.panelHost.showHUD(String(localized: "Copied the receipt", bundle: .floe))
-            },
-        ]
     }
 }

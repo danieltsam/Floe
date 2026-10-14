@@ -107,8 +107,7 @@ final class LauncherModel: ObservableObject {
     lazy var timerRows = makeTimerRows()
     lazy var reminderRows = makeReminderRows()
     lazy var eventRows = makeEventRows()
-    /// Where receipts are kept. Tests give one of their own.
-    var receipts = ReceiptStore.shared
+    lazy var receiptRows = makeReceiptRows()
     var music = MusicEnvironment()
     /// Where in the remembered searches the field stands, while the Up arrow walks back through them.
     var recalledQuery: Int?

@@ -66,7 +66,7 @@ struct FocusTests {
         let settings = AppSettings(defaults: defaults)
         settings.focusShortcut = shortcut
         let model = LauncherModel(settings: settings, usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
-        model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.shortcutLibrary.tool = stand.tool
         model.linkOpener = stand.opener
@@ -173,7 +173,7 @@ struct FocusTests {
         #expect(stand.runs.suffix(3) == [.init(arguments: run, input: "60"), .init(arguments: run, input: "off"), .init(arguments: run, input: "toggle")])
         #expect(said.isEmpty, "only a failure is heard of")
         #expect(stand.opened.isEmpty)
-        #expect(model.receipts.all.isEmpty)
+        #expect(model.receiptRows.store.all.isEmpty)
         let files = stand.state.withLock { $0.files }
         #expect(files.count == 4)
         #expect(!files.suffix(3).contains { FileManager.default.fileExists(atPath: $0) }, "each input file is gone once its run ends")

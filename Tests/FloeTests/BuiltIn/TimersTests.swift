@@ -33,7 +33,7 @@ struct TimersTests {
     private func model(in folder: URL, stand: Stand) -> LauncherModel {
         let defaults = UserDefaults(suiteName: "floe-timers-\(UUID().uuidString)")!
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
-        model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.timerRows.environment = TimerEnvironment(
             now: { stand.now },
@@ -254,7 +254,7 @@ struct TimersTests {
         #expect(stand.asked == 2, "each start asks whether Floe may post, and macOS shows its question once")
         #expect(model.timerRows.running.all.count == 2)
 
-        let receipt = try #require(model.receipts.all.last)
+        let receipt = try #require(model.receiptRows.store.all.last)
         #expect(receipt.kind == .timer)
         #expect(receipt.subject == "tea")
         #expect(receipt.detail == TimeLength.text(300))
@@ -272,12 +272,12 @@ struct TimersTests {
         model.panelHost.showHUD = { said.append($0) }
         await model.timerRows.startTimer(TimerDraft(duration: 600)).value
         #expect(said == ["Timer started: \(TimeLength.text(600))"])
-        #expect(model.receipts.all.first?.subject == TimeLength.text(600))
+        #expect(model.receiptRows.store.all.first?.subject == TimeLength.text(600))
 
         model.settings.keepsReceipts = false
         await model.timerRows.startTimer(TimerDraft(duration: 60)).value
         #expect(model.timerRows.running.all.count == 2)
-        #expect(model.receipts.all.count == 1, "receipts switched off: the timer runs and no record is kept")
+        #expect(model.receiptRows.store.all.count == 1, "receipts switched off: the timer runs and no record is kept")
     }
 
     // MARK: The end
@@ -360,7 +360,7 @@ struct TimersTests {
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
         await model.timerRows.startTimer(TimerDraft(duration: 300, label: "tea")).value
-        let receipt = try #require(model.receipts.all.first)
+        let receipt = try #require(model.receiptRows.store.all.first)
         let row = RootItem.receipt(receipt)
         #expect(receipt.canUndo)
         #expect(receipt.label().hasSuffix(" · can be stopped"))
@@ -371,7 +371,7 @@ struct TimersTests {
         #expect(said.last == "Stopped the timer tea")
         #expect(model.timerRows.running.all.isEmpty)
         #expect(stand.calledOff == 1)
-        let after = try #require(model.receipts.all.first)
+        let after = try #require(model.receiptRows.store.all.first)
         #expect(!after.canUndo, "once is enough")
         #expect(after.label().hasSuffix(" · stopped"))
         #expect(after.text.contains("\nStopped "))
@@ -389,9 +389,9 @@ struct TimersTests {
         stand.waits[0].fire()
         await model.timerRows.running.announcement?.value
 
-        try model.undo(#require(model.receipts.all.first))
+        try model.receiptRows.undo(#require(model.receiptRows.store.all.first))
         #expect(said.last == "The timer tea is no longer running")
-        #expect(model.receipts.all.first?.canUndo == false)
+        #expect(model.receiptRows.store.all.first?.canUndo == false)
         #expect(!model.timerRows.stopTimer("not an identifier"))
     }
 }

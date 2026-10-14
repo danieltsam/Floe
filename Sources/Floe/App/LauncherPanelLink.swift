@@ -80,7 +80,7 @@ final class LauncherPanelLink {
             model.record(receipt)
             process.send(.refresh)
         case let .receiptUndone(id, date):
-            model.receipts.markUndone(id, at: date)
+            model.receiptRows.store.markUndone(id, at: date)
             process.send(.refresh)
         case .clearClipboard: clipboard.clear()
         case let .deleteClipboard(id):

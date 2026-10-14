@@ -23,7 +23,7 @@ struct ToastWithoutFooterTests {
     init() {
         let settings = AppSettings(defaults: UserDefaults(suiteName: "floe-toast-tests-\(UUID().uuidString)")!)
         model = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: []))
-        model.receipts = ReceiptStore(file: folder.appendingPathComponent("receipts.json"))
+        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("checkpoints.json"))
         model.panelHost.showHUD = { [said] in said.lines.append($0) }
     }

@@ -20,7 +20,7 @@ struct ReceiptsTests {
     private func model(in folder: URL) -> LauncherModel {
         let defaults = UserDefaults(suiteName: "floe-receipts-\(UUID().uuidString)")!
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
-        model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         return model
     }
 
@@ -124,20 +124,20 @@ struct ReceiptsTests {
         model.shellRows.environment.showOutput = { _, _ in }
 
         model.shellRows.runShellCommand("uptime", terminal: nil)
-        for _ in 0 ..< 100 where model.receipts.all.isEmpty {
+        for _ in 0 ..< 100 where model.receiptRows.store.all.isEmpty {
             try? await Task.sleep(for: .milliseconds(10))
         }
         model.shellRows.end(RunningProcess(pid: 400, path: "/x/ThawNotch", memory: 0), force: false)
-        #expect(model.receipts.all.map(\.title) == ["Quit ThawNotch", "Ran uptime"])
-        #expect(model.receipts.all.last?.detail == "first line")
+        #expect(model.receiptRows.store.all.map(\.title) == ["Quit ThawNotch", "Ran uptime"])
+        #expect(model.receiptRows.store.all.last?.detail == "first line")
 
         model.shellRows.runShellCommand("man ls", terminal: nil)
         try? await Task.sleep(for: .milliseconds(80))
-        #expect(model.receipts.all.count == 2, "reading a manual changed nothing")
+        #expect(model.receiptRows.store.all.count == 2, "reading a manual changed nothing")
 
         model.settings.keepsReceipts = false
         model.shellRows.end(RunningProcess(pid: 401, path: "/x/Other", memory: 0), force: false)
-        #expect(model.receipts.all.count == 2)
+        #expect(model.receiptRows.store.all.count == 2)
     }
 
     @Test func returnOnAReceiptPutsBackWhatCanBeAndShowsTheRest() throws {
@@ -160,7 +160,7 @@ struct ReceiptsTests {
         model.activate(row)
         #expect(FileManager.default.fileExists(atPath: file.path))
         #expect(said == ["Put draft.md back"])
-        let after = try #require(model.receipts.all.first)
+        let after = try #require(model.receiptRows.store.all.first)
         #expect(after.undone != nil)
 
         let done = RootItem.receipt(after)

@@ -55,7 +55,7 @@ struct MusicControlsTests {
     private func model(in folder: URL, stand: Stand, said: @escaping (String) -> Void, asked: @escaping (String) -> Void = { _ in }) -> LauncherModel {
         let defaults = UserDefaults(suiteName: "floe-music-\(UUID().uuidString)")!
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
-        model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.music = MusicEnvironment(isRunning: { stand.isRunning($0) }, run: stand.runner, askForAutomation: asked)
         model.panelHost.showHUD = said
@@ -181,7 +181,7 @@ struct MusicControlsTests {
         await model.controlMusic(.previousTrack).value
         #expect(stand.scripts.dropFirst() == [#"tell application id "com.spotify.client" to playpause"#, #"tell application id "com.spotify.client" to previous track"#])
         #expect(said.isEmpty, "the music says it")
-        #expect(model.receipts.all.isEmpty)
+        #expect(model.receiptRows.store.all.isEmpty)
     }
 
     @Test func nowPlayingShowsTheTrackAndItsArtist() async throws {

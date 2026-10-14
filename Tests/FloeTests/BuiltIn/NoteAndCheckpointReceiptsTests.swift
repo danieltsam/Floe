@@ -23,7 +23,7 @@ struct NoteAndCheckpointReceiptsTests {
     private func model(in folder: URL) -> LauncherModel {
         let defaults = UserDefaults(suiteName: "floe-note-receipts-\(UUID().uuidString)")!
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
-        model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.reminderRows.environment = ReminderEnvironment(requestAccess: { false }, create: { _ in throw Refused() }, delete: { _ in throw Refused() }, lists: { [] })
         model.eventRows.environment = EventEnvironment(requestAccess: { false }, create: { _ in throw Refused() }, delete: { _ in throw Refused() })
@@ -39,7 +39,7 @@ struct NoteAndCheckpointReceiptsTests {
 
     /// Takes out of the Trash whatever a test left there.
     private func emptyTrash(of model: LauncherModel) {
-        for path in model.receipts.all.compactMap(\.trashed) {
+        for path in model.receiptRows.store.all.compactMap(\.trashed) {
             try? FileManager.default.removeItem(atPath: path)
         }
     }
@@ -57,7 +57,7 @@ struct NoteAndCheckpointReceiptsTests {
 
         model.activate(.note(.new, text: "Buy milk"))
         #expect(said == ["Saved Buy milk"])
-        let receipt = try #require(model.receipts.all.first)
+        let receipt = try #require(model.receiptRows.store.all.first)
         #expect(receipt.kind == .note)
         #expect(receipt.subject == "Buy milk")
         #expect(receipt.title == "Wrote the note Buy milk")
@@ -73,7 +73,7 @@ struct NoteAndCheckpointReceiptsTests {
         model.activate(row)
         #expect(!FileManager.default.fileExists(atPath: file.path))
         #expect(said.last == "Moved Buy milk to the Trash")
-        let after = model.receipts.all
+        let after = model.receiptRows.store.all
         #expect(after.map(\.kind) == [.trash, .note], "the move to the Trash has a receipt of its own")
         #expect(after.map(\.canUndo) == [true, false], "once is enough")
         #expect(after.last?.label().hasSuffix(" · moved to the Trash") == true)
@@ -93,12 +93,12 @@ struct NoteAndCheckpointReceiptsTests {
         let file = folder.appendingPathComponent("Notes/Ideas.md")
 
         model.activate(.note(.new, text: "Ideas"))
-        let receipt = try #require(model.receipts.all.first)
+        let receipt = try #require(model.receiptRows.store.all.first)
         try Data("Ideas\nand a second thought\n".utf8).write(to: file)
-        model.undo(receipt)
+        model.receiptRows.undo(receipt)
         #expect(said.last == "Ideas was changed after Floe wrote it, so it stays where it is")
         #expect(try String(contentsOf: file, encoding: .utf8) == "Ideas\nand a second thought\n")
-        #expect(model.receipts.all.map(\.kind) == [.note])
+        #expect(model.receiptRows.store.all.map(\.kind) == [.note])
 
         try Data("Ideas\n".utf8).write(to: file)
         let later = try #require(receipt.modified).addingTimeInterval(90)
@@ -107,9 +107,9 @@ struct NoteAndCheckpointReceiptsTests {
         #expect(FileManager.default.fileExists(atPath: file.path))
 
         try FileManager.default.removeItem(at: file)
-        model.undo(receipt)
+        model.receiptRows.undo(receipt)
         #expect(said.last == "Ideas is no longer where Floe wrote it")
-        #expect(model.receipts.all.first?.undone == nil)
+        #expect(model.receiptRows.store.all.first?.undone == nil)
     }
 
     @Test func aNoteAsFloeLeftItGoesThroughTheClosureItIsGiven() throws {
@@ -148,7 +148,7 @@ struct NoteAndCheckpointReceiptsTests {
 
         model.activate(.note(.today, text: "call the bank"))
         #expect(said == ["Added to today’s note"])
-        let receipt = try #require(model.receipts.all.first)
+        let receipt = try #require(model.receiptRows.store.all.first)
         #expect(receipt.kind == .noteLine)
         #expect(receipt.title == "Added a line to the note \((today as NSString).deletingPathExtension)")
         #expect(receipt.detail.hasSuffix("/Notes/\(today)\ncall the bank"))
@@ -158,7 +158,7 @@ struct NoteAndCheckpointReceiptsTests {
         #expect(model.primaryActionTitle(for: .receipt(receipt)) == "Show Details")
         #expect(ReceiptUndo.undo(receipt) == .notUndoable)
 
-        model.undo(receipt)
+        model.receiptRows.undo(receipt)
         #expect(said.last == "This cannot be undone.")
         #expect(try String(contentsOf: folder.appendingPathComponent("Notes/\(today)"), encoding: .utf8) == "call the bank\n")
     }
@@ -178,7 +178,7 @@ struct NoteAndCheckpointReceiptsTests {
         #expect(written.hasPrefix("- [ ] renew passport\n- "))
         #expect(written.wholeMatch(of: #/- \[ \] renew passport\n- \d\d:\d\d shipped the build\n/#) != nil)
 
-        let receipts = model.receipts.all
+        let receipts = model.receiptRows.store.all
         #expect(receipts.count == 2)
         let titles = Set(receipts.map(\.title))
         #expect(titles == ["Added a line to the note \((today as NSString).deletingPathExtension)"])
@@ -188,7 +188,7 @@ struct NoteAndCheckpointReceiptsTests {
 
         model.settings.keepsReceipts = false
         model.activate(.note(.task, text: "no receipt"))
-        #expect(model.receipts.all.count == 2, "switched off, nothing more is kept")
+        #expect(model.receiptRows.store.all.count == 2, "switched off, nothing more is kept")
     }
 
     // MARK: Where no receipt is left
@@ -204,19 +204,19 @@ struct NoteAndCheckpointReceiptsTests {
         model.settings.notesURLTemplate = ""
         model.activate(.note(.new, text: "Buy milk"))
         #expect(said == ["Set a URL for your notes app in Settings"])
-        #expect(model.receipts.all.isEmpty, "a note handed to another app is that app's")
+        #expect(model.receiptRows.store.all.isEmpty, "a note handed to another app is that app's")
 
         model.settings.notesApp = .folder
         model.settings.notesFolder = folder.appendingPathComponent("no-such-folder").path
         model.activate(.note(.new, text: "Buy milk"))
         #expect(said.last == "Choose a folder for your notes in Settings")
-        #expect(model.receipts.all.isEmpty)
+        #expect(model.receiptRows.store.all.isEmpty)
 
         model.settings.notesFolder = folder.appendingPathComponent("Notes").path
         model.settings.keepsReceipts = false
         model.activate(.note(.new, text: "Buy milk"))
         #expect(FileManager.default.fileExists(atPath: folder.appendingPathComponent("Notes/Buy milk.md").path))
-        #expect(model.receipts.all.isEmpty, "receipts switched off: the note is written and no record kept")
+        #expect(model.receiptRows.store.all.isEmpty, "receipts switched off: the note is written and no record kept")
     }
 
     @Test func theFolderHandsOverAReceiptOnlyForWhatItWrote() throws {
@@ -249,7 +249,7 @@ struct NoteAndCheckpointReceiptsTests {
 
         await model.checkpointRows.saveCheckpoint(named: "taxes", note: "call the accountant").value
         let saved = try #require(model.checkpointRows.store.all.first)
-        let receipt = try #require(model.receipts.all.first)
+        let receipt = try #require(model.receiptRows.store.all.first)
         #expect(receipt.kind == .checkpoint)
         #expect(receipt.subject == "taxes")
         #expect(receipt.title == "Saved the checkpoint taxes")
@@ -265,8 +265,8 @@ struct NoteAndCheckpointReceiptsTests {
         #expect(model.checkpointRows.store.all.isEmpty)
         #expect(model.checkpointRows.checkpoints.isEmpty, "the search no longer finds it")
         #expect(FileManager.default.fileExists(atPath: file.path), "the files it listed are not touched")
-        #expect(model.receipts.all.first?.canUndo == false)
-        #expect(model.receipts.all.first?.label().hasSuffix(" · deleted") == true)
+        #expect(model.receiptRows.store.all.first?.canUndo == false)
+        #expect(model.receiptRows.store.all.first?.label().hasSuffix(" · deleted") == true)
     }
 
     @Test func aCheckpointThatReplacedAnOlderOneSaysThatUndoingBringsNoneBack() async throws {
@@ -278,26 +278,26 @@ struct NoteAndCheckpointReceiptsTests {
 
         await model.checkpointRows.saveCheckpoint(named: "taxes", note: "first").value
         await model.checkpointRows.saveCheckpoint(named: "Taxes", note: "second").value
-        let receipts = model.receipts.all
+        let receipts = model.receiptRows.store.all
         #expect(receipts.map(\.detail) == [
             "a note\nIt replaced an older checkpoint of the same name. Deleting this one does not bring the older one back.",
             "a note",
         ])
         #expect(model.checkpointRows.store.all.map(\.note) == ["second"])
 
-        try model.undo(#require(receipts.last))
+        try model.receiptRows.undo(#require(receipts.last))
         #expect(said.last == "The checkpoint taxes was already deleted", "the older one went when the newer took its place")
         #expect(model.checkpointRows.store.all.map(\.note) == ["second"])
 
-        try model.undo(#require(receipts.first))
+        try model.receiptRows.undo(#require(receipts.first))
         #expect(said.last == "Deleted the checkpoint Taxes")
         #expect(model.checkpointRows.store.all.isEmpty, "and the older one does not come back")
-        #expect(model.receipts.all.map(\.canUndo) == [false, false])
+        #expect(model.receiptRows.store.all.map(\.canUndo) == [false, false])
 
         model.settings.keepsReceipts = false
         await model.checkpointRows.saveCheckpoint(named: "trip", note: "book the train").value
         #expect(model.checkpointRows.store.all.map(\.name) == ["trip"])
-        #expect(model.receipts.all.count == 2, "receipts switched off: the checkpoint is saved and no record kept")
+        #expect(model.receiptRows.store.all.count == 2, "receipts switched off: the checkpoint is saved and no record kept")
     }
 
     @Test func aReceiptFileFromBeforeNotesAndCheckpointsStillReads() throws {

@@ -155,7 +155,7 @@ struct KeywordsTests {
         let usage = UsageStore(defaults: defaults)
         let scopes: [any SearchScope] = [KeywordSearchScope(), KeywordSearchScope(keyword: KeywordSearchScope.mark)]
         let model = LauncherModel(settings: settings, usage: usage, snapshot: CatalogSnapshot(apps: [], commands: []), scopes: scopes, sources: [])
-        model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
+        model.receiptRows.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         var hidden = 0
         model.panelHost.hidePanel = { hidden += 1 }
@@ -175,7 +175,7 @@ struct KeywordsTests {
         #expect(model.query == "remind ")
         #expect(model.focusToken == focus + 1, "the field takes the keys again")
         #expect(hidden == 0, "the panel stays for the rest to be typed")
-        #expect(model.receipts.all.isEmpty)
+        #expect(model.receiptRows.store.all.isEmpty)
         #expect(usage.frecency(of: row.id) == 0)
         model.toggleFavorite(row)
         #expect(settings.favorites.isEmpty)

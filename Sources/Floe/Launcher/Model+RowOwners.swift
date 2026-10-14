@@ -10,7 +10,7 @@ import AppKit
 extension LauncherModel {
     /// The features that own rows, asked in turn what a row's Return, actions and keys do.
     var rowOwners: [any RowOwner] {
-        [shellRows, checkpointRows, timerRows, reminderRows, eventRows]
+        [shellRows, checkpointRows, timerRows, reminderRows, eventRows, receiptRows]
     }
 
     func ownerReturnTitle(for item: RootItem) -> String? {
@@ -98,5 +98,34 @@ extension LauncherModel {
     func leave() {
         panelHost.hidePanel()
         reset()
+    }
+
+    func makeReceiptRows() -> ReceiptRows {
+        let rows = ReceiptRows()
+        rows.host = ReceiptRows.Host(
+            hidePanel: { [weak self] in self?.panelHost.hidePanel() },
+            showHUD: { [weak self] in self?.panelHost.showHUD($0) },
+            refresh: { [weak self] in self?.refresh() },
+            showOutput: { [weak self] in self?.shellRows.environment.showOutput($0, $1) },
+            runCommand: { [weak self] in self?.shellRows.runShellCommand($0, terminal: nil) },
+            commandsChanged: { [weak self] in self?.catalog.reloadCommands() },
+            keepsReceipts: { [weak self] in self?.settings.keepsReceipts ?? false },
+            toResident: { [weak self] in self?.panelHost.residentRequests },
+            deleter: { [weak self] kind in
+                guard let self else { return { _ in false } }
+                return switch kind {
+                case .event: eventRows.environment.delete
+                case .checkpoint: checkpointRows.deleteCheckpoint
+                case .timer: timerRows.stopTimer
+                default: reminderRows.environment.delete
+                }
+            }
+        )
+        return rows
+    }
+
+    /// Keeps a receipt of something Floe did, unless the user switched that off.
+    func record(_ receipt: Receipt) {
+        receiptRows.record(receipt)
     }
 }
