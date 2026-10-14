@@ -14,6 +14,7 @@ import { ctx, request, send, setPopHandler, setPopToRootHandler } from "../bridg
 import { flushCaches } from "../cache";
 import { createLocalStorage, storagePersistence } from "../local-storage";
 import { render as mount } from "../renderer";
+import { colorNames, iconNames } from "./names";
 
 const h = React.createElement;
 // The API is promise-based throughout; most calls here finish synchronously.
@@ -163,12 +164,16 @@ function field(type: string) {
   return component as any;
 }
 
+// A date picked without a time is taken to be its day's local midnight.
+const isFullDay = (date?: Date | null) =>
+  !!date && date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0;
+
 export const Form = Object.assign(host("Form", ["actions", "searchBarAccessory"]), {
   TextField: field("Form.TextField"),
   PasswordField: field("Form.PasswordField"),
   TextArea: field("Form.TextArea"),
   Checkbox: field("Form.Checkbox"),
-  DatePicker: Object.assign(field("Form.DatePicker"), { Type: { Date: "date", DateTime: "dateTime" } }),
+  DatePicker: Object.assign(field("Form.DatePicker"), { Type: { Date: "date", DateTime: "dateTime" }, isFullDay }),
   Dropdown: Object.assign(field("Form.Dropdown"), { Item: host("Dropdown.Item"), Section: host("Dropdown.Section") }),
   TagPicker: Object.assign(field("Form.TagPicker"), { Item: host("Form.TagPicker.Item") }),
   FilePicker: field("Form.FilePicker"),
@@ -242,10 +247,12 @@ export const Action = Object.assign(BaseAction, {
   CreateQuicklink: action("Create Quicklink", "Link", () => unsupported("Quicklinks")),
   PickDate: Object.assign(action("Pick Date", "Calendar", () => unsupported("Date picker")), {
     Type: { Date: "date", DateTime: "dateTime" },
+    isFullDay,
   }),
 });
 
 export const ActionPanel = Object.assign(host("ActionPanel"), {
+  Item: BaseAction,
   Section: host("ActionPanel.Section"),
   Submenu: host("ActionPanel.Submenu"),
 });
@@ -536,12 +543,13 @@ export { OAuth } from "./oauth";
 // Constants
 
 // Icon.Foo → "icon:Foo", Color.Red → "color:Red"; the Swift side maps names to SF Symbols and system colors.
-const named = (prefix: string) =>
-  new Proxy({} as Record<string, string>, {
+// Any name answers, so one Raycast adds later still does; the ones it has are the keys Object.keys(Icon) lists.
+const named = (prefix: string, names: string[]) =>
+  new Proxy(Object.fromEntries(names.map((name) => [name, `${prefix}:${name}`])) as Record<string, string>, {
     get: (_target, key) => (typeof key === "string" ? `${prefix}:${key}` : undefined),
   });
-export const Icon = named("icon");
-export const Color = named("color");
+export const Icon = named("icon", iconNames);
+export const Color = named("color", colorNames);
 export const Image = { Mask: { Circle: "circle", RoundedRectangle: "roundedRectangle" } };
 
 const shortcut = (modifiers: string[], key: string) => ({ modifiers, key });

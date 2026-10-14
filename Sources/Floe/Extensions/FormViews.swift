@@ -163,11 +163,13 @@ struct FormBody: View {
     }
 
     private func date(_ node: Node) -> Binding<Date> {
-        Binding(
+        // A field that picks a day holds that day's first moment, which is how an extension tells it from a time.
+        let whole: (Date) -> Date = { node.props["type"] as? String == "date" ? Calendar.current.startOfDay(for: $0) : $0 }
+        return Binding(
             get: {
-                (session.formValue(node) as? String).flatMap { try? Date($0, strategy: .iso8601) } ?? Date()
+                (session.formValue(node) as? String).flatMap { try? Date($0, strategy: .iso8601) } ?? whole(Date())
             },
-            set: { session.setFormValue(node, $0.formatted(.iso8601)) }
+            set: { session.setFormValue(node, whole($0).formatted(.iso8601)) }
         )
     }
 

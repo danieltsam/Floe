@@ -606,6 +606,25 @@ describe("constants", () => {
     expect(JSON.stringify({ icon: api.Icon.Star })).toBe('{"icon":"icon:Star"}');
   });
 
+  // An icon or color picker is built from Object.keys(Icon).
+  test("Icon and Color list the names Raycast has", () => {
+    expect(Object.keys(api.Icon)).toHaveLength(478);
+    expect(Object.entries(api.Icon)).toContainEqual(["Number07", "icon:Number07"]);
+    expect("XMarkCircle" in api.Icon).toBe(true);
+    expect("SomethingRaycastAddsLater" in api.Icon).toBe(false);
+    expect(Object.keys(api.Color)).toEqual(["Blue", "Green", "Magenta", "Orange", "Purple", "Red", "Yellow", "PrimaryText", "SecondaryText"]);
+    expect(Object.values(api.Color)).toContain("color:SecondaryText");
+  });
+
+  test("isFullDay tells a day from a time by local midnight, on the form's picker and the action's", () => {
+    for (const isFullDay of [api.Form.DatePicker.isFullDay, api.Action.PickDate.isFullDay]) {
+      expect(isFullDay(new Date(2026, 9, 13))).toBe(true);
+      expect(isFullDay(new Date(2026, 9, 13, 9, 30))).toBe(false);
+      expect(isFullDay(null)).toBe(false);
+      expect(isFullDay()).toBe(false);
+    }
+  });
+
   test("the enums extensions compare against have Raycast's values", () => {
     expect(api.Image.Mask).toEqual({ Circle: "circle", RoundedRectangle: "roundedRectangle" });
     expect(api.Alert.ActionStyle.Destructive).toBe("destructive");

@@ -166,4 +166,13 @@ describe("built-in actions", () => {
     expect(runs).toEqual(["second"]);
     expect(Action.PickDate.Type).toEqual({ Date: "date", DateTime: "dateTime" });
   });
+
+  // The name Action had before, which extensions are still written with.
+  test("ActionPanel.Item is a plain Action", async () => {
+    const runs: string[] = [];
+    const action = await showAction(h(ActionPanel.Item, { title: "Open Tab", onAction: () => runs.push("opened") }));
+    expect(action.props).toEqual({ title: "Open Tab" });
+    await fire(action, "onAction");
+    expect(runs).toEqual(["opened"]);
+  });
 });
