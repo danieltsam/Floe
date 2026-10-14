@@ -85,6 +85,25 @@ and `signed` for a locally signed copy at `.build/resident-signed/Floe.app`. Arb
 it does not exercise normal resident startup. For release comparisons use a Release build with the same signing,
 permissions, settings, indexes and background commands as the installed app.
 
+## How features are built
+
+The aim is code where no feature reaches into another. Each part knows only what it was handed.
+
+- **Decisions are plain code.** What to show, what to run and what to do next is worked out by values and functions
+  that touch nothing outside themselves, and return what should happen. `PanelLifetime` returns effects and never acts;
+  `Ranking`, `CommandLookup` and `UpdateLogic` work the same way. These carry the tests.
+- **A feature is handed what it uses.** A feature model takes its stores and an environment, a struct of closures for
+  the system, the disk and the other processes, through `init`. `ShellEnvironment`, `AppLookup`, `ModeHost` and
+  `ActionHost` are environments; `ClipboardHistoryModel` is given its store. A feature does not read `.shared`, and a
+  test hands it fakes.
+- **Each state has one owner.** One process writes a store; the others keep a copy and read it again when told. The
+  stores every process saves announce and reload through `SharedStores`, not through hooks set in each process.
+- **Each process is wired in one place.** `main.swift` for the resident, `PanelMode` for the panel and `SettingsMode`
+  for settings make the concrete stores and connect features, stores and messages. They are the only code that names
+  the shared instances.
+- **`LauncherModel` routes.** It keeps the query, the results and which mode is on screen, and hands work to the
+  feature that owns it. New work goes in a feature of its own, not in the model.
+
 ## Layout
 
 - `Sources/Floe`: the app: panel, hotkey, app index, and a renderer for the JSON tree the host sends. One folder per
