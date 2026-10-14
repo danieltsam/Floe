@@ -80,6 +80,7 @@
 		38510714DE1C1296051ADCA4 /* PreferredApps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534A56A698DEE1BC017447F0 /* PreferredApps.swift */; };
 		38C8BB9392715194297B6B0D /* Model+Hotkeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98ACB02E799D643634A013D4 /* Model+Hotkeys.swift */; };
 		38E1E18D8A29DCF06F8B4986 /* QuickLookPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64DBFEFC7F120CD40ACAD9AF /* QuickLookPresenter.swift */; };
+		391349447472998780D63BFB /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E136CF4B2667B202C87327F9 /* IntentHandler.swift */; };
 		3A1E1665F4CCCE6EA9CC5F64 /* IncomingURLRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E2C5C29CB5FB6EA6176046 /* IncomingURLRouter.swift */; };
 		3A1F84EB0C1D33947F6AAA6A /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 6472032988506CF0BF94BAC1 /* Sparkle */; };
 		3AD35881F6B724143FF6B7E6 /* LoginEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54900730524DDEA357356AE /* LoginEnvironment.swift */; };
@@ -692,6 +693,7 @@
 		DD2D070B65C29C80130B70B2 /* Model+Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Setup.swift"; sourceTree = "<group>"; };
 		DD86360FB59649B01FDD998C /* CalculatorFormatter+Display.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CalculatorFormatter+Display.swift"; sourceTree = "<group>"; };
 		DF06C3F297B3836936EA6CA5 /* ThawAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThawAppearance.swift; sourceTree = "<group>"; };
+		E136CF4B2667B202C87327F9 /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
 		E1C94AC63D188A5B6B05B8A9 /* Browser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Browser.swift; sourceTree = "<group>"; };
 		E32F78329C981B25442EC7DA /* ShellCommand+Running.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShellCommand+Running.swift"; sourceTree = "<group>"; };
 		E4280137C9A77D867AE95469 /* CatalogSearchProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogSearchProvider.swift; sourceTree = "<group>"; };
@@ -1237,6 +1239,7 @@
 				A5C2101DB96C414B73B7329F /* Diagnostics.swift */,
 				31D54FF1A21ED74AD3CB719E /* EarlierIdentifier.swift */,
 				C2E2C5C29CB5FB6EA6176046 /* IncomingURLRouter.swift */,
+				E136CF4B2667B202C87327F9 /* IntentHandler.swift */,
 				E73B76A9E11F094E79117232 /* LauncherPanelLink.swift */,
 				06C21CDFCE7404F918FB0818 /* LauncherSettingsLink.swift */,
 				5FEFD6D0D5FE1E1CB1726CA6 /* Localization.swift */,
@@ -1574,6 +1577,7 @@
 				780F784CE418AF8AC58634B6 /* IconThumbnails.swift in Sources */,
 				42FFD7AD94DBADD232B7E4DB /* IconView.swift in Sources */,
 				3A1E1665F4CCCE6EA9CC5F64 /* IncomingURLRouter.swift in Sources */,
+				391349447472998780D63BFB /* IntentHandler.swift in Sources */,
 				A31CA4A5723901F2F47665C6 /* ItemActions.swift in Sources */,
 				F5C2DC1C6A98B377558A5033 /* JSONFile.swift in Sources */,
 				BA801F87D598934046F77403 /* KeyCode.swift in Sources */,

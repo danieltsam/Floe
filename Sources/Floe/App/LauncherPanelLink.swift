@@ -26,6 +26,7 @@ final class LauncherPanelLink {
     func start() {
         let process = process
         model.presentInPanelProcess = { process.request($0) }
+        IntentHandler.current = .serving(model) { process.request($0) }
         model.showPanel = { process.request(.show) }
         model.hidePanel = { process.request(.hide) }
         model.showHUD = { process.request(.hud($0)) }

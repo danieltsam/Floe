@@ -91,6 +91,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
         channel.start()
         watchTermination()
         model.startCatalogLoading()
+        IntentHandler.current = .serving(model) { [channel] in channel.send(.present($0)) }
         IncomingURLRouter.shared.forwardAppearance = { [channel] in channel.send(.settings(LinkMessage.Kind.forwardURL.rawValue, $0.absoluteString)) }
         IncomingURLRouter.shared.install(followsAppearance: false)
         timer = Timer.scheduledOnMain(withTimeInterval: 0.25, repeats: true) { [weak self] in self?.reportIdleIfDue() }
