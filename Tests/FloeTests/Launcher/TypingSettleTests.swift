@@ -97,4 +97,13 @@ struct TypingSettleTests {
         settle.flush()
         #expect(answers == ["a", "ab"], "nothing is answered twice")
     }
+
+    @Test func movingTheSelectionIsBrowsingUntilTheTextChanges() {
+        let settle = TypingSettle()
+        #expect(!settle.isBrowsing)
+        settle.browsed()
+        #expect(settle.isBrowsing, "Space now previews instead of typing")
+        settle.changed {}
+        #expect(!settle.isBrowsing)
+    }
 }

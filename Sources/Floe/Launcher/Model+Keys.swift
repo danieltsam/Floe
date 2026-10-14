@@ -81,12 +81,13 @@ extension LauncherModel {
         if event.keyCode == 126, recallOlderQuery() {
             return true
         }
-        // Tab and Command-Y belong to the kind of row that is selected.
+        // Tab, Space and Command-Y belong to the kind of row that is selected.
         if handleRowKey(event, flags) {
             return true
         }
         if let delta = Shortcuts.navigationDelta(event.keyCode) {
             selection = max(0, min(selection + delta, results.count - 1))
+            typing.browsed()
             return true
         }
         switch event.keyCode {

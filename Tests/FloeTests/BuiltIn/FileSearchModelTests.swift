@@ -61,6 +61,17 @@ struct FileSearchModelTests {
         #expect(try !model.handleKey(key(8), []), "a typed c goes on to the search field")
     }
 
+    @Test func spaceIsTypedUntilTheArrowsMoveAndTypingAgainGivesItBack() throws {
+        let model = FileSearchModel()
+        defer { model.cancel() }
+        model.query = "invoice"
+        #expect(try !model.handleKey(key(49), []), "a space goes on to the search field")
+        #expect(try model.handleKey(key(125), []))
+        #expect(try !model.handleKey(key(49), []), "with no file selected, Space is still typed")
+        model.query = "invoice "
+        #expect(try !model.handleKey(key(49), []))
+    }
+
     @Test func openingAFileDismissesThePanelThroughTheHost() {
         let model = FileSearchModel()
         var dismissed = 0

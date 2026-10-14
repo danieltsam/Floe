@@ -12,11 +12,14 @@ final class FileSearchModel: ObservableObject {
     @Published var query = "" {
         didSet {
             selection = 0
+            isBrowsing = false
             spotlight.search(query)
         }
     }
 
     @Published var selection = 0
+    /// Whether the arrows moved the selection since the text last changed: Space then previews the file instead of typing.
+    private var isBrowsing = false
     /// Finds the files. It publishes its own results, which the view observes beside this model.
     let spotlight: FileSearch
     var host = ModeHost()
@@ -69,9 +72,13 @@ final class FileSearchModel: ObservableObject {
     func handleKey(_ event: NSEvent, _ flags: NSEvent.ModifierFlags) -> Bool {
         if let delta = Shortcuts.navigationDelta(event.keyCode) {
             selection = max(0, min(selection + delta, spotlight.results.count - 1))
+            isBrowsing = true
             return true
         }
         switch event.keyCode {
+        case 49 where flags.isEmpty && isBrowsing:
+            guard let file = selectedFile else { return false }
+            QuickLookPresenter.shared.show(file.url)
         case 36 where flags == .command, 76 where flags == .command:
             revealSelectedFile()
         case 36, 76:

@@ -9,7 +9,7 @@ import AppKit
 import Quartz
 
 /// Shows one file in the system's Quick Look panel, for a row that stands for a file.
-final class QuickLookPresenter: NSObject, QLPreviewPanelDataSource {
+final class QuickLookPresenter: NSObject, QLPreviewPanelDataSource, QLPreviewPanelDelegate {
     static let shared = QuickLookPresenter()
     private(set) var url: URL?
 
@@ -30,6 +30,13 @@ final class QuickLookPresenter: NSObject, QLPreviewPanelDataSource {
     func previewPanel(_: QLPreviewPanel?, previewItemAt _: Int) -> QLPreviewItem? {
         url as NSURL?
     }
+
+    /// Space closes the preview it opened, as in Finder.
+    func previewPanel(_ panel: QLPreviewPanel?, handle event: NSEvent?) -> Bool {
+        guard event?.type == .keyDown, event?.keyCode == 49 else { return false }
+        panel?.orderOut(nil)
+        return true
+    }
 }
 
 /// The panel asks the responder chain who controls it, and the app's delegate is the end of that chain.
@@ -40,10 +47,16 @@ extension AppDelegate {
     }
 
     override nonisolated func beginPreviewPanelControl(_ panel: QLPreviewPanel?) {
-        MainActor.assumeIsolated { panel?.dataSource = QuickLookPresenter.shared }
+        MainActor.assumeIsolated {
+            panel?.dataSource = QuickLookPresenter.shared
+            panel?.delegate = QuickLookPresenter.shared
+        }
     }
 
     override nonisolated func endPreviewPanelControl(_ panel: QLPreviewPanel?) {
-        MainActor.assumeIsolated { panel?.dataSource = nil }
+        MainActor.assumeIsolated {
+            panel?.dataSource = nil
+            panel?.delegate = nil
+        }
     }
 }

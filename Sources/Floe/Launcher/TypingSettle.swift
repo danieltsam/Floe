@@ -31,8 +31,16 @@ final class TypingSettle {
         waiting != nil
     }
 
+    /// Whether the arrows moved the selection since the text last changed: Space then previews a file instead of typing.
+    private(set) var isBrowsing = false
+
+    func browsed() {
+        isBrowsing = true
+    }
+
     /// The text changed. `answer` runs now, or once with the latest text when the window closes.
     func changed(_ answer: @escaping () -> Void) {
+        isBrowsing = false
         guard window > 0 else {
             answer()
             return
