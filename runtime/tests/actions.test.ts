@@ -72,6 +72,12 @@ describe("built-in actions", () => {
     expect(copied).toEqual([42]);
   });
 
+  // A password manager's copy says it is one, and the app is told, so no clipboard history keeps it.
+  test("a concealed copy tells the app it is one", async () => {
+    await fire(await showAction(h(Action.CopyToClipboard, { content: "hunter2", concealed: true })), "onAction");
+    expect(sent("copy")).toEqual([{ type: "copy", text: "hunter2", concealed: true }]);
+  });
+
   test("Paste sends the text to paste and tells the extension", async () => {
     const pasted: unknown[] = [];
     const action = await showAction(h(Action.Paste, { content: "snippet", onPaste: (content: unknown) => pasted.push(content) }));

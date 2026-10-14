@@ -191,7 +191,7 @@ export const Action = Object.assign(BaseAction, {
     await closeMainWindow();
   }),
   CopyToClipboard: action("Copy to Clipboard", "Clipboard", async (props) => {
-    await Clipboard.copy(props.content);
+    await Clipboard.copy(props.content, { concealed: props.concealed });
     props.onCopy?.(props.content);
     await showHUD("Copied to Clipboard");
   }),
@@ -360,9 +360,9 @@ function clipboardParams(content: ClipboardContent): { text?: string; html?: str
 }
 
 export const Clipboard = {
-  copy(content: ClipboardContent, _options?: Props): Promise<void> {
+  copy(content: ClipboardContent, options?: Props): Promise<void> {
     const params = clipboardParams(content);
-    send({ type: "copy", text: params.text ?? "", html: params.html, file: params.file });
+    send({ type: "copy", text: params.text ?? "", html: params.html, file: params.file, ...(options?.concealed === true ? { concealed: true } : {}) });
     return done;
   },
   paste(content: ClipboardContent): Promise<void> {

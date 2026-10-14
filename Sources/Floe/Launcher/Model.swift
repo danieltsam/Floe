@@ -769,7 +769,7 @@ final class LauncherModel: ObservableObject {
             showHUD(message["title"] as? String ?? "")
             hidePanel()
         case "copy":
-            copy(text: message["text"] as? String ?? "", html: message["html"] as? String, file: message["file"] as? String)
+            copy(text: message["text"] as? String ?? "", html: message["html"] as? String, file: message["file"] as? String, concealed: message["concealed"] as? Bool ?? false)
         case "paste":
             paste(text: message["text"] as? String ?? "", html: message["html"] as? String, file: message["file"] as? String)
         case "open":
@@ -871,8 +871,8 @@ final class LauncherModel: ObservableObject {
         query = ""
     }
 
-    private func copy(text: String, html: String? = nil, file: String? = nil) {
-        PasteboardContent.write(text: text, html: html, file: file)
+    private func copy(text: String, html: String? = nil, file: String? = nil, concealed: Bool = false) {
+        PasteboardContent.write(text: text, html: html, file: file, concealed: concealed)
     }
 
     func paste(text: String, html: String? = nil, file: String? = nil) {
@@ -895,7 +895,7 @@ final class LauncherModel: ObservableObject {
         case "hud":
             showHUD(message["title"] as? String ?? "")
         case "copy":
-            copy(text: message["text"] as? String ?? "", html: message["html"] as? String, file: message["file"] as? String)
+            copy(text: message["text"] as? String ?? "", html: message["html"] as? String, file: message["file"] as? String, concealed: message["concealed"] as? Bool ?? false)
         case "paste":
             // A background run never takes the keyboard from the user; it only copies.
             copy(text: message["text"] as? String ?? "", html: message["html"] as? String, file: message["file"] as? String)

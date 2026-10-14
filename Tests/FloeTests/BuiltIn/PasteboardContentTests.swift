@@ -24,6 +24,22 @@ import Testing
         }
     }
 
+    @Test func aConcealedCopyCarriesTheMarkerClipboardManagersLeaveOut() {
+        withPasteboard { pasteboard in
+            #expect(PasteboardContent.write(text: "hunter2", html: nil, file: nil, concealed: true, to: pasteboard))
+            #expect(pasteboard.string(forType: .string) == "hunter2")
+            guard case .skipped = ClipboardCapture.reading(pasteboard) else {
+                Issue.record("a concealed copy was not left out of the history")
+                return
+            }
+            PasteboardContent.write(text: "plain", html: nil, file: nil, to: pasteboard)
+            guard case .copy = ClipboardCapture.reading(pasteboard) else {
+                Issue.record("an ordinary copy was left out")
+                return
+            }
+        }
+    }
+
     @Test func htmlTravelsBesideItsText() {
         withPasteboard { pasteboard in
             #expect(PasteboardContent.write(text: "bold", html: "<b>bold</b>", file: nil, to: pasteboard))

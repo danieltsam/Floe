@@ -202,7 +202,7 @@ nonisolated extension SavedPasteboard.Snapshot {
 /// Clipboard content with text, HTML and file, as Raycast's API takes it.
 enum PasteboardContent {
     @discardableResult
-    static func write(text: String, html: String?, file: String?, to pasteboard: NSPasteboard = .general) -> Bool {
+    static func write(text: String, html: String?, file: String?, concealed: Bool = false, to pasteboard: NSPasteboard = .general) -> Bool {
         pasteboard.clearContents()
         var wrote = false
         if let file, !file.isEmpty {
@@ -214,6 +214,10 @@ enum PasteboardContent {
         }
         if !text.isEmpty || !wrote {
             wrote = pasteboard.setString(text, forType: .string) || wrote
+        }
+        if concealed {
+            // The marker clipboard managers agreed on for what they should not keep, Floe's own history among them.
+            pasteboard.setString("", forType: NSPasteboard.PasteboardType("org.nspasteboard.ConcealedType"))
         }
         return wrote
     }
