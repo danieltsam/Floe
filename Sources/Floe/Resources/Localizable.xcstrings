@@ -1020,9 +1020,16 @@
     "Copied Answer" : {},
     "Copied Path" : {},
     "Copied error details" : {},
+    "Copied the QR code" : {},
     "Copied the note" : {},
     "Copied the output" : {},
     "Copied the receipt" : {},
+    "Copied the text" : {
+      "comment" : "Shown after text on the screen was read."
+    },
+    "Copied what the code says" : {
+      "comment" : "Shown after a QR code or a barcode on the screen was read."
+    },
     "Copied. Press ⌘V to paste." : {},
     "Copies you make show up here." : {},
     "Copy" : {
@@ -1037,6 +1044,9 @@
     "Copy Email" : {},
     "Copy File" : {},
     "Copy Host Name" : {},
+    "Copy Image" : {
+      "comment" : "A button that copies a picture."
+    },
     "Copy Name" : {
       "comment" : "A button that copies the name of the selected thing."
     },
@@ -1045,6 +1055,9 @@
     "Copy Phone" : {},
     "Copy Process ID" : {},
     "Copy SSH Command" : {},
+    "Copy Text from Screen" : {
+      "comment" : "A command that reads the text in a part of the screen and copies it."
+    },
     "Copy the version, build and commit for a bug report" : {},
     "Copy to Clipboard" : {},
     "Copy version information" : {},
@@ -1437,6 +1450,9 @@
       "comment" : "Accessibility is the name of a permission in System Settings."
     },
     "Floe needs Automation access to read the Finder selection. Turn it on under System Settings › Privacy & Security › Automation, then try again. (-1743)" : {},
+    "Floe needs Screen Recording to read the screen. Allow it in System Settings, then try again." : {
+      "comment" : "Screen Recording is the name of a permission in System Settings."
+    },
     "Floe needs access to Contacts to find people" : {
       "comment" : "Contacts is the name of Apple's app and of a permission in System Settings."
     },
@@ -1808,6 +1824,7 @@
     "Mail: %@" : {
       "comment" : "The title of the row that opens an email draft. The placeholder is the first line of what was typed."
     },
+    "Make a QR code to copy or save" : {},
     "Make a Shortcut that sets your Focus, then name it in Settings › General" : {
       "comment" : "Shortcut is what Apple's Shortcuts app makes. Focus is the macOS feature that silences notifications."
     },
@@ -1985,6 +2002,7 @@
     "No snippets yet." : {},
     "No sound device matches" : {},
     "No sound output" : {},
+    "No text was found there" : {},
     "No timer is running" : {},
     "None" : {
       "comment" : "Shown where a file or folder would be, when none is chosen."
@@ -2195,6 +2213,9 @@
     "Permissions and what Floe contacts" : {},
     "Permissions and what Floe contacts." : {},
     "Permissions optional" : {},
+    "Pick Color from Screen" : {
+      "comment" : "A command that shows the eyedropper and copies the color under it."
+    },
     "Pin" : {
       "comment" : "A button that keeps a copy at the top of the list."
     },
@@ -2270,6 +2291,12 @@
     },
     "Put back %@" : {
       "comment" : "The placeholder is a date and time."
+    },
+    "QR Code" : {
+      "comment" : "The kind of a result, shown beside its title, and the name of the file it is saved as."
+    },
+    "QR Code for %@" : {
+      "comment" : "The placeholder is the text or the link the code holds."
     },
     "Questions are answered by Apple Intelligence on this Mac. Nothing is sent anywhere." : {},
     "Questions go to %@, with your key, and nowhere else." : {
@@ -2487,8 +2514,9 @@
     "Save as Script Command…" : {},
     "Save clipboard history" : {},
     "Save this command" : {},
+    "Save to Downloads" : {},
     "Saved %@" : {
-      "comment" : "Shown briefly after saving. The placeholder is the name the user gave."
+      "comment" : "Shown briefly after saving. The placeholder is the name of the file.\nShown briefly after saving. The placeholder is the name the user gave."
     },
     "Saved %@: %@" : {
       "comment" : "The first placeholder is a checkpoint's name, the second what it holds, such as 3 files and 5 tabs.",
@@ -2843,6 +2871,7 @@
     },
     "That command is no longer available in Floe." : {},
     "That is more text than Apple Intelligence can take at once." : {},
+    "That is too long for a QR code" : {},
     "That keyword is already used." : {},
     "That picture could not be used." : {},
     "That tab is no longer open" : {},
@@ -3394,6 +3423,9 @@
     "clipboard, history, copy, paste, copies, pin, clear" : {
       "comment" : "Words that find the Save clipboard history setting in the settings search, separated by commas."
     },
+    "color, colour, eyedropper, color picker, hex" : {
+      "comment" : "Words that find the Pick Color from Screen command, separated by commas."
+    },
     "contacts, contact, people, person, address book, phone, email" : {
       "comment" : "Words that find the Contacts section of Privacy in the settings search, separated by commas."
     },
@@ -3601,6 +3633,9 @@
     },
     "notes, notes app, apple notes, antinote, new note, quick note, capture, preferred app" : {
       "comment" : "Words that find the Notes setting in the settings search, separated by commas."
+    },
+    "ocr, text from screen, read text, screenshot text, qr, scan, barcode" : {
+      "comment" : "Words that find the Copy Text from Screen command, separated by commas."
     },
     "opencode stopped before finishing." : {
       "comment" : "The word opencode is the name of a command and stays as written."

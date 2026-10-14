@@ -98,6 +98,8 @@ enum RootItem: Identifiable {
     case bookmark(WebBookmark)
     /// A device sound plays through or is recorded by, found by `output` or `input`; Return makes it the one in use.
     case soundDevice(SoundDeviceRow)
+    /// The QR code for what was typed after `qr`; Return copies the picture.
+    case qrCode(String)
     /// A Homebrew package, found by `brew` and its name; Return installs it in the terminal, or upgrades it.
     case brew(BrewPackage)
 
@@ -159,6 +161,7 @@ enum RootItem: Identifiable {
         case let .bookmark(bookmark): "bookmark:\(bookmark.url.absoluteString)"
         case let .brew(package): "brew:\(package.isCask ? "cask" : "formula"):\(package.name)"
         case let .soundDevice(row): "sound:\(row.device.id)"
+        case .qrCode: "qr-code"
         }
     }
 
@@ -217,6 +220,7 @@ enum RootItem: Identifiable {
         case let .bookmark(bookmark): bookmark.title
         case let .brew(package): package.name
         case let .soundDevice(row): row.device.name
+        case let .qrCode(text): String(localized: "QR Code for \(text)", bundle: .floe, comment: "The placeholder is the text or the link the code holds.")
         case .window(.access): String(localized: "Floe needs Accessibility to list your windows", bundle: .floe, comment: "Accessibility is the name of a permission in System Settings.")
         case let .shell(row, _): row.origin == .typed ? String(localized: "Run \(row.text)", bundle: .floe, comment: "The placeholder is a shell command the user typed.") : row.text
         }
@@ -262,7 +266,7 @@ enum RootItem: Identifiable {
         case .snippet: id
         case let .focus(request, _): request == .toggle ? id : nil
         case .settings, .extensionStore, .settingsPane, .note, .thaw, .finderSelection, .calculator, .emoji, .quicklink, .searchFiles, .event: nil
-        case .file, .clipboardEntry, .menuBarItem, .menuBarAccess, .browserTab, .askAI, .webAddress, .shell, .process, .receipt, .checkpoint, .checkpointDraft, .reminderDraft, .eventDraft, .timer, .contact, .outgoing, .keyword, .definition, .answer, .window, .bookmark, .brew, .soundDevice: nil
+        case .file, .clipboardEntry, .menuBarItem, .menuBarAccess, .browserTab, .askAI, .webAddress, .shell, .process, .receipt, .checkpoint, .checkpointDraft, .reminderDraft, .eventDraft, .timer, .contact, .outgoing, .keyword, .definition, .answer, .window, .bookmark, .brew, .soundDevice, .qrCode: nil
         }
     }
 }
@@ -304,6 +308,7 @@ extension RootItem {
         case let .answer(row): row.kind
         case .bookmark: String(localized: "Bookmark", bundle: .floe, comment: "The kind of a result, shown beside its title. Here a page saved in a browser.")
         case .brew: "Homebrew"
+        case .qrCode: String(localized: "QR Code", bundle: .floe, comment: "The kind of a result, shown beside its title, and the name of the file it is saved as.")
         case let .soundDevice(row): SoundDeviceScope(role: row.device.role).title
         case .window: String(localized: "Window", bundle: .floe, comment: "The kind of a result, shown beside its title. Here an open window of an app.")
         case .contact: String(localized: "Contact", bundle: .floe, comment: "The kind of a result, shown beside its title. Here a person from Contacts.")

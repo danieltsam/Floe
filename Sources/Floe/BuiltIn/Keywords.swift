@@ -66,6 +66,7 @@ extension KeywordHint {
         KeywordHint(keyword: WorldTime.keyword, example: "time in tokyo", detail: String(localized: "See the time in another city", bundle: .floe)),
         KeywordHint(keyword: SoundDevices.keyword(for: .output), example: "output airpods", detail: String(localized: "Choose the device sound plays through", bundle: .floe)),
         KeywordHint(keyword: SoundDevices.keyword(for: .input), example: "input macbook", detail: String(localized: "Choose the microphone", bundle: .floe)),
+        KeywordHint(keyword: ScreenTools.qrKeyword, example: "qr https://example.com", detail: String(localized: "Make a QR code to copy or save", bundle: .floe)),
         KeywordHint(keyword: Translate.keyword, example: "translate hola mundo", detail: String(localized: "Translate a text with Apple's translation, on this Mac. Also translate to german good morning", bundle: .floe, comment: "The words after Also are typed as they are and stay in English.")),
         KeywordHint(keyword: SystemFacts.battery.rawValue, example: "battery", detail: String(localized: "See the battery's charge. Also disk, memory and ip", bundle: .floe, comment: "The last three words are typed as they are and stay in English.")),
         KeywordHint(keyword: Generators.uuidKeyword, example: "uuid", detail: String(localized: "Make a new UUID", bundle: .floe, comment: "A UUID is a random identifier programmers use.")),

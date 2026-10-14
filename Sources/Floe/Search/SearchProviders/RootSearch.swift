@@ -24,6 +24,7 @@ enum RootSearch {
         NoteSearchProvider(),
         DefinitionSearchProvider(),
         AnswerRowSearchProvider(),
+        QRCodeSearchProvider(),
         CatalogSearchProvider(),
         FinderSelectionSearchProvider(),
         SSHHostSearchProvider(),

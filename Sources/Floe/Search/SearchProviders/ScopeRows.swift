@@ -13,7 +13,7 @@ extension RootItem {
     var isScopeResult: Bool {
         switch self {
         case let .focus(request, _): request != .toggle
-        case .file, .clipboardEntry, .menuBarItem, .menuBarAccess, .browserTab, .webAddress, .shell, .process, .receipt, .checkpointDraft, .reminderDraft, .eventDraft, .timer, .contact, .outgoing, .keyword, .answer, .window, .bookmark, .brew, .soundDevice: true
+        case .file, .clipboardEntry, .menuBarItem, .menuBarAccess, .browserTab, .webAddress, .shell, .process, .receipt, .checkpointDraft, .reminderDraft, .eventDraft, .timer, .contact, .outgoing, .keyword, .answer, .window, .bookmark, .brew, .soundDevice, .qrCode: true
         default: false
         }
     }

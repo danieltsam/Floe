@@ -32,6 +32,8 @@ enum SystemCommand: String, CaseIterable, Identifiable {
     case nextTrack
     case previousTrack
     case nowPlaying
+    case pickColor
+    case copyScreenText
 
     var id: String {
         rawValue
@@ -61,6 +63,8 @@ enum SystemCommand: String, CaseIterable, Identifiable {
         case .nextTrack: return String(localized: "Next Track", bundle: .floe, comment: "A command that skips to the next song.")
         case .previousTrack: return String(localized: "Previous Track", bundle: .floe, comment: "A command that goes back to the song before.")
         case .nowPlaying: return String(localized: "Now Playing", bundle: .floe, comment: "A command that shows the song that is playing and its artist.")
+        case .pickColor: return String(localized: "Pick Color from Screen", bundle: .floe, comment: "A command that shows the eyedropper and copies the color under it.")
+        case .copyScreenText: return String(localized: "Copy Text from Screen", bundle: .floe, comment: "A command that reads the text in a part of the screen and copies it.")
         }
     }
 
@@ -88,6 +92,8 @@ enum SystemCommand: String, CaseIterable, Identifiable {
         case .nextTrack: return "forward.end"
         case .previousTrack: return "backward.end"
         case .nowPlaying: return "music.note"
+        case .pickColor: return "eyedropper"
+        case .copyScreenText: return "text.viewfinder"
         }
     }
 
@@ -115,6 +121,8 @@ enum SystemCommand: String, CaseIterable, Identifiable {
         case .nextTrack: String(localized: "next song, skip, skip song, music, spotify", bundle: .floe, comment: "Words that find the Next Track command, separated by commas.")
         case .previousTrack: String(localized: "previous, previous song, last song, go back, music, spotify", bundle: .floe, comment: "Words that find the Previous Track command, separated by commas.")
         case .nowPlaying: String(localized: "what's playing, what is playing, current song, song, track, music, spotify", bundle: .floe, comment: "Words that find the Now Playing command, separated by commas.")
+        case .pickColor: String(localized: "color, colour, eyedropper, color picker, hex", bundle: .floe, comment: "Words that find the Pick Color from Screen command, separated by commas.")
+        case .copyScreenText: String(localized: "ocr, text from screen, read text, screenshot text, qr, scan, barcode", bundle: .floe, comment: "Words that find the Copy Text from Screen command, separated by commas.")
         }
         return words.keywordList
     }
@@ -175,6 +183,10 @@ enum SystemCommand: String, CaseIterable, Identifiable {
             quitAllApps()
         case .quitFloe:
             quitFloe()
+        case .pickColor:
+            ScreenTools.run(.pickColor)
+        case .copyScreenText:
+            ScreenTools.run(.copyText)
         default:
             _ = flip?()
         }

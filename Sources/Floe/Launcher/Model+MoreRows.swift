@@ -33,16 +33,7 @@ extension LauncherModel {
         if case let .answer(row) = item {
             return row.link == nil ? String(localized: "Copy to Clipboard", bundle: .floe) : String(localized: "Open System Settings", bundle: .floe)
         }
-        if case let .window(row) = item {
-            return title(for: row)
-        }
-        if case let .brew(package) = item {
-            return title(for: Homebrew.primaryVerb(for: package))
-        }
-        if case let .soundDevice(row) = item {
-            return title(for: row.device.role)
-        }
-        return draftTitle(for: item)
+        return keywordRowTitle(for: item) ?? draftTitle(for: item)
     }
 
     /// What Return does on a row that makes or stops something from what was typed. Nil for any other row.
@@ -86,15 +77,7 @@ extension LauncherModel {
             undo(receipt)
         } else if case let .receipt(receipt) = item {
             showDetails(of: receipt)
-        } else if case let .window(row) = item {
-            open(row)
-        } else if case let .brew(package) = item {
-            brew(Homebrew.primaryVerb(for: package), package)
-        } else if case .noteDesk = item {
-            openNoteDesk()
-        } else if case let .soundDevice(row) = item {
-            use(row)
-        } else {
+        } else if !openKeywordRow(item) {
             openTyped(item)
         }
     }
@@ -166,13 +149,7 @@ extension LauncherModel {
         if case let .definition(definition) = item {
             return [ItemAction(title: String(localized: "Copy Definition", bundle: .floe), symbol: "doc.on.doc") { [weak self] in self?.copy(definition) }]
         }
-        if case let .window(.window(window)) = item {
-            return windowActions(for: window)
-        }
-        if case let .brew(package) = item {
-            return brewActions(for: package)
-        }
-        return shellActions(for: item)
+        return keywordRowActions(for: item) ?? shellActions(for: item)
     }
 
     /// Hands a note to the app the user chose. What is written into a folder of notes leaves a receipt.
