@@ -40,12 +40,23 @@ extension NSStatusItem: MenuBarStatusItem {
     private let host: MenuBarHost
     private let images: MenuBarIconImages
     private var entries: [String: Entry] = [:]
+    /// The setting as it was last read: a command that has joined it since was put there by the user.
+    private var inMenuBar: Set<String>
+
+    /// How long a session that was sent a click while its successor started is left to finish the work.
+    static let handoverGrace: TimeInterval = 10
 
     private final class Entry {
         let item: any MenuBarStatusItem
         let presenter: MenuBarPresenter
         var command: ExtensionCommand
         var session: ExtensionSession?
+        /// The session whose render is on screen, which is the one before `session` until that one has drawn.
+        var shown: ExtensionSession?
+        /// Whether a row was clicked while `shown` was the session before.
+        var shownIsBusy = false
+        /// A session that is no longer on screen and is finishing the click it was sent.
+        var finishing: ExtensionSession?
         var cancellables = Set<AnyCancellable>()
         init(item: any MenuBarStatusItem, presenter: MenuBarPresenter, command: ExtensionCommand) {
             self.item = item
@@ -58,6 +69,7 @@ extension NSStatusItem: MenuBarStatusItem {
         let host = host ?? MenuBarHost()
         self.model = model
         self.host = host
+        self.inMenuBar = model.settings.menuBarCommands
         self.images = MenuBarIconImages(cache: host.icons)
     }
 
@@ -73,6 +85,8 @@ extension NSStatusItem: MenuBarStatusItem {
     func sync(_ commands: [ExtensionCommand]) {
         let wanted = commands.filter { $0.mode == "menu-bar" }
         let ids = Set(wanted.map(\.id))
+        let added = model.settings.menuBarCommands.subtracting(inMenuBar)
+        inMenuBar = model.settings.menuBarCommands
         for id in entries.keys where !ids.contains(id) {
             remove(id)
         }
@@ -81,7 +95,7 @@ extension NSStatusItem: MenuBarStatusItem {
                 entry.command = command
                 entry.presenter.commandTitle = command.title
             } else {
-                start(command)
+                start(command, launchType: added.contains(command.id) ? "userInitiated" : "background")
             }
         }
     }
@@ -101,7 +115,7 @@ extension NSStatusItem: MenuBarStatusItem {
         }
     }
 
-    private func start(_ command: ExtensionCommand) {
+    private func start(_ command: ExtensionCommand, launchType: String) {
         let item = host.addItem()
         let resolver = host.resolver
         let presenter = MenuBarPresenter(button: item.statusButton, commandTitle: command.title, images: images) { [weak self] in
@@ -109,8 +123,15 @@ extension NSStatusItem: MenuBarStatusItem {
         }
         let entry = Entry(item: item, presenter: presenter, command: command)
         entry.presenter.onAction = { [weak entry] nodeID in
-            guard let session = entry?.session, let node = session.root?.descendant(id: nodeID) else { return }
+            guard let entry, let session = entry.shown, let node = session.root?.descendant(id: nodeID) else { return }
+            entry.shownIsBusy = session !== entry.session
             session.event(node, "onAction", [["type": "left-click"]])
+        }
+        entry.presenter.onOpen = { [weak self, weak entry] in
+            // A session that has not drawn yet is already the run this opening would ask for, and one
+            // that failed is started again with Try Again.
+            guard let self, let entry, entry.shown === entry.session, entry.session?.failure == nil else { return }
+            run(entry, launchType: "userInitiated", keepsShown: true)
         }
         entry.presenter.onRetry = { [weak self, weak entry] in
             guard let self, let entry else { return }
@@ -124,14 +145,17 @@ extension NSStatusItem: MenuBarStatusItem {
         }
         item.menu = entry.presenter.menu
         entries[command.id] = entry
-        run(entry)
+        run(entry, launchType: launchType)
     }
 
-    /// Gives the entry a fresh session, ending the one it had.
-    private func run(_ entry: Entry) {
+    /// Gives the entry a fresh session, ending the one it had. With `keepsShown` the one on screen runs on
+    /// until the new one has drawn, so a row clicked in between still reaches the session that drew it.
+    private func run(_ entry: Entry, launchType: String = "background", keepsShown: Bool = false) {
         entry.cancellables.removeAll()
-        entry.session?.forceStop()
-        let session = ExtensionSession(command: entry.command, launchType: "background")
+        if !keepsShown {
+            stop(entry)
+        }
+        let session = ExtensionSession(command: entry.command, launchType: launchType)
         session.onMessage = { [weak self] message in
             self?.model.handleBackgroundMessage(message)
         }
@@ -139,16 +163,53 @@ extension NSStatusItem: MenuBarStatusItem {
         presenter.show(failure: nil)
         // Published in willSet, so the value handed over is the new one while the property is still the old.
         // The first value is the empty state every session starts in, which is not a render.
-        session.$root.dropFirst().sink { [weak presenter] in presenter?.show(root: $0) }.store(in: &entry.cancellables)
-        session.$failure.dropFirst().sink { [weak presenter] in presenter?.show(failure: $0) }.store(in: &entry.cancellables)
+        session.$root.dropFirst().sink { [weak self, weak entry, weak session, weak presenter] in
+            self?.handOver(entry, to: session)
+            presenter?.show(root: $0)
+        }.store(in: &entry.cancellables)
+        session.$failure.dropFirst().sink { [weak self, weak entry, weak session, weak presenter] in
+            if $0 != nil {
+                self?.handOver(entry, to: session)
+            }
+            presenter?.show(failure: $0)
+        }.store(in: &entry.cancellables)
         entry.session = session
         host.start(session)
+    }
+
+    /// Makes `session` the one on screen and ends the one that was, at once unless it has a click to finish.
+    private func handOver(_ entry: Entry?, to session: ExtensionSession?) {
+        guard let entry, let session, entry.shown !== session else { return }
+        let last = entry.shown
+        entry.shown = session
+        guard entry.shownIsBusy else {
+            last?.forceStop()
+            return
+        }
+        entry.shownIsBusy = false
+        entry.finishing?.forceStop()
+        entry.finishing = last
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.handoverGrace) { [weak entry, weak last] in
+            last?.forceStop()
+            if entry?.finishing === last {
+                entry?.finishing = nil
+            }
+        }
+    }
+
+    private func stop(_ entry: Entry) {
+        entry.session?.forceStop()
+        entry.shown?.forceStop()
+        entry.finishing?.forceStop()
+        entry.shown = nil
+        entry.finishing = nil
+        entry.shownIsBusy = false
     }
 
     private func remove(_ id: String) {
         guard let entry = entries.removeValue(forKey: id) else { return }
         entry.cancellables.removeAll()
-        entry.session?.forceStop()
+        stop(entry)
         entry.session = nil
         entry.item.menu = nil
         host.removeItem(entry.item)

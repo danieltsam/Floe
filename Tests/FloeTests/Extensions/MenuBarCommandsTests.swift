@@ -186,6 +186,74 @@ struct MenuBarCommandsTests {
         #expect(item.button.title == "4 unread")
     }
 
+    @Test func openingTheMenuRunsTheCommandAgainAsUserInitiated() throws {
+        commands.sync([status])
+        try render(MenuBarFixture.root(title: "3 unread", [MenuBarFixture.item("Inbox", id: 10)]))
+        let item = try #require(bar.items.first)
+        let menu = try #require(item.menu)
+        let first = try #require(commands.session(for: status.id))
+
+        open(menu)
+        let second = try #require(commands.session(for: status.id))
+        #expect(second !== first)
+        #expect(second.launchType == "userInitiated")
+        #expect(item.button.title == "3 unread")
+        #expect(menu.item(at: 0)?.title == "Inbox", "the last render stays until the new one arrives")
+        #expect(!first.isStopping)
+
+        menu.delegate?.menuWillOpen?(menu)
+        #expect(bar.started.count == 2, "one run for each time it opens")
+
+        try render(MenuBarFixture.root(title: "4 unread", [MenuBarFixture.item("Inbox", id: 10), MenuBarFixture.item("Sent", id: 11)]))
+        #expect(first.isStopping)
+        #expect(item.button.title == "4 unread")
+        #expect(menu.item(at: 1)?.title == "Sent", "the open menu takes the new render in place")
+
+        menu.delegate?.menuDidClose?(menu)
+        open(menu)
+        #expect(bar.started.count == 3)
+    }
+
+    @Test func aCommandThatHasNotDrawnYetIsNotRunAgainWhenItsMenuOpens() throws {
+        commands.sync([status])
+        try open(#require(bar.items.first?.menu))
+        #expect(bar.started.count == 1)
+    }
+
+    @Test func aRowClickedWhileTheCommandRunsAgainReachesTheSessionThatDrewIt() throws {
+        commands.sync([status])
+        try render(MenuBarFixture.root(title: "1", [MenuBarFixture.item("Stop", id: 42)]))
+        let first = try #require(commands.session(for: status.id))
+        var sent: [[String: Any]] = []
+        first.transport = { sent.append($0) }
+        let menu = try #require(bar.items.first?.menu)
+        open(menu)
+
+        try click(#require(menu.item(at: 0)))
+        #expect(sent.first?["id"] as? Int == 42)
+
+        try render(MenuBarFixture.root(title: "2", [MenuBarFixture.item("Stop", id: 7)]))
+        #expect(!first.isStopping, "it is left to finish what the click started")
+        var sentToSecond: [[String: Any]] = []
+        try #require(commands.session(for: status.id)).transport = { sentToSecond.append($0) }
+        try click(#require(menu.item(at: 0)))
+        #expect(sentToSecond.first?["id"] as? Int == 7)
+        #expect(sent.count == 1)
+
+        commands.stopAll()
+        #expect(first.isStopping)
+    }
+
+    @Test func aCommandPutInTheMenuBarFirstRunsAsUserInitiated() {
+        settings.menuBarCommands = [status.id]
+        commands.sync(model.enabledCommands)
+        #expect(bar.started.map(\.launchType) == ["userInitiated"])
+
+        let relaunched = MenuBarCommands(model: model, host: bar.host)
+        relaunched.sync(model.enabledCommands)
+        #expect(bar.started.map(\.launchType) == ["userInitiated", "background"], "one that was there at launch starts in the background")
+    }
+
     @Test func tryAgainStartsOverFromLoading() throws {
         commands.sync([status])
         try render(MenuBarFixture.root(title: "3 unread", [MenuBarFixture.item("Inbox", id: 10)]))

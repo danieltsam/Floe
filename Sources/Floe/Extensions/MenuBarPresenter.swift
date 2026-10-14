@@ -38,6 +38,11 @@ final class MenuBarMenu: NSMenu {
         // Set by MenuBarCommands.
     }
 
+    /// Called once each time the command's own menu opens, not for its submenus.
+    var onOpen: () -> Void = {
+        // Set by MenuBarCommands.
+    }
+
     var onRetry: () -> Void = {
         // Set by MenuBarCommands.
     }
@@ -266,7 +271,11 @@ final class MenuBarMenu: NSMenu {
 
     func menuWillOpen(_ menu: NSMenu) {
         menuNeedsUpdate(menu)
-        (menu as? MenuBarMenu)?.isOpen = true
+        guard let menu = menu as? MenuBarMenu, !menu.isOpen else { return }
+        menu.isOpen = true
+        if menu === self.menu {
+            onOpen()
+        }
     }
 
     func menuDidClose(_ menu: NSMenu) {
