@@ -41,7 +41,7 @@ extension LauncherModel {
         context.clipboardDestination = clipboardDestination
         context.settingsPanes = catalog.settingsPanes
         context.sshHosts = catalog.sshHosts
-        context.shortcuts = shortcutsForSearch
+        context.shortcuts = features.shortcuts.forSearch
         context.snippets = SnippetStore.shared.snippets
         context.quicklinks = QuicklinkStore.shared.links
         context.menuBarItemNames = settings.menuBarItemNames

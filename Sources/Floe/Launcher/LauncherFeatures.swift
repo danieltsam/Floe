@@ -26,18 +26,25 @@ final class LauncherFeatures {
     let sound = SoundRows()
     let places = PlaceRows()
     let qrCodes = QRCodeRows()
+    let shortcuts = ShortcutRows()
+    let scripts = ScriptRows()
+    let system = SystemRows()
+    let notes: NoteRows
+    let found = FoundRows()
 
     /// The features that own rows, asked in turn what a row's Return, actions and keys do.
     let rowOwners: [any RowOwner]
 
     init(model: LauncherModel) {
         shell = ShellRows(settings: model.settings)
-        rowOwners = [shell, checkpoints, timers, reminders, events, receipts, contacts, focus, emoji, windows, brew, sound, places, qrCodes]
+        notes = NoteRows(settings: model.settings)
+        rowOwners = [shell, checkpoints, timers, reminders, events, receipts, contacts, focus, emoji, windows, brew, sound, places, qrCodes, shortcuts, scripts, system, notes, found]
         let links = Links(model: model)
         connectShell(links)
         connectKept(links)
         connectReaching(links)
         connectKeywords(links)
+        connectSearched(links)
     }
 
     /// What most features ask of the launcher, each reaching the model without keeping it.
@@ -83,7 +90,7 @@ final class LauncherFeatures {
     }
 
     private func connectShell(_ links: Links) {
-        weak var model = links.model
+        weak let model = links.model
         shell.host = ShellRows.Host(
             hidePanel: links.hidePanel,
             showHUD: links.showHUD,
@@ -104,7 +111,7 @@ final class LauncherFeatures {
 
     /// The features that keep something: checkpoints, timers, reminders, events and the receipts of all of them.
     private func connectKept(_ links: Links) {
-        weak var model = links.model
+        weak let model = links.model
         checkpoints.host = CheckpointRows.Host(
             hidePanel: links.hidePanel,
             showHUD: links.showHUD,
@@ -145,11 +152,11 @@ final class LauncherFeatures {
 
     /// The features that reach someone or something outside: contacts, Focus, music and emoji.
     private func connectReaching(_ links: Links) {
-        weak var model = links.model
+        weak let model = links.model
         contacts.host = links.row
         focus.host = links.row
         focus.runShortcut = { name, input, say in
-            model?.shortcutLibrary.run(named: name, input: input, showHUD: say)
+            model?.features.shortcuts.library.run(named: name, input: input, showHUD: say)
         }
         music.say = links.showHUD
         emoji.host = links.row
@@ -158,7 +165,7 @@ final class LauncherFeatures {
 
     /// The rows a keyword finds outside the catalog: windows, Homebrew packages, sound devices, places and QR codes.
     private func connectKeywords(_ links: Links) {
-        weak var model = links.model
+        weak let model = links.model
         let host = links.row
         windows.host = host
         brew.host = host
@@ -169,5 +176,29 @@ final class LauncherFeatures {
         sound.host = host
         places.host = host
         qrCodes.host = host
+    }
+
+    /// The rows of what the search holds besides: shortcuts, scripts, system commands, notes and what it worked out.
+    private func connectSearched(_ links: Links) {
+        weak let model = links.model
+        let host = links.row
+        shortcuts.host = host
+        shortcuts.isOn = { model?.settings.searchSources.contains(SearchSourceInfo.shortcuts.id) ?? false }
+        shortcuts.listChanged = {
+            // Nothing to redraw without a query: the shortcuts are only searched for.
+            guard let model, !model.query.isEmpty else { return }
+            model.refresh()
+        }
+        scripts.host = host
+        scripts.typed = { model?.query ?? "" }
+        scripts.recordUse = { model?.usage.recordUse(of: $0) }
+        system.host = host
+        system.controlMusic = { [music] in _ = music.controlMusic($0) }
+        notes.host = host
+        found.host = host
+        found.typeQuery = {
+            model?.query = $0
+            model?.focusToken += 1
+        }
     }
 }

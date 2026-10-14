@@ -44,7 +44,7 @@ extension LauncherModel {
             reset()
             openNoteDesk()
         case let .system(command):
-            runSystemCommand(command)
+            features.system.run(command)
         default:
             break
         }

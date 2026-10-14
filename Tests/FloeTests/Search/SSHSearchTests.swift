@@ -248,7 +248,7 @@ struct SSHSearchTests {
         let (opened, continuation) = AsyncStream.makeStream(of: Handoff.self)
         var hides = 0
         model.panelHost.hidePanel = { hides += 1 }
-        model.sshConnector = SSHConnector(
+        model.features.system.sshConnector = SSHConnector(
             bundleIdentifier: { _ in nil },
             takesSSHLinks: { $0 == Fake.terminal },
             systemTerminal: { nil },

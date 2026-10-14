@@ -48,14 +48,14 @@ struct AppleShortcutSearchTests {
         settings.searchSources = isOn ? [SearchSourceInfo.shortcuts.id] : []
         let snapshot = CatalogSnapshot(apps: apps, commands: [])
         let model = LauncherModel(scanner: EmptyScanner(), settings: settings, usage: UsageStore(defaults: scratch.defaults), snapshot: snapshot, sources: [])
-        model.shortcutLibrary.tool = fake.tool
+        model.features.shortcuts.library.tool = fake.tool
         return model
     }
 
     /// A model that is switched on and has read the sample list.
     private func loadedModel(_ fake: FakeShortcutsTool = FakeShortcutsTool(list: ShortcutSample.listing), apps: [AppEntry] = []) async -> LauncherModel {
         let model = makeModel(fake, apps: apps)
-        await model.reloadShortcuts()?.value
+        await model.features.shortcuts.reload()?.value
         return model
     }
 
@@ -178,10 +178,10 @@ struct AppleShortcutSearchTests {
     @Test func offMeansNoRowsNoScopeAndNoToolEvenWhenThePanelOpens() {
         let fake = FakeShortcutsTool(list: ShortcutSample.listing)
         let model = makeModel(fake, isOn: false)
-        #expect(!model.findsShortcuts)
+        #expect(!model.features.shortcuts.isOn())
         model.panelWillShow()
         model.panelDidShow()
-        #expect(model.reloadShortcuts() == nil)
+        #expect(model.features.shortcuts.reload() == nil)
         model.query = "mail"
         #expect(!model.results.contains { $0.id.hasPrefix("shortcut:") })
         model.query = "shortcuts "
@@ -194,7 +194,7 @@ struct AppleShortcutSearchTests {
         let model = makeModel(fake)
         model.panelWillShow()
         model.panelDidShow()
-        await model.reloadShortcuts()?.value
+        await model.features.shortcuts.reload()?.value
         #expect(fake.calls == [FakeShortcutsTool.listing], "asking again while the list is on its way starts nothing")
         #expect(!model.results.contains { $0.id.hasPrefix("shortcut:") })
         model.query = "resiz"
@@ -206,10 +206,10 @@ struct AppleShortcutSearchTests {
         let fake = FakeShortcutsTool(list: ShortcutSample.listing, isGated: true)
         let model = makeModel(fake)
         fake.open()
-        await model.reloadShortcuts()?.value
+        await model.features.shortcuts.reload()?.value
         fake.list("Brand New (\(ShortcutSample.mailID))\n")
 
-        let loading = model.reloadShortcuts()
+        let loading = model.features.shortcuts.reload()
         model.query = "mail"
         #expect(ids(model.results).contains(mail.id), "the search did not wait for the tool")
         model.query = "brand"
@@ -229,7 +229,7 @@ struct AppleShortcutSearchTests {
         #expect(!model.results.contains { $0.id.hasPrefix("shortcut:") })
         model.panelWillShow()
         model.panelDidShow()
-        #expect(model.shortcutLibrary.shortcuts.isEmpty)
+        #expect(model.features.shortcuts.library.shortcuts.isEmpty)
         #expect(fake.calls.count == 1)
     }
 
@@ -324,9 +324,9 @@ struct AppleShortcutSearchTests {
         #expect(settings.favorites == ["settings"])
         let fake = FakeShortcutsTool(list: ShortcutSample.listing)
         let model = LauncherModel(scanner: EmptyScanner(), settings: settings, usage: UsageStore(defaults: scratch.defaults), snapshot: CatalogSnapshot(apps: [], commands: []), sources: [])
-        model.shortcutLibrary.tool = fake.tool
-        #expect(!model.findsShortcuts)
-        #expect(model.reloadShortcuts() == nil)
+        model.features.shortcuts.library.tool = fake.tool
+        #expect(!model.features.shortcuts.isOn())
+        #expect(model.features.shortcuts.reload() == nil)
         #expect(fake.calls.isEmpty)
     }
 

@@ -186,7 +186,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
             PanelWork.perform { [model] in
                 await model.catalog.waitForScripts()
                 if let script = model.catalog.allScripts.first(where: { $0.id == id }) {
-                    model.run(script)
+                    model.features.scripts.run(script)
                 }
             }
         default: break

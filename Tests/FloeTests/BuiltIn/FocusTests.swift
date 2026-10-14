@@ -68,7 +68,7 @@ struct FocusTests {
         let model = LauncherModel(settings: settings, usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
         model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
-        model.shortcutLibrary.tool = stand.tool
+        model.features.shortcuts.library.tool = stand.tool
         model.linkOpener = stand.opener
         return model
     }

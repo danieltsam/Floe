@@ -13,7 +13,7 @@ extension LauncherModel {
     func panelDidShow() {
         catalog.reloadScripts()
         catalog.reloadSSHHosts()
-        reloadShortcuts()
+        features.shortcuts.reload()
         // A grant made in System Settings with no request from Floe is noticed here.
         menuBarSearch.warm()
         ExchangeRateUpdater.shared.refreshIfStale()

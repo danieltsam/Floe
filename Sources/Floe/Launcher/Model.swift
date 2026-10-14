@@ -48,10 +48,6 @@ final class LauncherModel: ObservableObject {
     @Published var focusToken = 0
     /// The apps, commands, scripts, panes and hosts the search finds; the model refreshes when a part changes.
     let catalog: CatalogStore
-    /// How a host's connection is opened. Tests replace it, so they open nothing.
-    var sshConnector = SSHConnector.system
-    /// The shortcuts of Apple's Shortcuts app and their runs. Nothing is read while the switch in Privacy is off.
-    lazy var shortcutLibrary = AppleShortcutLibrary()
 
     /// True while the panel shows the file search instead of the root search.
     @Published var isSearchingFiles = false
@@ -279,6 +275,9 @@ final class LauncherModel: ObservableObject {
             usage.recordUse(of: item.id)
         }
         rememberQuery()
+        if openByOwner(item) {
+            return
+        }
         switch item {
         case let .app(app):
             NSWorkspace.shared.openWithoutWaiting(app.url)
@@ -286,9 +285,6 @@ final class LauncherModel: ObservableObject {
             reset()
         case let .command(command):
             runner.run(command)
-        case let .script(script):
-            let text = script.argumentsText(in: query) ?? ""
-            run(script, argumentStrings: ScriptRunner.splitArguments(text))
         case .menuBarSearch:
             openMenuBarSearch()
         case .emojiSearch:
@@ -300,6 +296,8 @@ final class LauncherModel: ObservableObject {
             openFileSearch(with: query)
         case let .searchFiles(searchQuery):
             openFileSearch(with: searchQuery)
+        case .noteDesk:
+            openNoteDesk()
         case .settings, .extensionStore:
             panelHost.hidePanel()
             panelHost.openSettings(item.settingsPage)
@@ -309,107 +307,15 @@ final class LauncherModel: ObservableObject {
             }
             panelHost.hidePanel()
             reset()
-        case let .system(command):
-            runSystemCommand(command)
-        case let .note(action, text):
-            panelHost.hidePanel()
-            reset()
-            writeNote(action, text: text)
         case let .finderSelection(role, app):
             openFinderSelection(in: role, app: app)
-        case let .thaw(action):
-            panelHost.hidePanel()
-            reset()
-            if !Thaw.perform(action) {
-                panelHost.showHUD(String(localized: "Thaw isn't installed", bundle: .floe))
-            }
-        case let .sshHost(host, terminal):
-            panelHost.hidePanel()
-            reset()
-            SSHConnection.connect(to: host, terminal: terminal, using: sshConnector) { [weak self] in self?.panelHost.showHUD($0) }
-        case let .shortcut(shortcut):
-            run(shortcut)
-        case let .settingsPane(pane):
-            if let url = pane.url {
-                NSWorkspace.shared.openWithoutWaiting(url)
-            }
-            panelHost.hidePanel()
-            reset()
         case let .snippet(snippet):
             runner.paste(text: SnippetStore.shared.expanded(snippet))
-        case let .calculator(_, result, error, _):
-            copyCalculation(result, error: error)
         default:
-            // A scope's rows were opened before the switch. What is left is a row that came later.
-            openLater(item)
+            break
         }
     }
 
-    /// Risky commands ask first; the panel goes away before anything runs.
-    func runSystemCommand(_ command: SystemCommand) {
-        panelHost.hidePanel()
-        reset()
-        if let question = command.confirmation {
-            guard Confirm.destructive(command.title, detail: question, button: command.title) else { return }
-        }
-        if let flip = command.flip {
-            panelHost.showHUD(flip())
-            return
-        }
-        if let control = command.music {
-            features.music.controlMusic(control)
-            return
-        }
-        command.perform { [weak self] in self?.panelHost.showHUD($0) }
-    }
-
-    /// Runs a script command with the given argv. Arguments come from the text typed after its
-    /// title; output follows its mode: a window for fullOutput, a HUD for compact and inline,
-    /// nothing for silent. Failures show a HUD with the last stderr line.
-    func run(_ script: ScriptCommand, argumentStrings: [String] = []) {
-        if script.needsConfirmation {
-            let alert = NSAlert()
-            alert.messageText = String(localized: "Run \(script.title)?", bundle: .floe, comment: "The placeholder is the name of a script.")
-            alert.informativeText = script.displayPackage
-            alert.addButton(withTitle: String(localized: "Run", bundle: .floe, comment: "A verb on a button: run the shortcut or script."))
-            alert.addButton(withTitle: String(localized: "Cancel", bundle: .floe))
-            guard alert.runModal() == .alertFirstButtonReturn else { return }
-        }
-        usage.recordUse(of: RootItem.script(script).id)
-        panelHost.hidePanel()
-        reset()
-        PanelWork.perform { [weak self] in
-            let result: ShellResult
-            do {
-                result = try await ScriptRunner.run(script, arguments: argumentStrings)
-            } catch {
-                await MainActor.run { [weak self] in
-                    self?.panelHost.showHUD(String(localized: "\(script.title) failed: \(error.localizedDescription)", bundle: .floe, comment: "The first placeholder is the name of a script, the second is the reason."))
-                }
-                return
-            }
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                guard result.succeeded else {
-                    let line = ScriptRunner.lastLine(result.errorOutput) ?? ScriptRunner.lastLine(result.output)
-                        ?? String(localized: "exit code \(result.status)", bundle: .floe, comment: "The reason a script failed, when it printed nothing. The placeholder is a number.")
-                    panelHost.showHUD(String(localized: "\(script.title) failed: \(line)", bundle: .floe, comment: "The first placeholder is the name of a script, the second is the reason."))
-                    return
-                }
-                switch script.mode {
-                case .silent:
-                    break
-                case .inline, .compact:
-                    let line = ScriptRunner.lastLine(result.output) ?? String(localized: "Done (script finished)", defaultValue: "Done", bundle: .floe, comment: "Shown briefly when a script finished and printed nothing.")
-                    panelHost.showHUD(line)
-                case .fullOutput:
-                    ScriptOutputWindow.show(title: script.title, output: result.trimmedOutput)
-                }
-            }
-        }
-    }
-
-    /// Runs a command, first asking for missing required preferences and then for its arguments.
     /// The panel closed. The open command survives for the configured delay, so reopening resumes it.
     func panelDidHide() {
         isPanelShown = false
