@@ -151,25 +151,13 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
     private struct Manifest: Decodable {
         let name: String
         let owner: String?
-        let author: Author?
+        let author: ManifestAuthor?
         let title: String?
         let icon: String?
         let keywords: Lossy<String>?
         let platforms: Lossy<String>?
         let preferences: Lossy<FieldSpec>?
         let commands: Lossy<ManifestCommand>
-    }
-
-    /// A name, or an object with one; anything else is no author rather than a manifest that cannot be read.
-    private struct Author: Decodable {
-        let name: String?
-
-        private enum Keys: String, CodingKey { case name }
-
-        init(from decoder: Decoder) throws {
-            name = (try? decoder.singleValueContainer().decode(String.self))
-                ?? (try? decoder.container(keyedBy: Keys.self).decode(String.self, forKey: .name))
-        }
     }
 
     private struct ManifestCommand: Decodable {
@@ -224,6 +212,18 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
                 owner: manifest.owner ?? manifest.author?.name
             )
         }
+    }
+}
+
+/// A name, or an object with one; anything else is no author rather than a manifest that cannot be read.
+private nonisolated struct ManifestAuthor: Decodable {
+    let name: String?
+
+    private enum Keys: String, CodingKey { case name }
+
+    init(from decoder: Decoder) throws {
+        name = (try? decoder.singleValueContainer().decode(String.self))
+            ?? (try? decoder.container(keyedBy: Keys.self).decode(String.self, forKey: .name))
     }
 }
 
