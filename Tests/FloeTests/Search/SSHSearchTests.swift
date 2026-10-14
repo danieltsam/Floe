@@ -144,8 +144,8 @@ struct SSHSearchTests {
         let contribution = SSHHostSearchProvider().contribution(for: context("web", hosts: []))
         #expect(contribution.ranked.isEmpty && contribution.searchOnly.isEmpty && contribution.pinned.isEmpty)
         #expect(contribution.sectioned.isEmpty && contribution.appended.isEmpty)
-        #expect(RootSearch.scope(in: context("ssh web", hosts: []), scopes: RootSearch.standardScopes()) == nil, "the word is not a scope then")
-        #expect(RootSearch.scope(in: context("ssh ", hosts: []), scopes: RootSearch.standardScopes()) == nil)
+        #expect(RootSearch.scope(in: context("ssh web", hosts: []), scopes: RootSearch.standardScopes { [] }) == nil, "the word is not a scope then")
+        #expect(RootSearch.scope(in: context("ssh ", hosts: []), scopes: RootSearch.standardScopes { [] }) == nil)
     }
 
     @Test func eachRowCarriesTheTerminalItWouldOpenIn() {
@@ -166,7 +166,7 @@ struct SSHSearchTests {
     @Test func theKeywordAndSomeTextShowOnlyTheHostsThatMatch() throws {
         let webex = AppEntry(name: "Webex", url: URL(fileURLWithPath: "/Fake/Applications/Webex.app"))
         let context = context("ssh web") { $0.apps = [webex] }
-        let match = try #require(RootSearch.scope(in: context, scopes: RootSearch.standardScopes()))
+        let match = try #require(RootSearch.scope(in: context, scopes: RootSearch.standardScopes { [] }))
         #expect(match.scope.keyword == "ssh")
         #expect(match.scope.title == "SSH Hosts")
         #expect(match.scope.emptyTitle == "No SSH hosts match")
@@ -185,18 +185,18 @@ struct SSHSearchTests {
 
     @Test func theKeywordAndASpaceListEveryHostInTheConfigurationsOrder() throws {
         let context = context("SSH ")
-        let match = try #require(RootSearch.scope(in: context, scopes: RootSearch.standardScopes()))
+        let match = try #require(RootSearch.scope(in: context, scopes: RootSearch.standardScopes { [] }))
         #expect(match.text.isEmpty)
         #expect(match.scope.results(for: match.text, context: context).map(\.id) == hosts.map(\.id))
     }
 
     @Test func theKeywordAloneIsAnOrdinarySearch() {
-        #expect(RootSearch.scope(in: context("ssh"), scopes: RootSearch.standardScopes()) == nil)
-        #expect(RootSearch.scope(in: context("sshfs mount"), scopes: RootSearch.standardScopes()) == nil)
+        #expect(RootSearch.scope(in: context("ssh"), scopes: RootSearch.standardScopes { [] }) == nil)
+        #expect(RootSearch.scope(in: context("sshfs mount"), scopes: RootSearch.standardScopes { [] }) == nil)
     }
 
     @Test func theOtherScopesStillNeedSomeText() {
-        let scopes = RootSearch.standardScopes()
+        let scopes = RootSearch.standardScopes { [] }
         #expect(RootSearch.scope(in: context("files "), scopes: scopes) == nil)
         #expect(RootSearch.scope(in: context("clipboard "), scopes: scopes) == nil)
         #expect(RootSearch.scope(in: context("clipboard meeting"), scopes: scopes)?.scope.keyword == "clipboard")

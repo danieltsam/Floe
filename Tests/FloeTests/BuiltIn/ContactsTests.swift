@@ -172,7 +172,7 @@ struct ContactsTests {
         #expect(scope.text(in: SearchContext(query: "contact ")) == nil)
         #expect(scope.text(in: SearchContext(query: "contacts ana")) == nil)
         #expect(scope.text(in: SearchContext(query: "ana contact")) == nil)
-        let standard = RootSearch.standardScopes().map(\.keyword)
+        let standard = RootSearch.standardScopes { [] }.map(\.keyword)
         #expect(standard.contains("contact"))
     }
 

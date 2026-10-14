@@ -14,10 +14,12 @@ final class LauncherPanelLink {
     let process = PanelProcess()
     private let model: LauncherModel
     private let settingsLink: LauncherSettingsLink
+    private let clipboard: ClipboardHistoryStore
     private var appearance: AnyCancellable?
 
     /// Binds foreground requests to the resident model and its existing Settings owner.
-    init(model: LauncherModel, settingsLink: LauncherSettingsLink) {
+    init(model: LauncherModel, clipboard: ClipboardHistoryStore, settingsLink: LauncherSettingsLink) {
+        self.clipboard = clipboard
         self.model = model
         self.settingsLink = settingsLink
     }
@@ -43,7 +45,7 @@ final class LauncherPanelLink {
             guard let self else { return }
             process.send(.timers(self.model.runningTimers.all))
         }
-        ClipboardHistoryStore.shared.onSnapshotSaved = { process.send(.clipboardChanged) }
+        clipboard.onSnapshotSaved = { process.send(.clipboardChanged) }
         appearance = ThawAppearanceFollower.shared.$status
             .receive(on: DispatchQueue.main)
             .sink { process.send(.appearance($0.rawValue)) }
@@ -80,14 +82,14 @@ final class LauncherPanelLink {
         case let .receiptUndone(id, date):
             model.receipts.markUndone(id, at: date)
             process.send(.refresh)
-        case .clearClipboard: ClipboardHistoryStore.shared.clear()
+        case .clearClipboard: clipboard.clear()
         case let .deleteClipboard(id):
-            if let entry = ClipboardHistoryStore.shared.entries.first(where: { $0.id == id }) {
-                ClipboardHistoryStore.shared.delete(entry)
+            if let entry = clipboard.entries.first(where: { $0.id == id }) {
+                clipboard.delete(entry)
             }
         case let .pinClipboard(id):
-            if let entry = ClipboardHistoryStore.shared.entries.first(where: { $0.id == id }) {
-                ClipboardHistoryStore.shared.togglePin(entry)
+            if let entry = clipboard.entries.first(where: { $0.id == id }) {
+                clipboard.togglePin(entry)
             }
         default: break
         }

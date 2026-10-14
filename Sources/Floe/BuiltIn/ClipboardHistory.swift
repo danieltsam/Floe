@@ -64,13 +64,18 @@ nonisolated struct ClipboardEntry: Identifiable, Codable, Sendable {
 /// Remembers what was on the clipboard, skipping what a password manager or the system marks as private.
 /// The list lives here, on the main thread; everything slow is the worker's, which answers in the order asked.
 final class ClipboardHistoryStore: ObservableObject {
-    /// Whether the user's own store exists yet: it starts with the first thing that reads it.
-    private static var hasShared = false
-    static var remoteMutation: ((PanelPacket) -> Void)?
-    static let shared: ClipboardHistoryStore = {
-        hasShared = true
-        return ClipboardHistoryStore(monitorsPasteboard: remoteMutation == nil, remote: remoteMutation)
-    }()
+    /// An empty store that records nothing and writes nothing: for a model with no history to show,
+    /// such as one in a test or a mode that draws the panel and exits.
+    static func detached() -> ClipboardHistoryStore {
+        let nowhere = ClipboardFiles(
+            directory: FileManager.default.temporaryDirectory,
+            sizes: { [:] },
+            read: { _ in nil },
+            write: { _, _, _ in },
+            remove: { _ in }
+        )
+        return ClipboardHistoryStore(files: nowhere, monitorsPasteboard: false)
+    }
 
     static let maxEntries = 300
     static let maxBytes: Int = 200 * 1024 * 1024
@@ -234,13 +239,6 @@ final class ClipboardHistoryStore: ObservableObject {
         for _ in 0 ..< 2 {
             worker.wait(timeout: timeout)
             applyEvents()
-        }
-    }
-
-    /// Flushes the user's store, if this run ever started it.
-    static func flushShared() {
-        if hasShared {
-            shared.flush()
         }
     }
 

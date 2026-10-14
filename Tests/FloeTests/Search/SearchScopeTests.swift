@@ -344,8 +344,8 @@ struct SearchScopeTests {
     }
 
     @Test func theStandardScopesAreFilesClipboardMenuSSHProcessesPortsShortcutsTimersContactsWindowsBookmarksHomebrewSoundTranslationPlacesRecentFilesAndKeywords() {
-        #expect(RootSearch.standardScopes().map(\.keyword) == ["files", "clipboard", "menu", "ssh", "kill", "port", "receipts", "shortcuts", "timers", "contact", "windows", "bookmarks", "brew", "output", "input", "translate", "maps", "recent", "keywords", "?"])
-        #expect(RootSearch.standardScopes().map(\.title) == ["Files", "Clipboard History", "Menu Bar Items", "SSH Hosts", "Running Processes", "Listening on the Port", "Receipts", "Shortcuts", "Timers", "Contacts", "Open Windows", "Bookmarks", "Homebrew", "Sound Output", "Sound Input", "Translation", "Places", "Recently Used Files", "Keywords", "Keywords"])
+        #expect(RootSearch.standardScopes { [] }.map(\.keyword) == ["files", "clipboard", "menu", "ssh", "kill", "port", "receipts", "shortcuts", "timers", "contact", "windows", "bookmarks", "brew", "output", "input", "translate", "maps", "recent", "keywords", "?"])
+        #expect(RootSearch.standardScopes { [] }.map(\.title) == ["Files", "Clipboard History", "Menu Bar Items", "SSH Hosts", "Running Processes", "Listening on the Port", "Receipts", "Shortcuts", "Timers", "Contacts", "Open Windows", "Bookmarks", "Homebrew", "Sound Output", "Sound Input", "Translation", "Places", "Recently Used Files", "Keywords", "Keywords"])
     }
 
     // MARK: The new rows

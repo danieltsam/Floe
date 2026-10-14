@@ -18,7 +18,7 @@ struct ClipboardHistoryView: View {
     /// For the gear. Not observed: nothing here is drawn from it.
     let launcher: LauncherModel
     let focusToken: Int
-    @ObservedObject var history = ClipboardHistoryStore.shared
+    @ObservedObject var history: ClipboardHistoryStore
     @ObservedObject var settings = AppSettings.shared
 
     var body: some View {

@@ -12,6 +12,7 @@ import Combine
 /// does what it asks. The launcher builds no settings view of its own.
 final class LauncherSettingsLink {
     private let model: LauncherModel
+    private let clipboard: ClipboardHistoryStore
     private let settings: AppSettings
     private let hotkeys: HotkeyRegistry
     private let process = SettingsProcess()
@@ -26,7 +27,8 @@ final class LauncherSettingsLink {
     var onChange: (() -> Void)?
 
     /// Gates incoming Settings messages against the process this resident actually launched.
-    init(model: LauncherModel, settings: AppSettings = .shared, hotkeys: HotkeyRegistry) {
+    init(model: LauncherModel, clipboard: ClipboardHistoryStore, settings: AppSettings = .shared, hotkeys: HotkeyRegistry) {
+        self.clipboard = clipboard
         self.model = model
         self.settings = settings
         self.hotkeys = hotkeys
@@ -160,7 +162,7 @@ final class LauncherSettingsLink {
         case .rescan:
             rescan(message.scan)
         case .clearClipboardHistory:
-            ClipboardHistoryStore.shared.clear()
+            clipboard.clear()
         case .removeSyncedSettings:
             sync.engine.removeFromCloud()
         case .forwardURL:

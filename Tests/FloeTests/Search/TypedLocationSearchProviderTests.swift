@@ -43,7 +43,7 @@ struct TypedLocationSearchProviderTests {
 
     private func makeModel(usage: UsageStore = .shared) -> LauncherModel {
         let settings = AppSettings(defaults: UserDefaults(suiteName: "floe-typed-location-\(UUID().uuidString)")!)
-        let model = LauncherModel(settings: settings, usage: usage, snapshot: CatalogSnapshot(apps: [safari], commands: []), scopes: RootSearch.standardScopes(), sources: [])
+        let model = LauncherModel(settings: settings, usage: usage, snapshot: CatalogSnapshot(apps: [safari], commands: []), scopes: RootSearch.standardScopes { [] }, sources: [])
         // A Mac with no browser, so no row is named after the one on the Mac running the tests.
         model.resolvedApps.lookup = AppLookup(url: { _ in nil }, plainTextApp: { nil }, exists: { _ in false }, bundleIdentifier: { _ in nil })
         return model
@@ -169,7 +169,7 @@ struct TypedLocationSearchProviderTests {
 
     @Test func filesFollowedByAPathIsStillTheFilesScope() {
         let context = SearchContext(query: "files ~/x")
-        let match = RootSearch.scope(in: context, scopes: RootSearch.standardScopes())
+        let match = RootSearch.scope(in: context, scopes: RootSearch.standardScopes { [] })
         #expect(match?.scope.keyword == "files")
         #expect(match?.text == "~/x")
         #expect(provider.contribution(for: context).pinned.isEmpty)

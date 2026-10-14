@@ -103,7 +103,7 @@ struct ProcessesTests {
         #expect(scope.text(in: SearchContext(query: "kill thaw")) == "thaw")
         #expect(scope.text(in: SearchContext(query: "thaw")) == nil)
         #expect(scope.title == "Running Processes")
-        let keywords = RootSearch.standardScopes().map(\.keyword)
+        let keywords = RootSearch.standardScopes { [] }.map(\.keyword)
         #expect(keywords.contains("kill") && keywords.contains("port"))
     }
 

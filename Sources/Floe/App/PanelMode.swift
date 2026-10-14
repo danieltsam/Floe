@@ -15,7 +15,6 @@ enum PanelMode {
     /// Installs forwarding before creating the model, then runs until shutdown or parent EOF.
     static func run() -> Never {
         let channel = PanelChannel(input: .standardInput, output: .standardOutput)
-        ClipboardHistoryStore.remoteMutation = { channel.send($0) }
         UsageStore.shared.forwardUse = { channel.send(.used($0)) }
         UsageStore.shared.forwardQuery = { channel.send(.query($0)) }
         let app = NSApplication.shared
@@ -28,8 +27,10 @@ enum PanelMode {
 }
 
 final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
-    let model = LauncherModel()
+    let model: LauncherModel
     let channel: PanelChannel
+    /// The resident's clipboard history, read again when it says it saved; changes are sent to it.
+    private let clipboard: ClipboardHistoryStore
     private let settings = AppSettings.shared
     private var panel: LauncherPanel?
     private var keyMonitor: Any?
@@ -45,6 +46,8 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
     /// Uses the inherited pipe channel; no public IPC endpoint is opened by the foreground.
     init(channel: PanelChannel) {
         self.channel = channel
+        clipboard = ClipboardHistoryStore(monitorsPasteboard: false, remote: { channel.send($0) })
+        model = LauncherModel(clipboard: clipboard)
     }
 
     /// Wires foreground-only services and state mirrors before announcing readiness.
@@ -139,7 +142,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
             model.runningTimers.mirror(timers)
             model.refresh()
         case .clipboardChanged:
-            ClipboardHistoryStore.shared.reloadMirror()
+            clipboard.reloadMirror()
         default: break
         }
     }

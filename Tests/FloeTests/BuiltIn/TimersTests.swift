@@ -211,9 +211,9 @@ struct TimersTests {
         #expect(scope.results(for: "soup", context: context("timers soup")).map(\.title) == [])
         #expect(scope.results(for: "", context: SearchContext(query: "timers")).map(\.title) == [])
 
-        let match = try #require(RootSearch.scope(in: context("timers"), scopes: RootSearch.standardScopes()))
+        let match = try #require(RootSearch.scope(in: context("timers"), scopes: RootSearch.standardScopes { [] }))
         #expect(match.scope.keyword == "timers")
-        #expect(RootSearch.scope(in: context("timer 5m"), scopes: RootSearch.standardScopes()) == nil)
+        #expect(RootSearch.scope(in: context("timer 5m"), scopes: RootSearch.standardScopes { [] }) == nil)
     }
 
     // MARK: Return

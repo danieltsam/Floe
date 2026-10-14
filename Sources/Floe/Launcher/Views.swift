@@ -32,7 +32,7 @@ struct LauncherView: View {
             } else if model.isSearchingMenuBar {
                 MenuBarSearchView(search: model.menuBarSearch, launcher: model, focusToken: model.focusToken)
             } else if model.isShowingClipboardHistory {
-                ClipboardHistoryView(clipboard: model.clipboardHistory, launcher: model, focusToken: model.focusToken)
+                ClipboardHistoryView(clipboard: model.clipboardHistory, launcher: model, focusToken: model.focusToken, history: model.clipboard)
             } else if model.isSearchingFiles {
                 FileSearchView(search: model.fileSearch, spotlight: model.fileSearch.spotlight, launcher: model, focusToken: model.focusToken)
             } else if let desk = model.noteDesk {

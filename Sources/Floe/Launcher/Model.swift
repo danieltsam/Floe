@@ -63,7 +63,9 @@ final class LauncherModel: ObservableObject {
     /// True while the panel shows the clipboard history instead of the root search.
     @Published var isShowingClipboardHistory = false
     /// The clipboard history view's own state. Not published: its changes redraw its view only.
-    lazy var clipboardHistory = ClipboardHistoryModel(usage: usage)
+    lazy var clipboardHistory = ClipboardHistoryModel(usage: usage) { [unowned self] in clipboard }
+    /// The clipboard history the panel shows. The panel process hands in its mirror of the resident's.
+    let clipboard: ClipboardHistoryStore
     /// The notes of the user's folder, while the panel shows them instead of the root search.
     @Published var noteDesk: NoteDeskModel?
     /// The question on screen and its answer, while the panel shows them instead of the root search.
@@ -117,37 +119,6 @@ final class LauncherModel: ObservableObject {
     private var didAutorun = false
     private var pendingReset: DispatchWorkItem?
     private(set) var isPanelShown = false
-    var commands: [ExtensionCommand] {
-        CommandLookup.enabled(catalog.allCommands, disabledExtensions: settings.disabledExtensions, disabledCommands: settings.disabledCommands, enabledCommands: settings.enabledCommands)
-    }
-
-    /// Every command that may run on its own: a menu-bar command only once it was put in the menu bar.
-    /// Controllers read this and filter by mode.
-    var enabledCommands: [ExtensionCommand] {
-        commands.filter { $0.mode != "menu-bar" || settings.menuBarCommands.contains($0.id) }
-    }
-
-    func isInMenuBar(_ command: ExtensionCommand) -> Bool {
-        settings.menuBarCommands.contains(command.id)
-    }
-
-    /// Gives a menu-bar command its status item, or takes it away again.
-    func toggleMenuBarCommand(_ command: ExtensionCommand) {
-        if settings.menuBarCommands.remove(command.id) != nil {
-            panelHost.showHUD(String(localized: "Removed from Menu Bar", bundle: .floe))
-        } else {
-            settings.menuBarCommands.insert(command.id)
-            panelHost.showHUD(String(localized: "Added to Menu Bar", bundle: .floe))
-        }
-        refresh()
-    }
-
-    /// True when a command can run unattended: no missing required preferences or arguments.
-    func canRunUnattended(_ command: ExtensionCommand) -> Bool {
-        PreferenceStore.missingRequired(for: command).isEmpty
-            && command.arguments.allSatisfy { !$0.required }
-    }
-
     /// Construction never scans: `startCatalogLoading()` fills the catalog after subscribers are wired.
     /// The resident loads commands for hotkeys/background work, but never builds search state.
     init(
@@ -157,10 +128,13 @@ final class LauncherModel: ObservableObject {
         snapshot: CatalogSnapshot? = nil,
         scopes: [any SearchScope]? = nil,
         sources: [any SearchSource]? = nil,
-        isResident: Bool = false
+        isResident: Bool = false,
+        clipboard: ClipboardHistoryStore? = nil
     ) {
         self.isResident = isResident
-        self.scopes = scopes ?? (isResident ? [] : RootSearch.standardScopes())
+        let clipboard = clipboard ?? .detached()
+        self.clipboard = clipboard
+        self.scopes = scopes ?? (isResident ? [] : RootSearch.standardScopes { clipboard.entries })
         self.sources = sources ?? (isResident ? [] : RootSearch.standardSources())
         self.settings = settings
         self.usage = usage

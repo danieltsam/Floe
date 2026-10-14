@@ -126,8 +126,8 @@ struct AppleShortcutSearchTests {
         let contribution = AppleShortcutSearchProvider().contribution(for: context("mail", shortcuts: []))
         #expect(contribution.ranked.isEmpty && contribution.searchOnly.isEmpty && contribution.pinned.isEmpty)
         #expect(contribution.sectioned.isEmpty && contribution.appended.isEmpty)
-        #expect(RootSearch.scope(in: context("shortcuts mail", shortcuts: []), scopes: RootSearch.standardScopes()) == nil, "the word is not a scope then")
-        #expect(RootSearch.scope(in: context("shortcuts ", shortcuts: []), scopes: RootSearch.standardScopes()) == nil)
+        #expect(RootSearch.scope(in: context("shortcuts mail", shortcuts: []), scopes: RootSearch.standardScopes { [] }) == nil, "the word is not a scope then")
+        #expect(RootSearch.scope(in: context("shortcuts ", shortcuts: []), scopes: RootSearch.standardScopes { [] }) == nil)
     }
 
     // MARK: The scope
@@ -135,7 +135,7 @@ struct AppleShortcutSearchTests {
     @Test func theKeywordAndSomeTextShowOnlyTheShortcutsThatMatch() throws {
         let app = AppEntry(name: "Mail", url: URL(fileURLWithPath: "/Fake/Applications/Mail.app"))
         let context = context("shortcuts mail") { $0.apps = [app] }
-        let match = try #require(RootSearch.scope(in: context, scopes: RootSearch.standardScopes()))
+        let match = try #require(RootSearch.scope(in: context, scopes: RootSearch.standardScopes { [] }))
         #expect(match.scope.keyword == "shortcuts")
         #expect(match.scope.title == "Shortcuts")
         #expect(match.scope.emptyTitle == "No shortcuts match")
@@ -148,7 +148,7 @@ struct AppleShortcutSearchTests {
 
     @Test func theKeywordAndASpaceListEveryShortcutInTheToolsOrder() throws {
         let context = context("Shortcuts ")
-        let match = try #require(RootSearch.scope(in: context, scopes: RootSearch.standardScopes()))
+        let match = try #require(RootSearch.scope(in: context, scopes: RootSearch.standardScopes { [] }))
         #expect(match.text.isEmpty)
         #expect(match.scope.results(for: match.text, context: context).map(\.id) == ShortcutSample.all.map(\.id))
     }
@@ -160,8 +160,8 @@ struct AppleShortcutSearchTests {
             $0.settingsPanes = [pane]
             $0.apps = [app]
         }
-        #expect(RootSearch.scope(in: context, scopes: RootSearch.standardScopes()) == nil)
-        #expect(RootSearch.scope(in: self.context("shortcutsfoo bar"), scopes: RootSearch.standardScopes()) == nil)
+        #expect(RootSearch.scope(in: context, scopes: RootSearch.standardScopes { [] }) == nil)
+        #expect(RootSearch.scope(in: self.context("shortcutsfoo bar"), scopes: RootSearch.standardScopes { [] }) == nil)
         let found = ids(RootSearch.results(for: context))
         #expect(found.first == RootItem.app(app).id, "the Shortcuts app is still what the word finds first")
         #expect(found.contains(RootItem.settingsPane(pane).id), "and the pane that has the word among its keywords")
@@ -170,7 +170,7 @@ struct AppleShortcutSearchTests {
     @Test func aQuicklinkThatAnswersToTheWordKeepsIt() {
         let link = Quicklink(name: "Shortcuts Gallery", keyword: "shortcuts", url: "https://example.com/?q={query}")
         let context = context("shortcuts mail") { $0.quicklinks = [link] }
-        #expect(RootSearch.scope(in: context, scopes: RootSearch.standardScopes()) == nil)
+        #expect(RootSearch.scope(in: context, scopes: RootSearch.standardScopes { [] }) == nil)
     }
 
     // MARK: In the launcher

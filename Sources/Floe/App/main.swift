@@ -41,13 +41,14 @@ extension NSView {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    /// Read by the App Intents (see Thaw/FloeIntents.swift), which reach the running model through the delegate.
     let model = LauncherModel(isResident: true)
+    /// The clipboard history, recorded here from launch and mirrored by the panel process.
+    private lazy var clipboard = ClipboardHistoryStore()
     private let hotkeys = HotkeyRegistry()
     private let settings = AppSettings.shared
     /// Settings is a process of its own; this starts it and keeps the two in step.
-    private lazy var settingsLink = LauncherSettingsLink(model: model, hotkeys: hotkeys)
-    private lazy var panelLink = LauncherPanelLink(model: model, settingsLink: settingsLink)
+    private lazy var settingsLink = LauncherSettingsLink(model: model, clipboard: clipboard, hotkeys: hotkeys)
+    private lazy var panelLink = LauncherPanelLink(model: model, clipboard: clipboard, settingsLink: settingsLink)
     private var cancellables = Set<AnyCancellable>()
     private var statusItem: NSStatusItem?
     private var showItem: NSMenuItem?
@@ -124,8 +125,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Takes floe:// links: Thaw's answer about its appearance, and the browser's return once sign-in is back.
         IncomingURLRouter.shared.install()
         TextExpander.shared.start()
-        // Made here so copies are recorded from launch, not from the first time the history is looked at.
-        _ = ClipboardHistoryStore.shared
+        _ = clipboard
         settingsLink.start()
 
         // Welcome and permissions are foreground UI too; none is constructed in the resident.
@@ -197,7 +197,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         backgroundScheduler?.stopAll()
         panelLink.process.terminate()
         settingsLink.terminate()
-        ClipboardHistoryStore.flushShared()
+        clipboard.flush()
         UsageStore.shared.flush()
     }
 
