@@ -34,14 +34,12 @@ final class CatalogStore: ObservableObject {
 
     private let scanner: any CatalogScanning
     private let settings: AppSettings
-    private var appsGeneration = 0
-    private var commandsGeneration = 0
-    private var scriptsGeneration = 0
+    /// Numbers each part's requests, so only the answer to the newest one is published.
+    private var latest: [Part: Int] = [:]
+    /// The parts scanned at least once. The catalog is loading until apps, commands and scripts are.
+    private var loaded: Set<Part> = []
     private var commandsTask: Task<Void, Never>?
     private var scriptsTask: Task<Void, Never>?
-    private var hasLoadedApps = false
-    private var hasLoadedCommands = false
-    private var hasLoadedScripts = false
 
     /// With a snapshot the catalog is complete at once, for tests and the modes that draw one state and exit.
     init(scanner: any CatalogScanning = CatalogLoader(), settings: AppSettings = .shared, snapshot: CatalogSnapshot? = nil) {
@@ -54,9 +52,7 @@ final class CatalogStore: ObservableObject {
         scriptFailures = snapshot.scriptFailures
         settingsPanes = snapshot.settingsPanes
         sshHosts = snapshot.sshHosts
-        hasLoadedApps = true
-        hasLoadedCommands = true
-        hasLoadedScripts = true
+        loaded = [.apps, .commands, .scripts]
         isLoading = false
     }
 
@@ -67,9 +63,7 @@ final class CatalogStore: ObservableObject {
     }
 
     func reloadApps() {
-        appsGeneration += 1
-        let generation = appsGeneration
-        isLoading = true
+        let generation = begin(.apps)
         Task { @concurrent [weak self, scanner] in
             let apps = await scanner.scanApps()
             await self?.finish(generation: generation, apps: apps)
@@ -77,11 +71,9 @@ final class CatalogStore: ObservableObject {
     }
 
     func reloadCommands() {
-        commandsGeneration += 1
-        let generation = commandsGeneration
+        let generation = begin(.commands)
         // Read once, here: the worker never sees the mutable settings object.
         let includeRaycast = settings.includeRaycastExtensions
-        isLoading = true
         commandsTask = Task { @concurrent [weak self, scanner] in
             let commands = await scanner.scanCommands(includeRaycast: includeRaycast)
             await self?.finish(generation: generation, commands: commands)
@@ -89,9 +81,7 @@ final class CatalogStore: ObservableObject {
     }
 
     func reloadScripts() {
-        scriptsGeneration += 1
-        let generation = scriptsGeneration
-        isLoading = true
+        let generation = begin(.scripts)
         scriptsTask = Task { @concurrent [weak self, scanner] in
             let scan = await scanner.scanScripts()
             await self?.finish(generation: generation, scripts: scan)
@@ -134,9 +124,8 @@ final class CatalogStore: ObservableObject {
 
     @MainActor
     private func finish(generation: Int, apps newApps: [AppEntry]) {
-        guard generation == appsGeneration else { return }
-        hasLoadedApps = true
-        updateLoading()
+        guard isLatest(generation, of: .apps) else { return }
+        markLoaded(.apps)
         apps = newApps
         Log.catalog.info("Applications scanned: \(newApps.count)")
         onChange(.apps)
@@ -144,10 +133,9 @@ final class CatalogStore: ObservableObject {
 
     @MainActor
     private func finish(generation: Int, commands newCommands: [ExtensionCommand]) {
-        guard generation == commandsGeneration else { return }
+        guard isLatest(generation, of: .commands) else { return }
         commandsTask = nil
-        hasLoadedCommands = true
-        updateLoading()
+        markLoaded(.commands)
         allCommands = newCommands
         Log.catalog.info("Extension commands scanned: \(newCommands.count)")
         onChange(.commands)
@@ -155,12 +143,11 @@ final class CatalogStore: ObservableObject {
 
     @MainActor
     private func finish(generation: Int, scripts scan: ScriptScan) {
-        guard generation == scriptsGeneration else { return }
+        guard isLatest(generation, of: .scripts) else { return }
         scriptsTask = nil
         // The folder is scanned each time the panel opens and is nearly always the same: then nothing changes.
-        let isSame = hasLoadedScripts && scan.commands == allScripts && scan.failures == scriptFailures
-        hasLoadedScripts = true
-        updateLoading()
+        let isSame = loaded.contains(.scripts) && scan.commands == allScripts && scan.failures == scriptFailures
+        markLoaded(.scripts)
         guard !isSame else { return }
         allScripts = scan.commands
         scriptFailures = scan.failures
@@ -180,8 +167,20 @@ final class CatalogStore: ObservableObject {
         onChange(.sshHosts)
     }
 
-    private func updateLoading() {
-        let loading = !hasLoadedApps || !hasLoadedCommands || !hasLoadedScripts
+    /// Starts a request for a part: the catalog is loading until it answers.
+    private func begin(_ part: Part) -> Int {
+        latest[part, default: 0] += 1
+        isLoading = true
+        return latest[part, default: 0]
+    }
+
+    private func isLatest(_ generation: Int, of part: Part) -> Bool {
+        generation == latest[part]
+    }
+
+    private func markLoaded(_ part: Part) {
+        loaded.insert(part)
+        let loading = !loaded.isSuperset(of: [.apps, .commands, .scripts])
         if loading != isLoading {
             isLoading = loading
         }
