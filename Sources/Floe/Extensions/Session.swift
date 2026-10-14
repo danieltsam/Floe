@@ -161,7 +161,7 @@ final class ExtensionSession: ObservableObject {
             // The last good tree stays on show until the whole one arrives.
             send(["type": "fullRender"])
         case let .fields(message):
-            apply(message)
+            resetsField(message) ? () : apply(message)
         }
     }
 
@@ -359,6 +359,13 @@ final class ExtensionSession: ObservableObject {
 // MARK: Forms and selection
 
 extension ExtensionSession {
+    /// A field's reset(): what was typed goes, and the field shows its default again. Answers whether the message was one.
+    func resetsField(_ fields: [String: Any]) -> Bool {
+        guard fields["type"] as? String == "resetField" else { return false }
+        (fields["id"] as? String).map { formValues[$0] = nil }
+        return true
+    }
+
     func formValue(_ field: Node) -> Any? {
         ViewState.formValue(field, typed: formValues)
     }

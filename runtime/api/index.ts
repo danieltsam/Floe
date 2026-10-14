@@ -9,7 +9,7 @@
 // everything else either runs locally in Bun or is forwarded to the Swift app over the bridge.
 import fs from "node:fs";
 import path from "node:path";
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { ctx, request, send, setPopHandler, setPopToRootHandler } from "../bridge";
 import { flushCaches } from "../cache";
 import { createLocalStorage, storagePersistence } from "../local-storage";
@@ -141,15 +141,33 @@ export const Grid = Object.assign(host("Grid", ["actions", "searchBarAccessory"]
 
 export const Detail = Object.assign(host("Detail", ["actions", "metadata"]), { Metadata: metadata("Detail") });
 
+// A field's ref answers focus() and reset(), as Raycast's does. @raycast/utils' useForm focuses the first invalid
+// field before it sets the errors, so a ref that is the bare node throws and the errors never show.
+function field(type: string) {
+  const component = ({ ref, ...props }: Props) => {
+    useImperativeHandle(
+      ref,
+      () => ({
+        focus: () => send({ type: "focusField", id: props.id }),
+        reset: () => send({ type: "resetField", id: props.id }),
+      }),
+      [props.id],
+    );
+    return h(type, props);
+  };
+  component.displayName = type;
+  return component as any;
+}
+
 export const Form = Object.assign(host("Form", ["actions", "searchBarAccessory"]), {
-  TextField: host("Form.TextField"),
-  PasswordField: host("Form.PasswordField"),
-  TextArea: host("Form.TextArea"),
-  Checkbox: host("Form.Checkbox"),
-  DatePicker: Object.assign(host("Form.DatePicker"), { Type: { Date: "date", DateTime: "dateTime" } }),
-  Dropdown: Object.assign(host("Form.Dropdown"), { Item: host("Dropdown.Item"), Section: host("Dropdown.Section") }),
-  TagPicker: Object.assign(host("Form.TagPicker"), { Item: host("Form.TagPicker.Item") }),
-  FilePicker: host("Form.FilePicker"),
+  TextField: field("Form.TextField"),
+  PasswordField: field("Form.PasswordField"),
+  TextArea: field("Form.TextArea"),
+  Checkbox: field("Form.Checkbox"),
+  DatePicker: Object.assign(field("Form.DatePicker"), { Type: { Date: "date", DateTime: "dateTime" } }),
+  Dropdown: Object.assign(field("Form.Dropdown"), { Item: host("Dropdown.Item"), Section: host("Dropdown.Section") }),
+  TagPicker: Object.assign(field("Form.TagPicker"), { Item: host("Form.TagPicker.Item") }),
+  FilePicker: field("Form.FilePicker"),
   Description: host("Form.Description"),
   Separator: host("Form.Separator"),
   LinkAccessory: host("Form.LinkAccessory"),
