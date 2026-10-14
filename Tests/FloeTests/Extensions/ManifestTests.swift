@@ -65,6 +65,13 @@ struct FieldSpecTests {
         #expect(Fixture.field(["name": "x", "default": ["nested": 1]])?.defaultValue == nil)
     }
 
+    @Test func aDefaultGivenPerPlatformTakesTheMacsValue() {
+        let bin = Fixture.field(["name": "bin", "default": ["macOS": "/usr/local/bin", "Windows": "%LOCALAPPDATA%\\JetBrains"]])
+        #expect(bin?.defaultValue as? String == "/usr/local/bin")
+        #expect(Fixture.field(["name": "x", "type": "checkbox", "default": ["macOS": true, "Windows": false]])?.defaultValue as? Bool == true)
+        #expect(Fixture.field(["name": "x", "default": ["Windows": "C:\\Tools"]])?.defaultValue == nil, "a default for other platforms only is none here")
+    }
+
     @Test func argumentsUseTheirPlaceholderAsTitle() throws {
         let field = try #require(Fixture.field(["name": "text", "placeholder": "Text"]))
         #expect(field.title == "Text")

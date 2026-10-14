@@ -74,12 +74,22 @@ nonisolated struct FieldSpec: Identifiable, Decodable, Sendable {
         self.label = try container.decodeIfPresent(String.self, forKey: .label)
         self.options = try (container.decodeIfPresent(Lossy<Option>.self, forKey: .options)?.elements ?? [])
             .map { ($0.title ?? $0.value, $0.value) }
-        // A default is a string or, for a checkbox, a boolean; the scalar order here is the
-        // precedence, so a whole number stays an Int and only genuine fractions become Double.
-        storedDefault = (try? container.decode(Bool.self, forKey: .defaultValue)).map(DefaultValue.bool)
-            ?? (try? container.decode(String.self, forKey: .defaultValue)).map(DefaultValue.string)
-            ?? (try? container.decode(Int.self, forKey: .defaultValue)).map(DefaultValue.int)
-            ?? (try? container.decode(Double.self, forKey: .defaultValue)).map(DefaultValue.double)
+        // A default given per platform is an object keyed by platform, and the Mac's value is the one taken.
+        storedDefault = Self.scalar(in: container, forKey: .defaultValue)
+            ?? (try? container.nestedContainer(keyedBy: PlatformKeys.self, forKey: .defaultValue)).flatMap { Self.scalar(in: $0, forKey: .macOS) }
+    }
+
+    private enum PlatformKeys: String, CodingKey {
+        case macOS
+    }
+
+    /// A default is a string or, for a checkbox, a boolean; the scalar order here is the
+    /// precedence, so a whole number stays an Int and only genuine fractions become Double.
+    private static func scalar<Key: CodingKey>(in container: KeyedDecodingContainer<Key>, forKey key: Key) -> DefaultValue? {
+        (try? container.decode(Bool.self, forKey: key)).map(DefaultValue.bool)
+            ?? (try? container.decode(String.self, forKey: key)).map(DefaultValue.string)
+            ?? (try? container.decode(Int.self, forKey: key)).map(DefaultValue.int)
+            ?? (try? container.decode(Double.self, forKey: key)).map(DefaultValue.double)
     }
 }
 
