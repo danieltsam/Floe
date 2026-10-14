@@ -36,13 +36,13 @@ nonisolated enum ScreenTools {
     /// The system's eyedropper. Nil when Escape ends it.
     @MainActor
     static func pickColor() async -> NSColor? {
-        // The sampler lives as long as its closure does, which is until it answers.
         let sampler = NSColorSampler()
-        return await withCheckedContinuation { continuation in
-            sampler.show { color in
-                withExtendedLifetime(sampler) { continuation.resume(returning: color) }
-            }
+        let color = await withCheckedContinuation { continuation in
+            sampler.show { continuation.resume(returning: $0) }
         }
+        // The sampler is kept until it has answered.
+        withExtendedLifetime(sampler) {}
+        return color
     }
 
     // MARK: Reading

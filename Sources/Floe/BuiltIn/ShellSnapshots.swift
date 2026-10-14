@@ -151,7 +151,7 @@ nonisolated final class ShellSnapshots: Sendable {
     }
 
     private func endEntryRead(_ folder: String) {
-        entryReads.withLock { $0.remove(folder) }
+        _ = entryReads.withLock { $0.remove(folder) }
     }
 
     /// Puts a finished read where it belongs, unless a newer ask superseded it. Freshness is renewed

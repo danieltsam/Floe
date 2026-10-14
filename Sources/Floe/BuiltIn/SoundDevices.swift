@@ -6,6 +6,7 @@
 //  Licensed under the GNU AGPLv3
 
 import Algorithms
+import CoreAudio
 import Foundation
 
 /// A sound device in the search, with whether sound goes through it now.
