@@ -85,6 +85,8 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
         case store([String: Data])
         case remove([String])
         case save
+        /// A save once the worker takes it, holding the newest list.
+        case write([ClipboardEntry])
         case signal(DispatchSemaphore)
     }
 
@@ -92,14 +94,21 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
     private struct Queue {
         var jobs: [Job] = []
         var imageBytes = 0
+        /// The newest list waiting to be written; a burst of changes becomes one write.
+        var unsaved: [ClipboardEntry]?
 
         mutating func next() -> Job? {
             guard !jobs.isEmpty else { return nil }
-            let job = jobs.removeFirst()
-            if case let .prepare(capture, _) = job {
+            switch jobs.removeFirst() {
+            case let .prepare(capture, epoch):
                 imageBytes -= capture.imageBytes
+                return .prepare(capture, epoch: epoch)
+            case .save:
+                // Taken with its job, so a list changed from here on is written by a save queued after it.
+                return unsaved.take().map(Job.write) ?? .save
+            case let job:
+                return job
             }
-            return job
         }
 
         /// Over budget, the oldest waiting images go and the newest copy always stays, even alone over it.
@@ -128,8 +137,6 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
     private final class Shared: Sendable {
         let queue = Mutex(Queue())
         let events = Mutex<[Event]>([])
-        /// The newest list waiting to be written; a burst of changes becomes one write.
-        let unsaved = Mutex<[ClipboardEntry]?>(nil)
     }
 
     private let files: ClipboardFiles
@@ -167,7 +174,7 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
             for await _ in ticks {
                 while let job = shared.queue.withLock({ $0.next() }) {
                     // The pool frees what decoding an image leaves behind before the next job starts.
-                    let events = autoreleasepool { Self.run(job, files: files, storedPNG: storedPNG, shared: shared) }
+                    let events = autoreleasepool { Self.run(job, files: files, storedPNG: storedPNG) }
                     guard !events.isEmpty else { continue }
                     shared.events.withLock { $0 += events }
                     wake.yield()
@@ -182,8 +189,21 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
         tick.yield()
     }
 
+    /// Reads the saved list, once for any number of asks still waiting.
     func load() {
-        enqueue(.load)
+        shared.queue.withLock { queue in
+            let waiting = queue.jobs.firstIndex { job in
+                if case .load = job {
+                    true
+                } else {
+                    false
+                }
+            }
+            if waiting == nil {
+                queue.jobs.append(.load)
+            }
+        }
+        tick.yield()
     }
 
     /// Queues a copy, making room for it first: this never waits for the worker.
@@ -237,13 +257,13 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
     }
 
     func save(_ entries: [ClipboardEntry]) {
-        let alreadyQueued = shared.unsaved.withLock { unsaved in
-            defer { unsaved = entries }
-            return unsaved != nil
+        shared.queue.withLock { queue in
+            if queue.unsaved == nil {
+                queue.jobs.append(.save)
+            }
+            queue.unsaved = entries
         }
-        if !alreadyQueued {
-            enqueue(.save)
-        }
+        tick.yield()
     }
 
     /// Blocks until every job asked for so far has run, or the time is up.
@@ -262,7 +282,7 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
 
     // MARK: Jobs
 
-    private static func run(_ job: Job, files: ClipboardFiles, storedPNG: (Data) -> Data?, shared: Shared) -> [Event] {
+    private static func run(_ job: Job, files: ClipboardFiles, storedPNG: (Data) -> Data?) -> [Event] {
         switch job {
         case .load:
             return [load(files)]
@@ -276,8 +296,8 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
         case let .remove(names):
             names.forEach(files.remove)
             return []
-        case .save:
-            guard let entries = shared.unsaved.withLock({ $0.take() }), let data = try? JSONEncoder().encode(entries) else { return [] }
+        case let .write(entries):
+            guard let data = try? JSONEncoder().encode(entries) else { return [] }
             do {
                 try files.write(data, ClipboardFiles.historyName, true)
             } catch {
@@ -287,6 +307,9 @@ final nonisolated class ClipboardHistoryWorker: Sendable {
             return [.saved(bytes: data.count)]
         case let .signal(done):
             done.signal()
+            return []
+        case .save:
+            // Queue.next turns a save into a write; one whose list was taken already writes nothing.
             return []
         }
     }
