@@ -139,6 +139,7 @@ nonisolated enum Translate {
                 symbol: "arrow.down.circle"
             )
             row.link = settingsLink
+            row.linkTitle = String(localized: "Open System Settings", bundle: .floe)
             return row
         case .unknownLanguage:
             return AnswerRow(

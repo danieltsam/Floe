@@ -77,6 +77,10 @@ struct TranslateTests {
         let missing = try #require(Translate.row(for: .notDownloaded(from: Self.spanish, to: Self.german), locale: englishLocale))
         #expect(missing.text == "Spanish to German is not downloaded")
         #expect(missing.link == Translate.settingsLink)
+        #expect(LauncherModel.laterTitle(for: .answer(missing)) == "Open System Settings")
+        var elsewhere = missing
+        elsewhere.linkTitle = nil
+        #expect(LauncherModel.laterTitle(for: .answer(elsewhere)) == "Open", "a link with no title of its own is just opened")
         #expect(missing.kind == "Apple Translation")
 
         #expect(Translate.row(for: .alreadyIn(Self.english), locale: englishLocale)?.text == "This is already English")

@@ -31,7 +31,7 @@ extension LauncherModel {
             return String(localized: "Open in Dictionary", bundle: .floe, comment: "Dictionary is the name of Apple's app.")
         }
         if case let .answer(row) = item {
-            return row.link == nil ? String(localized: "Copy to Clipboard", bundle: .floe) : String(localized: "Open System Settings", bundle: .floe)
+            return row.link == nil ? String(localized: "Copy to Clipboard", bundle: .floe) : row.linkTitle ?? String(localized: "Open", bundle: .floe, comment: "A verb on a button: open the selected result.")
         }
         return keywordRowTitle(for: item) ?? draftTitle(for: item)
     }

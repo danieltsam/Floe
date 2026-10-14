@@ -33,6 +33,12 @@ struct SearchProviderTests {
 
     // MARK: The context
 
+    @Test func aKeywordAloneIsFoundInAnyCase() {
+        #expect(SearchContext(query: "MAPS").text(afterOrAlone: "Maps") == "")
+        #expect(SearchContext(query: "maps lisbon").text(afterOrAlone: "Maps") == "lisbon")
+        #expect(SearchContext(query: "mapsx").text(afterOrAlone: "Maps") == nil)
+    }
+
     @Test func theContextKeepsTheQueryAsTypedBesideItsTrimmedForm() {
         let context = SearchContext(query: "  gh floe \n")
         #expect(context.query == "  gh floe \n")
