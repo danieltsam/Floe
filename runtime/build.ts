@@ -113,6 +113,15 @@ function buildUnchecked(entry: string, outdir: string, format: (typeof formats)[
             path: require.resolve(args.path),
             external: true,
           }));
+          // An imported .wasm file is its compiled module, which is what extensions hand to WebAssembly.instantiate.
+          // Bun would give the file's name. "?module" is the same import as other bundlers want it spelled.
+          build.onResolve({ filter: /\.wasm\?module$/ }, (args) => ({
+            path: Bun.resolveSync(args.path.slice(0, -"?module".length), path.dirname(args.importer)),
+          }));
+          build.onLoad({ filter: /\.wasm$/ }, (args) => ({
+            loader: "js",
+            contents: `import { readFileSync } from "node:fs";\nexport default new WebAssembly.Module(readFileSync(${JSON.stringify(args.path)}));`,
+          }));
         },
       },
     ],

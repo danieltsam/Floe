@@ -217,6 +217,29 @@ describe("bundle", () => {
     expect(command()).toBe(7);
   });
 
+  // An extension imports a .wasm file and instantiates what it gets; some spell the import "?module".
+  // Bun alone gives the file's name for the first and cannot resolve the second.
+  test("an imported .wasm file is its compiled module, with or without ?module", async () => {
+    const extDir = makeExtension(
+      {
+        "src/count.ts": `import plain from "wpkg/answer.wasm";
+import marked from "wpkg/answer.wasm?module";
+export default async () => {
+  const instance = (await WebAssembly.instantiate(plain, {})) as unknown as WebAssembly.Instance;
+  return { plain: plain instanceof WebAssembly.Module, marked: marked instanceof WebAssembly.Module, answer: (instance.exports.answer as () => number)() };
+};`,
+        "node_modules/wpkg/package.json": '{ "name": "wpkg", "version": "1.0.0" }',
+      },
+      "count",
+    );
+    // A module that exports answer(), which returns 42.
+    const wasm = "0061736d010000000105016000017f03020100070a0106616e7377657200000a06010400412a0b";
+    fs.writeFileSync(path.join(extDir, "node_modules/wpkg/answer.wasm"), Buffer.from(wasm, "hex"));
+    const command = (await import(await bundle(findEntry()))).default;
+
+    expect(await command()).toEqual({ plain: true, marked: true, answer: 42 });
+  });
+
   // A bundle cached from before was built as an ES module, and one of those fails only when it is imported.
   test("builds again over a bundle cached from before commands were built as CommonJS", async () => {
     makeExtension({ "src/older.ts": "export default () => 1;" }, "older");
