@@ -34,13 +34,13 @@ extension LauncherModel {
         context.notesApp = settings.notesApp
         context.frecency = { [usage] in usage.frecency(of: $0) }
         context.commands = commands
-        context.scripts = allScripts
-        context.apps = apps
+        context.scripts = catalog.allScripts
+        context.apps = catalog.apps
         context.thawActions = Thaw.actions()
         context.preferredApps = resolvedApps.apps
         context.clipboardDestination = clipboardDestination
-        context.settingsPanes = settingsPanes
-        context.sshHosts = sshHosts
+        context.settingsPanes = catalog.settingsPanes
+        context.sshHosts = catalog.sshHosts
         context.shortcuts = shortcutsForSearch
         context.snippets = SnippetStore.shared.snippets
         context.quicklinks = QuicklinkStore.shared.links

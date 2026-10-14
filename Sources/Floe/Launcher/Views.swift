@@ -126,9 +126,9 @@ struct RootView: View {
     var body: some View {
         let results = model.results
         PanelSections(showsContent: !isCollapsed) {
-            SearchBar(placeholder: String(localized: "Search apps and commands…", bundle: .floe), text: $model.query, focusToken: model.focusToken, isLoading: model.isLoadingCatalog || model.isAwaitingResults) { EmptyView() }
+            SearchBar(placeholder: String(localized: "Search apps and commands…", bundle: .floe), text: $model.query, focusToken: model.focusToken, isLoading: model.catalog.isLoading || model.isAwaitingResults) { EmptyView() }
         } content: {
-            if results.isEmpty, !model.isLoadingCatalog, !model.isAwaitingResults {
+            if results.isEmpty, !model.catalog.isLoading, !model.isAwaitingResults {
                 ThawEmptyState(
                     systemImage: "magnifyingglass",
                     title: .verbatim(model.activeScope?.scope.emptyTitle ?? String(localized: "Nothing matches", bundle: .floe)),

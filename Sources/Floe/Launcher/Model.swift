@@ -136,7 +136,7 @@ final class LauncherModel: ObservableObject {
     /// Watches the open command's extension while it is one being developed (see HotReload.swift).
     private var sourceWatcher: DirectoryWatcher?
     var commands: [ExtensionCommand] {
-        CommandLookup.enabled(allCommands, disabledExtensions: settings.disabledExtensions, disabledCommands: settings.disabledCommands, enabledCommands: settings.enabledCommands)
+        CommandLookup.enabled(catalog.allCommands, disabledExtensions: settings.disabledExtensions, disabledCommands: settings.disabledCommands, enabledCommands: settings.enabledCommands)
     }
 
     /// Every command that may run on its own: a menu-bar command only once it was put in the menu bar.
@@ -711,6 +711,6 @@ final class LauncherModel: ObservableObject {
             return URL(fileURLWithPath: application)
         }
         return NSWorkspace.shared.urlForApplication(withBundleIdentifier: application)
-            ?? apps.first { $0.name.caseInsensitiveCompare(application) == .orderedSame }?.url
+            ?? catalog.apps.first { $0.name.caseInsensitiveCompare(application) == .orderedSame }?.url
     }
 }

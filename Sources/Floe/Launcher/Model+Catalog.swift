@@ -8,34 +8,6 @@
 import Foundation
 
 extension LauncherModel {
-    var apps: [AppEntry] {
-        catalog.apps
-    }
-
-    var allCommands: [ExtensionCommand] {
-        catalog.allCommands
-    }
-
-    var allScripts: [ScriptCommand] {
-        catalog.allScripts
-    }
-
-    var scriptFailures: [ScriptFailure] {
-        catalog.scriptFailures
-    }
-
-    var settingsPanes: [SystemSettingsPane] {
-        catalog.settingsPanes
-    }
-
-    var sshHosts: [SSHHost] {
-        catalog.sshHosts
-    }
-
-    var isLoadingCatalog: Bool {
-        catalog.isLoading
-    }
-
     /// Starts the first scans. Called after the panel and its subscriptions exist, so what they publish is heard.
     /// The resident loads what hotkeys and background work need, never what only the search reads.
     func startCatalogLoading() {

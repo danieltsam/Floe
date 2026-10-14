@@ -147,7 +147,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             _ = hotkeys.register(toggleHotkey) { [weak self] in self?.toggle() }
         }
         showItem?.title = settings.toggleHotkey.map { String(localized: "Show Floe (\($0.displayValue))", bundle: .floe, comment: "A menu item. The placeholder is a keyboard shortcut such as ⌥Space.") } ?? String(localized: "Show Floe", bundle: .floe)
-        for command in model.allCommands {
+        for command in model.catalog.allCommands {
             guard let keyCombination = settings.commandHotkeys[command.id] else { continue }
             _ = hotkeys.register(keyCombination) { [weak self] in
                 guard let self, settings.isEnabled(command) else { return }
@@ -155,7 +155,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 model.run(command)
             }
         }
-        for script in model.allScripts {
+        for script in model.catalog.allScripts {
             guard let keyCombination = settings.commandHotkeys[script.id] else { continue }
             _ = hotkeys.register(keyCombination) { [weak self] in
                 self?.panelLink.process.request(.script(script.id))
@@ -164,7 +164,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         for (item, keyCombination) in LauncherModel.assigned(settings.commandHotkeys) {
             _ = hotkeys.register(keyCombination) { [weak self] in self?.model.runFromHotkey(item) }
         }
-        for app in model.apps {
+        for app in model.catalog.apps {
             guard let key = RootItem.app(app).settingsKey, let keyCombination = settings.commandHotkeys[key] else { continue }
             _ = hotkeys.register(keyCombination) { [weak self] in self?.model.toggleApp(app) }
         }

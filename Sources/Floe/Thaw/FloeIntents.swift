@@ -121,7 +121,7 @@ struct CommandEntityQuery: EntityStringQuery {
         guard let model = floeModel() else { return [] }
         await model.catalog.waitForCommands()
         let settings = AppSettings.shared
-        return CommandLookup.enabled(model.allCommands, disabledExtensions: settings.disabledExtensions, disabledCommands: settings.disabledCommands, enabledCommands: settings.enabledCommands)
+        return CommandLookup.enabled(model.catalog.allCommands, disabledExtensions: settings.disabledExtensions, disabledCommands: settings.disabledCommands, enabledCommands: settings.enabledCommands)
     }
 
     func entities(for identifiers: [String]) async throws -> [CommandEntity] {

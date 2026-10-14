@@ -19,7 +19,7 @@ final class LauncherSettingsLink {
     private var recording = RemoteRecording()
     private lazy var sync = SettingsSyncService(settings: settings, extensions: extensionSync)
     private lazy var extensionSync = ExtensionSettingsSync(
-        access: .stored(includes: { [settings] in settings.syncsExtensionSettings }, commands: { [model] in model.allCommands }),
+        access: .stored(includes: { [settings] in settings.syncsExtensionSettings }, commands: { [model] in model.catalog.allCommands }),
         storage: .file(Paths.support.appendingPathComponent("ExtensionSync.json"))
     )
     private var cancellables = Set<AnyCancellable>()

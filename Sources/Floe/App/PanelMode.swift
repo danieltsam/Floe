@@ -179,7 +179,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
         case let .script(id):
             PanelWork.perform { [model] in
                 await model.catalog.waitForScripts()
-                if let script = model.allScripts.first(where: { $0.id == id }) {
+                if let script = model.catalog.allScripts.first(where: { $0.id == id }) {
                     model.run(script)
                 }
             }
