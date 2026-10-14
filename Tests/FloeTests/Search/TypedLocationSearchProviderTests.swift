@@ -45,7 +45,7 @@ struct TypedLocationSearchProviderTests {
         let settings = AppSettings(defaults: UserDefaults(suiteName: "floe-typed-location-\(UUID().uuidString)")!)
         let model = LauncherModel(settings: settings, usage: usage, snapshot: CatalogSnapshot(apps: [safari], commands: []), scopes: RootSearch.standardScopes(), sources: [])
         // A Mac with no browser, so no row is named after the one on the Mac running the tests.
-        model.appLookup = AppLookup(url: { _ in nil }, plainTextApp: { nil }, exists: { _ in false }, bundleIdentifier: { _ in nil })
+        model.resolvedApps.lookup = AppLookup(url: { _ in nil }, plainTextApp: { nil }, exists: { _ in false }, bundleIdentifier: { _ in nil })
         return model
     }
 

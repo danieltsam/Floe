@@ -16,7 +16,7 @@ extension LauncherModel {
                 self?.hidePanel()
                 self?.reset()
             },
-            preferredApps: preferredApps,
+            preferredApps: resolvedApps.apps,
             record: { [weak self] in self?.record($0) }
         )
     }

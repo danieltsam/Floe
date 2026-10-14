@@ -64,7 +64,7 @@ enum LinkActions {
 
 extension LauncherModel {
     private var browserMenu: BrowserMenu {
-        BrowserMenu(choice: settings.browserApp, installed: appLookup)
+        BrowserMenu(choice: settings.browserApp, installed: resolvedApps.lookup)
     }
 
     var openInBrowserTitle: String {
@@ -73,7 +73,7 @@ extension LauncherModel {
 
     /// Opens a link of the user's: a web page in the role's browser, anything else through the system.
     func openLink(_ url: URL) {
-        if let message = Browsers.open(url, choice: settings.browserApp, installed: appLookup, opener: linkOpener) {
+        if let message = Browsers.open(url, choice: settings.browserApp, installed: resolvedApps.lookup, opener: linkOpener) {
             showHUD(message)
         }
     }

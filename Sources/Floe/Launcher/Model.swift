@@ -107,44 +107,11 @@ final class LauncherModel: ObservableObject {
 
     let settings: AppSettings
     let isResident: Bool
-    /// How the terminal and the editor are looked up. Tests replace it, so they do not read this Mac's apps;
-    /// replacing it also drops what the roles resolved to, the way a changed choice does.
-    var appLookup = AppLookup.system {
-        didSet { invalidateResolvedApps() }
-    }
-
-    /// What `preferredApps` and `resolvedClipboardDestination` resolved last. Both reach LaunchServices,
-    /// which no keystroke should: the search reads them resolved once, until `invalidateResolvedApps()`.
-    private var cachedPreferredApps: [RoleApp]?
-    private var cachedClipboardDestination: ClipboardDestination?
+    /// The apps the roles resolve to, kept until something they depend on changes.
+    let resolvedApps: ResolvedApps
     private var cancellables: Set<AnyCancellable> = []
     var clipboardOpener = ClipboardOpener.system
     var linkOpener = LinkOpener.system
-    var preferredApps: [RoleApp] {
-        if let cached = cachedPreferredApps {
-            return cached
-        }
-        let resolved = PreferredApps.apps(choice: settings.appChoice, installed: appLookup)
-        cachedPreferredApps = resolved
-        return resolved
-    }
-
-    /// Where the Clipboard History command goes, resolved the same once-per-change way as `preferredApps`.
-    var resolvedClipboardDestination: ClipboardDestination {
-        if let cached = cachedClipboardDestination {
-            return cached
-        }
-        let resolved = settings.clipboardDestination(installed: appLookup)
-        cachedClipboardDestination = resolved
-        return resolved
-    }
-
-    /// Drops what the roles resolved to: a choice changed, an app folder did, or a test put its own lookup in.
-    func invalidateResolvedApps() {
-        cachedPreferredApps = nil
-        cachedClipboardDestination = nil
-    }
-
     let usage: UsageStore
     /// What the shell rows reach outside the launcher through. Tests replace its parts.
     var shell = ShellEnvironment()
@@ -216,6 +183,7 @@ final class LauncherModel: ObservableObject {
         self.settings = settings
         self.usage = usage
         catalog = CatalogStore(scanner: scanner, settings: settings, snapshot: snapshot)
+        resolvedApps = ResolvedApps(settings: settings)
         catalog.onChange = { [weak self] in self?.catalogChanged($0) }
         guard !isResident else { return }
         connectModes()
@@ -225,15 +193,7 @@ final class LauncherModel: ObservableObject {
             .store(in: &cancellables)
         EmojiCatalog.preload()
         CalendarAgenda.shared.onChange = { [weak self] in self?.refresh() }
-        // The roles' apps and the clipboard destination are cached for the search (see `preferredApps`);
-        // a change to one of the choices drops the cache, and so does an app folder that changed (see `finishApps`).
-        for drop in [
-            settings.$terminalApp.mapVoid(), settings.$editorApp.mapVoid(), settings.$browserApp.mapVoid(),
-            settings.$clipboardHandler.mapVoid(), settings.$clipboardApp.mapVoid(), settings.$clipboardURL.mapVoid(),
-        ] {
-            drop.sink { [weak self] _ in self?.invalidateResolvedApps() }
-                .store(in: &cancellables)
-        }
+        resolvedApps.followChoices()
         refresh()
     }
 
@@ -752,12 +712,5 @@ final class LauncherModel: ObservableObject {
         }
         return NSWorkspace.shared.urlForApplication(withBundleIdentifier: application)
             ?? apps.first { $0.name.caseInsensitiveCompare(application) == .orderedSame }?.url
-    }
-}
-
-private extension Published.Publisher {
-    /// The changes only, not the value: what a cache drop listens for.
-    func mapVoid() -> AnyPublisher<Void, Never> {
-        map { _ in () }.eraseToAnyPublisher()
     }
 }

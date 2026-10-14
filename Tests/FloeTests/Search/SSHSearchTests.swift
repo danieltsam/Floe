@@ -70,7 +70,7 @@ struct SSHSearchTests {
         let settings = AppSettings(defaults: scratch.defaults, savesAfterEdits: false)
         let snapshot = CatalogSnapshot(apps: apps, commands: [], sshHosts: hosts)
         let model = LauncherModel(scanner: scanner ?? HostScanner(hosts), settings: settings, usage: UsageStore(defaults: scratch.defaults), snapshot: snapshot, sources: [])
-        model.appLookup = AppLookup(
+        model.resolvedApps.lookup = AppLookup(
             url: { $0 == AppRole.systemTerminal ? Fake.terminal : nil },
             plainTextApp: { nil },
             exists: { _ in false },

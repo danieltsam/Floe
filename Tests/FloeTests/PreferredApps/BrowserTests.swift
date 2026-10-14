@@ -61,7 +61,7 @@ struct BrowserTests {
     /// A model on scratch settings whose lookups, opener, HUD and panel are the test's own.
     private func makeModel(_ lookup: AppLookup = Fake.mac()) -> LauncherModel {
         let model = LauncherModel(settings: settings, usage: UsageStore(defaults: scratch.defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
-        model.appLookup = lookup
+        model.resolvedApps.lookup = lookup
         model.linkOpener = opened.opener
         model.showHUD = { [opened] in opened.hud.append($0) }
         model.hidePanel = { [opened] in opened.hides += 1 }

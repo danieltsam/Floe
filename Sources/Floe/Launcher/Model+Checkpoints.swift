@@ -64,7 +64,7 @@ extension LauncherModel {
         reset()
         let missing = checkpoint.missing()
         // Only an editor the user chose: the role's stand-in is the app text files open in anyway.
-        let editor = PreferredApps.chosenApp(settings.appChoice(for: .editor), installed: appLookup)
+        let editor = PreferredApps.chosenApp(settings.appChoice(for: .editor), installed: resolvedApps.lookup)
         for item in checkpoint.items where !missing.contains(item) {
             switch item.kind {
             case .file: open(URL(fileURLWithPath: item.value), editor: editor)

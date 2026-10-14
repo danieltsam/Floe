@@ -37,7 +37,7 @@ extension LauncherModel {
         context.scripts = allScripts
         context.apps = apps
         context.thawActions = Thaw.actions()
-        context.preferredApps = preferredApps
+        context.preferredApps = resolvedApps.apps
         context.clipboardDestination = clipboardDestination
         context.settingsPanes = settingsPanes
         context.sshHosts = sshHosts

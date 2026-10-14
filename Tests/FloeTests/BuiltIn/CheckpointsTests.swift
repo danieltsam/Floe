@@ -220,7 +220,7 @@ struct CheckpointsTests {
     private func resumed(in folder: URL, editor: AppChoice?, installed: String?) throws -> (editor: [String], own: [String], links: [String]) {
         let model = model(in: folder)
         model.settings.editorApp = editor
-        model.appLookup = lookup(installed: installed)
+        model.resolvedApps.lookup = lookup(installed: installed)
         var editor: [String] = []
         var own: [String] = []
         let links = Mutex<[String]>([])

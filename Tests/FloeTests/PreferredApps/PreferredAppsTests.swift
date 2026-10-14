@@ -208,7 +208,7 @@ struct PreferredAppsTests {
         let settings = try AppSettings(defaults: #require(UserDefaults(suiteName: "floe-preferred-apps-tests-\(UUID().uuidString)")))
         settings.terminalApp = AppChoice(bundleIdentifier: "com.mitchellh.ghostty", path: Fake.ghostty.path)
         let model = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: []))
-        model.appLookup = mac()
+        model.resolvedApps.lookup = mac()
         model.query = "finder selection"
         #expect(model.results.prefix(2).map(\.item.title).sorted() == ["Open Finder Selection in Ghostty", "Open Finder Selection in TextEdit"])
         let url = URL(fileURLWithPath: "/Fake/Documents/notes.txt")

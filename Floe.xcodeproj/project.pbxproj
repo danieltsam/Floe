@@ -18,6 +18,7 @@
 		0A74E23C8016AE1FB4354509 /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA18EB6B58207A689ABA635 /* SyncEngine.swift */; };
 		0A8B749247CEBBEEC8100F45 /* SearchSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9F61DE53E08844E504B2A4 /* SearchSource.swift */; };
 		0ACA1EC1D9EEAAEA9749B129 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 888F73FD3AD3B70CCCED4500 /* SettingsView.swift */; };
+		0CC22E4326434CEFDFDA4E1E /* ResolvedApps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E8F1A9BD91E7E0922EDAF1 /* ResolvedApps.swift */; };
 		0D27F828A96C05BDBDF6AB5E /* ClipboardHistoryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3337622D122C40BD5C4725AD /* ClipboardHistoryModel.swift */; };
 		0D93C7C1B3CE156A175DA09A /* ExtensionStore+Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CECBFD6D8B785BB4E59D /* ExtensionStore+Details.swift */; };
 		0D984E350C7EC004444B7771 /* ClipboardSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8557BC076D2B9DE97E4C6F6 /* ClipboardSettingsSection.swift */; };
@@ -593,6 +594,7 @@
 		98B85F76361B4A8D64F39246 /* TypedPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypedPath.swift; sourceTree = "<group>"; };
 		998C70C5CB4479FCE15FB95F /* Ranking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ranking.swift; sourceTree = "<group>"; };
 		99AB656A4E0B8D90F2163B46 /* ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistory.swift; sourceTree = "<group>"; };
+		99E8F1A9BD91E7E0922EDAF1 /* ResolvedApps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolvedApps.swift; sourceTree = "<group>"; };
 		9A4B4D2BFD7E89034E454C8A /* HangWatchdog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HangWatchdog.swift; sourceTree = "<group>"; };
 		9DA846FA48A5E143E47E2091 /* test_devrun.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = test_devrun.py; sourceTree = "<group>"; };
 		9E38B942BAB5A0519D0AB827 /* MenuBarSearchScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarSearchScope.swift; sourceTree = "<group>"; };
@@ -1316,6 +1318,7 @@
 				B0B52EC136B33C6626E18EDC /* PreferredAppActions.swift */,
 				534A56A698DEE1BC017447F0 /* PreferredApps.swift */,
 				5A2019932B9B6873D549A377 /* PreferredAppsSettingsSection.swift */,
+				99E8F1A9BD91E7E0922EDAF1 /* ResolvedApps.swift */,
 				7F00706E74B04A7E2F37D0BE /* TerminalEditor.swift */,
 			);
 			path = PreferredApps;
@@ -1691,6 +1694,7 @@
 				EAB74146473AD34DAC1E7DC3 /* RecentFileUse.swift in Sources */,
 				2DB3E601CF97F2DDF0C51F46 /* Reminders.swift in Sources */,
 				680FA3F8DCF482E6FAA0A3FB /* ResidentBench.swift in Sources */,
+				0CC22E4326434CEFDFDA4E1E /* ResolvedApps.swift in Sources */,
 				25A049D41E02F7598E0F6274 /* RootIcon.swift in Sources */,
 				DB5155E4669C36EB19D3C709 /* RootItem.swift in Sources */,
 				586B027C00406193718A4457 /* RootSearch.swift in Sources */,

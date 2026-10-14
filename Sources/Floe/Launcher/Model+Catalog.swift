@@ -49,7 +49,7 @@ extension LauncherModel {
         switch part {
         case .apps:
             // What is installed decides the roles' fallbacks, so a change resolves them again.
-            invalidateResolvedApps()
+            resolvedApps.invalidate()
             refresh()
         case .commands, .scripts:
             refresh()

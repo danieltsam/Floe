@@ -14,7 +14,7 @@ extension LauncherModel {
         menuBarSearch.host = modeHost { [weak self] in self?.closeMenuBarSearch() }
         clipboardHistory.host = modeHost { [weak self] in self?.closeClipboardHistory() }
         fileSearch.host = modeHost { [weak self] in self?.closeFileSearch() }
-        fileSearch.preferredApps = { [weak self] in self?.preferredApps ?? [] }
+        fileSearch.preferredApps = { [weak self] in self?.resolvedApps.apps ?? [] }
     }
 
     func modeHost(close: @escaping () -> Void) -> ModeHost {
