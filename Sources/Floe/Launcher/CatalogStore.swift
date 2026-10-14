@@ -8,8 +8,8 @@
 import Foundation
 
 /// What this Mac has to search and list: apps, extension commands, scripts, System Settings' panes and SSH hosts.
-/// Each part is scanned away from the main thread; a scan overtaken by a newer one of its part is dropped, so a
-/// rescan keeps the previous results on screen while it runs. The launcher and the settings window each keep one.
+/// Each part is scanned off the main thread, and a scan overtaken by a newer one is dropped. The launcher and the
+/// settings window each keep one.
 final class CatalogStore: ObservableObject {
     enum Part {
         case apps, commands, scripts, settingsPanes, sshHosts

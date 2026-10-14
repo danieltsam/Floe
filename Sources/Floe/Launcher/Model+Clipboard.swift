@@ -10,8 +10,7 @@ import Combine
 
 /// Where the Clipboard History command goes: Floe's own view, which is `ClipboardHistoryModel`, or the app chosen to keep it.
 extension LauncherModel {
-    /// Where the Clipboard History command goes now, resolved once per change
-    /// (see ResolvedApps).
+    /// Where the Clipboard History command goes now, resolved once per change by ResolvedApps.
     var clipboardDestination: ClipboardDestination {
         resolvedApps.clipboardDestination
     }
