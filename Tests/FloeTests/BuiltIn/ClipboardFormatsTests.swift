@@ -7,6 +7,7 @@
 
 import AppKit
 @testable import Floe
+import Synchronization
 import Testing
 
 /// Formatted copies, the read that tells an empty pasteboard from a private one, and putting an entry back.
@@ -145,6 +146,48 @@ final class ClipboardFormatsTests {
         try store.delete(#require(store.entries.first))
         store.flush()
         #expect(formatFiles().isEmpty)
+    }
+
+    @Test func aFormattedCopyThatCannotBeWrittenIsNotNamed() async {
+        var files = ClipboardFiles.onDisk(directory)
+        let write = files.write
+        files.write = { data, name, atomically in
+            if name.hasSuffix(".format") {
+                throw CocoaError(.fileWriteNoPermission)
+            }
+            try write(data, name, atomically)
+        }
+        let store = ClipboardHistoryStore(files: files, monitorsPasteboard: false)
+        await waitFor("the saved list is read") { store.isLoaded }
+        store.record(formatted("bold", at: 1))
+        store.flush()
+        #expect(store.entries.first?.text == "bold")
+        #expect(store.entries.first?.formats?.isEmpty ?? true)
+        let second = await makeStore()
+        #expect(second.entries.first?.formats?.isEmpty ?? true, "the saved list does not name them either")
+    }
+
+    @Test func formattedCopiesAreWrittenBeforeTheListThatNamesThem() async {
+        let held = DispatchSemaphore(value: 0)
+        let isFirst = Mutex(true)
+        let written = Mutex<[String]>([])
+        var files = ClipboardFiles.onDisk(directory)
+        let write = files.write
+        files.write = { data, name, atomically in
+            // The first formatted copy holds the worker, so the next copy is asked for behind a waiting save.
+            if name.hasSuffix(".format"), isFirst.withLock({ defer { $0 = false }; return $0 }) {
+                held.wait()
+            }
+            written.withLock { $0.append(name.hasSuffix(".format") ? "format" : name) }
+            try write(data, name, atomically)
+        }
+        let store = ClipboardHistoryStore(files: files, monitorsPasteboard: false)
+        await waitFor("the saved list is read") { store.isLoaded }
+        store.record(formatted("first", at: 1))
+        store.record(formatted("second", at: 2))
+        held.signal()
+        store.flush()
+        #expect(written.withLock { $0 } == Array(repeating: "format", count: 4) + [ClipboardFiles.historyName])
     }
 
     @Test func aFormattedCopyWhoseFileIsGoneLoadsAsItsText() async throws {

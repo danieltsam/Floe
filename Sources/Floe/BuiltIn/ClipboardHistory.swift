@@ -214,8 +214,19 @@ final class ClipboardHistoryStore: ObservableObject {
             case let .saved(bytes):
                 ledger.set(ClipboardFiles.historyName, bytes: bytes)
                 onSnapshotSaved?()
+            case let .unstored(names):
+                forget(names)
             }
         }
+    }
+
+    /// Stops naming formatted copies whose file was never written: the entry keeps its text.
+    private func forget(_ names: [String]) {
+        for index in entries.indices {
+            entries[index].formats = entries[index].formats?.filter { !names.contains($0.value) }
+        }
+        names.forEach { ledger.remove($0) }
+        save()
     }
 
     /// Waits for the worker to finish what it was asked, so the disk matches the list. For quitting.
