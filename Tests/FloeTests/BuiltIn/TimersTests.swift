@@ -58,7 +58,7 @@ struct TimersTests {
         let resident = model(in: folder, stand: clock)
         let foregroundClock = Stand()
         let foreground = model(in: folder, stand: foregroundClock)
-        foreground.residentRequests = { packet in
+        foreground.panelHost.residentRequests = { packet in
             switch packet {
             case let .startTimer(draft): resident.startTimer(draft)
             case let .stopTimer(id): _ = resident.runningTimers.remove(id)
@@ -95,7 +95,7 @@ struct TimersTests {
         await resident.startTimer(TimerDraft(duration: 60, label: "tea")).value
         let timer = try #require(resident.runningTimers.all.first)
         var stopped: [UUID] = []
-        foreground.residentRequests = { packet in
+        foreground.panelHost.residentRequests = { packet in
             if case let .stopTimer(id) = packet {
                 stopped.append(id)
                 _ = resident.runningTimers.remove(id)
@@ -224,9 +224,9 @@ struct TimersTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         var hidden = 0
-        model.hidePanel = { hidden += 1 }
+        model.panelHost.hidePanel = { hidden += 1 }
 
         model.query = "timer 5 min tea"
         let row = try #require(model.results.first?.item)
@@ -269,7 +269,7 @@ struct TimersTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         await model.startTimer(TimerDraft(duration: 600)).value
         #expect(said == ["Timer started: \(TimeLength.text(600))"])
         #expect(model.receipts.all.first?.subject == TimeLength.text(600))
@@ -288,7 +288,7 @@ struct TimersTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         await model.startTimer(TimerDraft(duration: 300, label: "tea")).value
         await model.startTimer(TimerDraft(duration: 600)).value
         said.removeAll()
@@ -312,7 +312,7 @@ struct TimersTests {
         stand.isAllowed = false
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         await model.startTimer(TimerDraft(duration: 300, label: "tea")).value
         #expect(said == ["Timer started: tea"])
 
@@ -331,7 +331,7 @@ struct TimersTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         await model.startTimer(TimerDraft(duration: 300, label: "tea")).value
         await model.startTimer(TimerDraft(duration: 120, label: "eggs")).value
 
@@ -358,7 +358,7 @@ struct TimersTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         await model.startTimer(TimerDraft(duration: 300, label: "tea")).value
         let receipt = try #require(model.receipts.all.first)
         let row = RootItem.receipt(receipt)
@@ -384,7 +384,7 @@ struct TimersTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         await model.startTimer(TimerDraft(duration: 300, label: "tea")).value
         stand.waits[0].fire()
         await model.runningTimers.announcement?.value

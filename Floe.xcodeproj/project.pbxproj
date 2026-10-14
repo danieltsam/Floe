@@ -25,6 +25,7 @@
 		0D984E350C7EC004444B7771 /* ClipboardSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8557BC076D2B9DE97E4C6F6 /* ClipboardSettingsSection.swift */; };
 		0DCF27A2B10428D7E854DB9E /* SettingsSidebarPaneList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F8F20630467F0633497F89 /* SettingsSidebarPaneList.swift */; };
 		0F19BCEBA7CE82395F375208 /* TimedCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AC0CCEA2091BF04425482E /* TimedCache.swift */; };
+		11602963ABE1A912CFF0FABE /* PanelHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A64FA2992B47C9D88A77AFE /* PanelHost.swift */; };
 		12A955B077D59F5A83B199BD /* MenuBarContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A545F0B8FCA3D5CE64B8F58D /* MenuBarContent.swift */; };
 		12ED4372071031940B98F3E7 /* SoundDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19187452229CDBA698C4EBB7 /* SoundDevices.swift */; };
 		132B83E8D45E3CE01CD04852 /* ScriptCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = E68175260331547C85A71EBA /* ScriptCommands.swift */; };
@@ -572,6 +573,7 @@
 		8800BA61C160E02B03F5A41B /* Session+Requests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Session+Requests.swift"; sourceTree = "<group>"; };
 		888F73FD3AD3B70CCCED4500 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		89ED74354093BA999EF70780 /* Checkpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Checkpoints.swift; sourceTree = "<group>"; };
+		8A64FA2992B47C9D88A77AFE /* PanelHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelHost.swift; sourceTree = "<group>"; };
 		8AE33B90505045A8A2B0BEA4 /* FloeIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloeIntents.swift; sourceTree = "<group>"; };
 		8B84D5026A491B96DFA99BA1 /* FendCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FendCore; path = Vendor/FendCore; sourceTree = SOURCE_ROOT; };
 		8C0CECF01978DB7DDA0FB1A1 /* NoteDeskModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDeskModel.swift; sourceTree = "<group>"; };
@@ -1172,6 +1174,7 @@
 				0B3B446234EAFBF1F5F00CCB /* Model+Timers.swift */,
 				D79AC1B798765E28268B1B38 /* Model+Windows.swift */,
 				6340BAF88C611B59A548F533 /* PanelBottomBar.swift */,
+				8A64FA2992B47C9D88A77AFE /* PanelHost.swift */,
 				8C1DA7F52B1E57FBB729318A /* PanelSections.swift */,
 				64DBFEFC7F120CD40ACAD9AF /* QuickLookPresenter.swift */,
 				50746E1270F4F6E9EC534ECE /* RootIcon.swift */,
@@ -1673,6 +1676,7 @@
 				A801729F67E721311FCDCD13 /* OutgoingDrafts.swift in Sources */,
 				77AE58D4D699268DB5078716 /* PanelBottomBar.swift in Sources */,
 				D6E5FC9C398598DBA4113C03 /* PanelChannel.swift in Sources */,
+				11602963ABE1A912CFF0FABE /* PanelHost.swift in Sources */,
 				723E15111261CFA80BBAA854 /* PanelLifetime.swift in Sources */,
 				07D1B8C02F5463F8D2D064B2 /* PanelMode.swift in Sources */,
 				F95CF7B088BFC83C83907716 /* PanelProcess.swift in Sources */,

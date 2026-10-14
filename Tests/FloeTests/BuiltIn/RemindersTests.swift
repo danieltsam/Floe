@@ -320,9 +320,9 @@ struct RemindersTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         var hidden = 0
-        model.hidePanel = { hidden += 1 }
+        model.panelHost.hidePanel = { hidden += 1 }
 
         model.query = "remind call mom in 2 hours"
         let row = try #require(model.results.first?.item)
@@ -374,7 +374,7 @@ struct RemindersTests {
         stand.isAllowed = false
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         await model.addReminder(ReminderDraft(title: "call mom", due: nil)).value
         #expect(said == ["Floe may not use Reminders. Allow it in System Settings > Privacy & Security > Reminders."])
         #expect(stand.created.isEmpty)
@@ -395,7 +395,7 @@ struct RemindersTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         var shown: [String] = []
         model.shell.showOutput = { title, _ in shown.append(title) }
         await model.addReminder(ReminderDraft(title: "call mom", due: Self.time(9, 17))).value
@@ -432,7 +432,7 @@ struct RemindersTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         await model.addReminder(ReminderDraft(title: "call mom", due: nil)).value
         let receipt = try #require(model.receipts.all.first)
         stand.held.removeAll()

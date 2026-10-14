@@ -45,7 +45,7 @@ extension LauncherModel {
     func runShellCommand(_ command: String, terminal: ResolvedApp?, inTerminal: Bool = false, showingOutput: Bool = false, in folder: URL? = nil) {
         // Before the panel goes back to the root, which empties the search.
         rememberQuery()
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         guard inTerminal || ShellCommand.needsATerminal(command) else {
             // A manual is for reading: it goes to the window whichever key ran it.
@@ -59,7 +59,7 @@ extension LauncherModel {
                 if showingOutput || reading != nil {
                     self?.shell.showOutput(command, finished.output)
                 } else {
-                    self?.showHUD(finished.line)
+                    self?.panelHost.showHUD(finished.line)
                 }
             }
             return
@@ -68,7 +68,7 @@ extension LauncherModel {
             try ShellCommand.runInTerminal(command, terminal: terminal)
             record(Receipt(date: Date(), kind: .command, subject: command, detail: String(localized: "Handed to the terminal", bundle: .floe)))
         } catch {
-            showHUD(error.localizedDescription)
+            panelHost.showHUD(error.localizedDescription)
         }
     }
 
@@ -91,7 +91,7 @@ extension LauncherModel {
             } catch SelectionError.automationRefused {
                 SystemCommand.askForAutomation(toControl: "Finder")
             } catch {
-                showHUD(error.localizedDescription)
+                panelHost.showHUD(error.localizedDescription)
             }
         }
     }
@@ -99,19 +99,19 @@ extension LauncherModel {
     /// Runs a command out of sight and puts everything it printed on the clipboard.
     func copyOutput(of command: String) {
         rememberQuery()
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         PanelWork.perform { [weak self, run = shell.run] in
             let finished = await run(command, nil)
             self?.record(Receipt(date: Date(), kind: .command, subject: command, detail: finished.line))
             NSPasteboard.general.copy(finished.output)
-            self?.showHUD(String(localized: "Copied the output", bundle: .floe))
+            self?.panelHost.showHUD(String(localized: "Copied the output", bundle: .floe))
         }
     }
 
     /// Asks for a name and keeps the command as a script command, which the search then finds by that name.
     func saveShellCommand(_ command: String) {
-        hidePanel()
+        panelHost.hidePanel()
         let alert = NSAlert()
         alert.messageText = String(localized: "Save this command", bundle: .floe)
         alert.informativeText = command
@@ -127,9 +127,9 @@ extension LauncherModel {
         do {
             _ = try ShellCommand.save(command, as: title)
             catalog.reloadScripts()
-            showHUD(String(localized: "Saved \(title)", bundle: .floe, comment: "Shown briefly after saving. The placeholder is the name the user gave."))
+            panelHost.showHUD(String(localized: "Saved \(title)", bundle: .floe, comment: "Shown briefly after saving. The placeholder is the name the user gave."))
         } catch {
-            showHUD(error.localizedDescription)
+            panelHost.showHUD(error.localizedDescription)
         }
     }
 
@@ -144,11 +144,11 @@ extension LauncherModel {
     func end(_ process: RunningProcess, force: Bool) {
         if shell.endProcess(process, force) {
             record(Receipt(date: Date(), kind: .process, subject: process.name, detail: Processes.label(for: process)))
-            showHUD(force
+            panelHost.showHUD(force
                 ? String(localized: "Forced \(process.name) to quit", bundle: .floe, comment: "The placeholder is an app's name.")
                 : String(localized: "Quitting \(process.name)", bundle: .floe, comment: "The placeholder is an app's name."))
         } else {
-            showHUD(String(localized: "Couldn't quit \(process.name)", bundle: .floe, comment: "The placeholder is a program's name."))
+            panelHost.showHUD(String(localized: "Couldn't quit \(process.name)", bundle: .floe, comment: "The placeholder is a program's name."))
         }
         Processes.forget()
         refresh()
@@ -183,7 +183,7 @@ extension LauncherModel {
             nil,
             ItemAction(title: String(localized: "Copy Command", bundle: .floe), symbol: "doc.on.doc") { [weak self] in
                 NSPasteboard.general.copy(command)
-                self?.showHUD(String(localized: "Copied \(command)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
+                self?.panelHost.showHUD(String(localized: "Copied \(command)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
             },
         ]
     }
@@ -213,11 +213,11 @@ extension LauncherModel {
             nil,
             ItemAction(title: String(localized: "Show in Finder", bundle: .floe), symbol: "folder") { [weak self] in
                 NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: process.path)])
-                self?.hidePanel()
+                self?.panelHost.hidePanel()
             },
             ItemAction(title: String(localized: "Copy Process ID", bundle: .floe), symbol: "number") { [weak self] in
                 NSPasteboard.general.copy(String(process.pid))
-                self?.showHUD(String(localized: "Copied \(String(process.pid))", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
+                self?.panelHost.showHUD(String(localized: "Copied \(String(process.pid))", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
             },
         ]
     }

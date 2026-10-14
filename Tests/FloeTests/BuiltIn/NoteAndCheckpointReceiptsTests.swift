@@ -52,7 +52,7 @@ struct NoteAndCheckpointReceiptsTests {
         let model = model(in: folder)
         defer { emptyTrash(of: model) }
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         let file = folder.appendingPathComponent("Notes/Buy milk.md")
 
         model.activate(.note(.new, text: "Buy milk"))
@@ -89,7 +89,7 @@ struct NoteAndCheckpointReceiptsTests {
         let model = model(in: folder)
         defer { emptyTrash(of: model) }
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         let file = folder.appendingPathComponent("Notes/Ideas.md")
 
         model.activate(.note(.new, text: "Ideas"))
@@ -143,7 +143,7 @@ struct NoteAndCheckpointReceiptsTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         let today = NoteFiles.todayName(now: Date())
 
         model.activate(.note(.today, text: "call the bank"))
@@ -168,7 +168,7 @@ struct NoteAndCheckpointReceiptsTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         let today = NoteFiles.todayName(now: Date())
 
         model.activate(.note(.task, text: "renew passport"))
@@ -198,7 +198,7 @@ struct NoteAndCheckpointReceiptsTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
 
         model.settings.notesApp = .custom
         model.settings.notesURLTemplate = ""
@@ -242,7 +242,7 @@ struct NoteAndCheckpointReceiptsTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         let file = folder.appendingPathComponent("budget.txt")
         try Data("x".utf8).write(to: file)
         model.checkpointing.finderItems = { [file] }
@@ -274,7 +274,7 @@ struct NoteAndCheckpointReceiptsTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
 
         await model.saveCheckpoint(named: "taxes", note: "first").value
         await model.saveCheckpoint(named: "Taxes", note: "second").value

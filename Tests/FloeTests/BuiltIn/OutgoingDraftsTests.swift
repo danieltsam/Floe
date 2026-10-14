@@ -211,9 +211,9 @@ struct OutgoingDraftsTests {
         let opened = Opened()
         let model = model(in: folder, opened: opened)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         var hidden = 0
-        model.hidePanel = { hidden += 1 }
+        model.panelHost.hidePanel = { hidden += 1 }
 
         model.query = "mail toni@example.com the build is ready"
         let mail = try #require(model.results.first?.item)

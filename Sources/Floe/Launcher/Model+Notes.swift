@@ -23,7 +23,7 @@ extension LauncherModel {
         }
         noteDesk = desk
         desk.start()
-        showPanel()
+        panelHost.showPanel()
         focusToken += 1
     }
 

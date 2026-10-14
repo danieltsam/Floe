@@ -24,24 +24,24 @@ extension LauncherModel {
     func addEvent(_ draft: EventDraft) -> Task<Void, Never> {
         // The panel stays, so the day or time can be typed after what is there.
         guard draft.start != nil else {
-            showHUD(CalendarEvents.Failure.noStart.localizedDescription)
+            panelHost.showHUD(CalendarEvents.Failure.noStart.localizedDescription)
             return Task { /* nothing to add */ }
         }
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         return PanelWork.perform { [weak self, scheduling] in
             let isAllowed = await scheduling.requestAccess()
             guard let self else { return }
             guard isAllowed else {
-                showHUD(CalendarEvents.Failure.notAllowed.localizedDescription)
+                panelHost.showHUD(CalendarEvents.Failure.notAllowed.localizedDescription)
                 return
             }
             do {
                 let identifier = try scheduling.create(draft)
                 record(Receipt(date: Date(), kind: .event, subject: draft.title, detail: draft.label(), identifier: identifier))
-                showHUD(String(localized: "Added the event \(draft.title)", bundle: .floe, comment: "The placeholder is what the event is called, such as lunch with Ana."))
+                panelHost.showHUD(String(localized: "Added the event \(draft.title)", bundle: .floe, comment: "The placeholder is what the event is called, such as lunch with Ana."))
             } catch {
-                showHUD(error.localizedDescription)
+                panelHost.showHUD(error.localizedDescription)
             }
         }
     }

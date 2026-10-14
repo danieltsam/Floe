@@ -70,8 +70,8 @@ struct PanelOwnershipTests {
         let model = LauncherModel(settings: AppSettings(defaults: scratch.defaults, savesAfterEdits: false), usage: UsageStore(defaults: scratch.defaults), snapshot: CatalogSnapshot(apps: [], commands: []), isResident: true)
         var requests: [PanelRequest] = []
         var localShows = 0
-        model.presentInPanelProcess = { requests.append($0) }
-        model.showPanel = { localShows += 1 }
+        model.panelHost.presentInPanelProcess = { requests.append($0) }
+        model.panelHost.showPanel = { localShows += 1 }
         model.runFromHotkey(.emojiSearch)
         model.openMenuBarSearch()
         #expect(try requests == [.builtIn(#require(RootItem.emojiSearch.settingsKey)), .builtIn(#require(RootItem.menuBarSearch.settingsKey))])

@@ -40,7 +40,7 @@ struct BuiltInHotkeysTests {
         let (model, folder) = makeModel()
         defer { try? FileManager.default.removeItem(at: folder) }
         var shown = 0
-        model.showPanel = { shown += 1 }
+        model.panelHost.showPanel = { shown += 1 }
 
         model.query = "half typed"
         model.runFromHotkey(.emojiSearch)

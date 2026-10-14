@@ -63,8 +63,8 @@ struct BrowserTests {
         let model = LauncherModel(settings: settings, usage: UsageStore(defaults: scratch.defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
         model.resolvedApps.lookup = lookup
         model.linkOpener = opened.opener
-        model.showHUD = { [opened] in opened.hud.append($0) }
-        model.hidePanel = { [opened] in opened.hides += 1 }
+        model.panelHost.showHUD = { [opened] in opened.hud.append($0) }
+        model.panelHost.hidePanel = { [opened] in opened.hides += 1 }
         return model
     }
 

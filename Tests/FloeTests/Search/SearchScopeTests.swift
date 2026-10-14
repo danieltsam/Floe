@@ -374,7 +374,7 @@ struct SearchScopeTests {
         let model = makeModel(scopes: [files])
         var hidden = 0
         var opened: [String] = []
-        model.hidePanel = { hidden += 1 }
+        model.panelHost.hidePanel = { hidden += 1 }
         model.fileSearch.spotlight.opener = { opened.append($0.lastPathComponent) }
         files.immediate = [.file(file("invoice.pdf"))]
         model.query = "files invoice"

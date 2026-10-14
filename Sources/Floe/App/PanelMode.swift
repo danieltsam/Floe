@@ -52,14 +52,16 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
         NSApp.setActivationPolicy(.accessory)
         NSApp.mainMenu = MainMenu.make(target: self, about: #selector(openAbout), settings: #selector(openSettings))
         Log.follow(settings).store(in: &cancellables)
-        model.hidePanel = { [weak self] in self?.hide() }
-        model.showPanel = { [weak self] in self?.show() }
-        model.showHUD = { ThawHUD.show(text: $0) }
-        model.openSettings = { [weak self] page in
-            self?.hide()
-            self?.channel.send(.openSettings(page?.id))
-        }
-        model.residentRequests = { [channel] in channel.send($0) }
+        model.panelHost = PanelHost(
+            hidePanel: { [weak self] in self?.hide() },
+            showPanel: { [weak self] in self?.show() },
+            showHUD: { ThawHUD.show(text: $0) },
+            openSettings: { [weak self] page in
+                self?.hide()
+                self?.channel.send(.openSettings(page?.id))
+            },
+            residentRequests: { [channel] in channel.send($0) }
+        )
         model.canAskAI = AskAI.availabilityCheck { AIAnswer.isAvailable }
         model.typing.window = 0.03
         // A shell suggestion's snapshot arrived: rows read again, so they are there without another key.

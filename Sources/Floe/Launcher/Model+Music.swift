@@ -24,7 +24,7 @@ extension LauncherModel {
     func controlMusic(_ command: MusicCommand) -> Task<Void, Never> {
         switch MusicControls.plan(command, isRunning: music.isRunning) {
         case let .say(line):
-            showHUD(line)
+            panelHost.showHUD(line)
             return Task { /* nothing to run */ }
         case let .run(source, player):
             return PanelWork.perform { [weak self, music] in
@@ -32,7 +32,7 @@ extension LauncherModel {
                 if outcome == .refused {
                     music.askForAutomation(player.name)
                 } else if let line = MusicControls.line(for: command, outcome: outcome, player: player) {
-                    self?.showHUD(line)
+                    self?.panelHost.showHUD(line)
                 }
             }
         }

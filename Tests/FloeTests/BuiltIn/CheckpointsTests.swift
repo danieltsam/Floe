@@ -105,7 +105,7 @@ struct CheckpointsTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         let front = [tab(.safari, window: "1", "Docs", "https://example.com/docs")]
         model.checkpointing.finderItems = { [URL(fileURLWithPath: "/Users/me/site")] }
         model.checkpointing.tabs = { front }
@@ -148,7 +148,7 @@ struct CheckpointsTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         model.checkpointing.finderItems = { [] }
         model.checkpointing.tabs = { [] }
         await model.saveCheckpoint(named: "empty", note: "").value
@@ -163,7 +163,7 @@ struct CheckpointsTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         var opened: [String] = []
         model.checkpointing.openFile = { opened.append($0.path) }
         var shown: [String] = []

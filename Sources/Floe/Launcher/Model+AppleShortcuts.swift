@@ -33,15 +33,15 @@ extension LauncherModel {
 
     /// Return on a shortcut: the panel goes, the run goes on behind it, and only a failure is heard of.
     func run(_ shortcut: AppleShortcut) {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
-        _ = shortcutLibrary.run(shortcut) { [weak self] in self?.showHUD($0) }
+        _ = shortcutLibrary.run(shortcut) { [weak self] in self?.panelHost.showHUD($0) }
     }
 
     func openInShortcuts(_ shortcut: AppleShortcut) {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
-        _ = shortcutLibrary.openInShortcuts(shortcut) { [weak self] in self?.showHUD($0) }
+        _ = shortcutLibrary.openInShortcuts(shortcut) { [weak self] in self?.panelHost.showHUD($0) }
     }
 
     /// The Actions menu of a shortcut, after Run.
@@ -51,7 +51,7 @@ extension LauncherModel {
             ItemAction(title: String(localized: "Open in Shortcuts", bundle: .floe, comment: "Shortcuts is the name of Apple's app."), symbol: "arrow.up.forward.app") { [weak self] in self?.openInShortcuts(shortcut) },
             ItemAction(title: String(localized: "Copy Name", bundle: .floe), symbol: "doc.on.doc") { [weak self] in
                 NSPasteboard.general.copy(shortcut.name)
-                self?.showHUD(String(localized: "Copied \(shortcut.name)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
+                self?.panelHost.showHUD(String(localized: "Copied \(shortcut.name)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
             },
         ]
     }

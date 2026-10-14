@@ -12,7 +12,7 @@ extension LauncherModel {
     func beginSetup(_ request: SetupRequest) {
         setupForm.begin(request)
         setup = request
-        showPanel()
+        panelHost.showPanel()
         focusToken += 1
     }
 
@@ -35,8 +35,8 @@ extension LauncherModel {
     func showPreferences(_ message: [String: Any], of session: ExtensionSession) {
         let command = session.command
         guard message["type"] as? String == "signIn" else {
-            hidePanel()
-            openSettings(.extensionPage(command.extensionName))
+            panelHost.hidePanel()
+            panelHost.openSettings(.extensionPage(command.extensionName))
             return
         }
         guard let field = command.preferences.first(where: { $0.name == message["preference"] as? String }) else { return }

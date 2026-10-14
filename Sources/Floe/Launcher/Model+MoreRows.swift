@@ -101,8 +101,8 @@ extension LauncherModel {
     /// What the dictionary says about the word goes to the clipboard.
     private func copy(_ definition: WordDefinition) {
         NSPasteboard.general.copy(definition.text)
-        showHUD(String(localized: "Copied \(definition.word)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
-        hidePanel()
+        panelHost.showHUD(String(localized: "Copied \(definition.word)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
+        panelHost.hidePanel()
         reset()
     }
 
@@ -114,7 +114,7 @@ extension LauncherModel {
         }
         guard case let .answer(row) = item else { return }
         if let link = row.link {
-            hidePanel()
+            panelHost.hidePanel()
             reset()
             NSWorkspace.shared.open(link)
             return
@@ -124,8 +124,8 @@ extension LauncherModel {
         } else {
             NSPasteboard.general.copy(row.text)
         }
-        showHUD(String(localized: "Copied Answer", bundle: .floe))
-        hidePanel()
+        panelHost.showHUD(String(localized: "Copied Answer", bundle: .floe))
+        panelHost.hidePanel()
         reset()
     }
 
@@ -157,7 +157,7 @@ extension LauncherModel {
         let record: (Receipt) -> Void = { [weak self] in self?.record($0) }
         Notes.perform(action, text: text, app: settings.notesApp, template: settings.notesURLTemplate, folder: settings.notesFolder, record: record) { [weak self] message in
             if let message {
-                self?.showHUD(message)
+                self?.panelHost.showHUD(message)
             }
         }
     }
@@ -165,7 +165,7 @@ extension LauncherModel {
     /// Keeps a receipt of something Floe did, unless the user switched that off.
     func record(_ receipt: Receipt) {
         guard settings.keepsReceipts else { return }
-        if let residentRequests {
+        if let residentRequests = panelHost.residentRequests {
             residentRequests(.receipt(receipt))
         } else {
             receipts.add(receipt)
@@ -174,7 +174,7 @@ extension LauncherModel {
 
     /// Marks completion through the resident when this model is only a foreground reader.
     private func markReceiptUndone(_ id: UUID) {
-        if let residentRequests {
+        if let residentRequests = panelHost.residentRequests {
             residentRequests(.receiptUndone(id, Date()))
         } else {
             receipts.markUndone(id)
@@ -200,12 +200,12 @@ extension LauncherModel {
             markReceiptUndone(receipt.id)
             record(moved)
         }
-        showHUD(ReceiptUndo.message(for: outcome, subject: receipt.subject, kind: receipt.kind))
+        panelHost.showHUD(ReceiptUndo.message(for: outcome, subject: receipt.subject, kind: receipt.kind))
         refresh()
     }
 
     func showDetails(of receipt: Receipt) {
-        hidePanel()
+        panelHost.hidePanel()
         shell.showOutput(receipt.title, receipt.text)
     }
 
@@ -223,7 +223,7 @@ extension LauncherModel {
             nil,
             ItemAction(title: String(localized: "Copy", bundle: .floe, comment: "A verb: put the selection on the clipboard."), symbol: "doc.on.doc") { [weak self] in
                 NSPasteboard.general.copy(receipt.text)
-                self?.showHUD(String(localized: "Copied the receipt", bundle: .floe))
+                self?.panelHost.showHUD(String(localized: "Copied the receipt", bundle: .floe))
             },
         ]
     }

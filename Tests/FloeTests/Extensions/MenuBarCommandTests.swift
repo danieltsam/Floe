@@ -39,7 +39,7 @@ struct MenuBarCommandTests {
     @Test func runningItFromTheSearchIsWhatAddsAndRemovesIt() throws {
         let (model, _) = makeModel()
         var shown: [String] = []
-        model.showHUD = { shown.append($0) }
+        model.panelHost.showHUD = { shown.append($0) }
         model.query = "unread"
         let item = try #require(model.results.first?.item)
         #expect(item.id == "command:\(status.id)")

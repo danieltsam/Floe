@@ -75,23 +75,8 @@ final class LauncherModel: ObservableObject {
     /// The menu bar item search's own state. Not published: its changes redraw its view only.
     lazy var menuBarSearch = MenuBarSearchModel(settings: settings)
 
-    // The app delegate replaces these; the defaults keep the model usable without a window.
-    var hidePanel: () -> Void = { /* no panel */ }
-    var showPanel: () -> Void = { /* no panel */ }
-    /// Set only in the resident; the foreground model executes these requests locally.
-    var presentInPanelProcess: ((PanelRequest) -> Void)?
-    var residentRequests: ((PanelPacket) -> Void)?
-    var showHUD: (String) -> Void = { _ in
-        // No HUD.
-    }
-
-    /// Opens the settings window, on a page when one is named.
-    var openSettings: (SettingsPage?) -> Void = { _ in
-        // No settings window.
-    }
-
-    /// Pops the Actions menu of the search that is on screen: root, files or menu bar items.
-    var showActions: () -> Void = { /* set by the Actions button */ }
+    /// What the model asks of the process around it.
+    var panelHost = PanelHost()
 
     /// The scope whose rows are on screen, when the query names one.
     var activeScope: ScopeMatch?
@@ -149,10 +134,10 @@ final class LauncherModel: ObservableObject {
     /// Gives a menu-bar command its status item, or takes it away again.
     func toggleMenuBarCommand(_ command: ExtensionCommand) {
         if settings.menuBarCommands.remove(command.id) != nil {
-            showHUD(String(localized: "Removed from Menu Bar", bundle: .floe))
+            panelHost.showHUD(String(localized: "Removed from Menu Bar", bundle: .floe))
         } else {
             settings.menuBarCommands.insert(command.id)
-            showHUD(String(localized: "Added to Menu Bar", bundle: .floe))
+            panelHost.showHUD(String(localized: "Added to Menu Bar", bundle: .floe))
         }
         refresh()
     }
@@ -271,10 +256,10 @@ final class LauncherModel: ObservableObject {
         }
         if let index = settings.favorites.firstIndex(of: item.id) {
             settings.favorites.remove(at: index)
-            showHUD(String(localized: "Removed from Favorites", bundle: .floe))
+            panelHost.showHUD(String(localized: "Removed from Favorites", bundle: .floe))
         } else {
             settings.favorites.append(item.id)
-            showHUD(String(localized: "Added to Favorites", bundle: .floe))
+            panelHost.showHUD(String(localized: "Added to Favorites", bundle: .floe))
         }
         refresh()
     }
@@ -334,7 +319,7 @@ final class LauncherModel: ObservableObject {
         switch item {
         case let .app(app):
             NSWorkspace.shared.openWithoutWaiting(app.url)
-            hidePanel()
+            panelHost.hidePanel()
             reset()
         case let .command(command):
             runner.run(command)
@@ -353,39 +338,39 @@ final class LauncherModel: ObservableObject {
         case let .searchFiles(searchQuery):
             openFileSearch(with: searchQuery)
         case .settings, .extensionStore:
-            hidePanel()
-            openSettings(item.settingsPage)
+            panelHost.hidePanel()
+            panelHost.openSettings(item.settingsPage)
         case let .quicklink(link, queryText, _, _):
             if let destination = url(for: link, query: queryText) {
                 openLink(destination)
             }
-            hidePanel()
+            panelHost.hidePanel()
             reset()
         case let .system(command):
             runSystemCommand(command)
         case let .note(action, text):
-            hidePanel()
+            panelHost.hidePanel()
             reset()
             writeNote(action, text: text)
         case let .finderSelection(role, app):
             openFinderSelection(in: role, app: app)
         case let .thaw(action):
-            hidePanel()
+            panelHost.hidePanel()
             reset()
             if !Thaw.perform(action) {
-                showHUD(String(localized: "Thaw isn't installed", bundle: .floe))
+                panelHost.showHUD(String(localized: "Thaw isn't installed", bundle: .floe))
             }
         case let .sshHost(host, terminal):
-            hidePanel()
+            panelHost.hidePanel()
             reset()
-            SSHConnection.connect(to: host, terminal: terminal, using: sshConnector) { [weak self] in self?.showHUD($0) }
+            SSHConnection.connect(to: host, terminal: terminal, using: sshConnector) { [weak self] in self?.panelHost.showHUD($0) }
         case let .shortcut(shortcut):
             run(shortcut)
         case let .settingsPane(pane):
             if let url = pane.url {
                 NSWorkspace.shared.openWithoutWaiting(url)
             }
-            hidePanel()
+            panelHost.hidePanel()
             reset()
         case let .snippet(snippet):
             runner.paste(text: SnippetStore.shared.expanded(snippet))
@@ -393,7 +378,7 @@ final class LauncherModel: ObservableObject {
             if let destination = event.meetingURL ?? event.calendarURL {
                 openLink(destination)
             }
-            hidePanel()
+            panelHost.hidePanel()
             reset()
         case let .calculator(_, result, error, _):
             copyCalculation(result, error: error)
@@ -405,27 +390,27 @@ final class LauncherModel: ObservableObject {
 
     /// Risky commands ask first; the panel goes away before anything runs.
     func runSystemCommand(_ command: SystemCommand) {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         if let question = command.confirmation {
             guard Confirm.destructive(command.title, detail: question, button: command.title) else { return }
         }
         if let flip = command.flip {
-            showHUD(flip())
+            panelHost.showHUD(flip())
             return
         }
         if let control = command.music {
             controlMusic(control)
             return
         }
-        command.perform { [weak self] in self?.showHUD($0) }
+        command.perform { [weak self] in self?.panelHost.showHUD($0) }
     }
 
     /// Copies an emoji without pasting; ⌘↵ on a result.
     func copyEmojiResult(_ entry: EmojiResult) {
         usage.recordUse(of: entry.id)
         NSPasteboard.general.copy(entry.character)
-        showHUD(String(localized: "Copied \(entry.character)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
+        panelHost.showHUD(String(localized: "Copied \(entry.character)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
     }
 
     /// Pastes an emoji into the frontmost app: onto the clipboard plus a ⌘V once the panel is
@@ -434,10 +419,10 @@ final class LauncherModel: ObservableObject {
         usage.recordUse(of: entry.id)
         NSPasteboard.general.copy(entry.character)
         guard AXIsProcessTrusted() else {
-            showHUD(String(localized: "Copied", bundle: .floe, comment: "Shown briefly after something was put on the clipboard."))
+            panelHost.showHUD(String(localized: "Copied", bundle: .floe, comment: "Shown briefly after something was put on the clipboard."))
             return
         }
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         // Pressed once the panel is gone, so the keystroke lands in the app the user came from.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
@@ -458,7 +443,7 @@ final class LauncherModel: ObservableObject {
             guard alert.runModal() == .alertFirstButtonReturn else { return }
         }
         usage.recordUse(of: RootItem.script(script).id)
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         PanelWork.perform { [weak self] in
             let result: ShellResult
@@ -466,7 +451,7 @@ final class LauncherModel: ObservableObject {
                 result = try await ScriptRunner.run(script, arguments: argumentStrings)
             } catch {
                 await MainActor.run { [weak self] in
-                    self?.showHUD(String(localized: "\(script.title) failed: \(error.localizedDescription)", bundle: .floe, comment: "The first placeholder is the name of a script, the second is the reason."))
+                    self?.panelHost.showHUD(String(localized: "\(script.title) failed: \(error.localizedDescription)", bundle: .floe, comment: "The first placeholder is the name of a script, the second is the reason."))
                 }
                 return
             }
@@ -475,7 +460,7 @@ final class LauncherModel: ObservableObject {
                 guard result.succeeded else {
                     let line = ScriptRunner.lastLine(result.errorOutput) ?? ScriptRunner.lastLine(result.output)
                         ?? String(localized: "exit code \(result.status)", bundle: .floe, comment: "The reason a script failed, when it printed nothing. The placeholder is a number.")
-                    showHUD(String(localized: "\(script.title) failed: \(line)", bundle: .floe, comment: "The first placeholder is the name of a script, the second is the reason."))
+                    panelHost.showHUD(String(localized: "\(script.title) failed: \(line)", bundle: .floe, comment: "The first placeholder is the name of a script, the second is the reason."))
                     return
                 }
                 switch script.mode {
@@ -483,7 +468,7 @@ final class LauncherModel: ObservableObject {
                     break
                 case .inline, .compact:
                     let line = ScriptRunner.lastLine(result.output) ?? String(localized: "Done (script finished)", defaultValue: "Done", bundle: .floe, comment: "Shown briefly when a script finished and printed nothing.")
-                    showHUD(line)
+                    panelHost.showHUD(line)
                 case .fullOutput:
                     ScriptOutputWindow.show(title: script.title, output: result.trimmedOutput)
                 }

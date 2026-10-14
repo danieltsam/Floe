@@ -15,11 +15,11 @@ extension LauncherModel {
     func setFocus(_ request: FocusRequest, shortcut: String) -> Task<Void, Never>? {
         guard !shortcut.isEmpty else {
             reach(FocusRequest.shortcutsApp)
-            showHUD(String(localized: "Make a Shortcut that sets your Focus, then name it in Settings › General", bundle: .floe, comment: "Shortcut is what Apple's Shortcuts app makes. Focus is the macOS feature that silences notifications."))
+            panelHost.showHUD(String(localized: "Make a Shortcut that sets your Focus, then name it in Settings › General", bundle: .floe, comment: "Shortcut is what Apple's Shortcuts app makes. Focus is the macOS feature that silences notifications."))
             return nil
         }
-        hidePanel()
+        panelHost.hidePanel()
         reset()
-        return shortcutLibrary.run(named: shortcut, input: request.input) { [weak self] in self?.showHUD($0) }
+        return shortcutLibrary.run(named: shortcut, input: request.input) { [weak self] in self?.panelHost.showHUD($0) }
     }
 }

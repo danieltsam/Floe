@@ -118,7 +118,7 @@ struct ProcessesTests {
             return !refuse
         }
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         let item = RootItem.process(notch)
 
         #expect(model.primaryActionTitle(for: item) == "Quit")

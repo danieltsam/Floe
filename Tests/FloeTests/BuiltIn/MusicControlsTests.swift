@@ -58,7 +58,7 @@ struct MusicControlsTests {
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointStore = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.music = MusicEnvironment(isRunning: { stand.isRunning($0) }, run: stand.runner, askForAutomation: asked)
-        model.showHUD = said
+        model.panelHost.showHUD = said
         return model
     }
 
@@ -162,7 +162,7 @@ struct MusicControlsTests {
         var said: [String] = []
         let model = model(in: folder, stand: stand) { said.append($0) }
         var hidden = 0
-        model.hidePanel = { hidden += 1 }
+        model.panelHost.hidePanel = { hidden += 1 }
 
         model.query = "next song"
         let row = try #require(model.results.first?.item)

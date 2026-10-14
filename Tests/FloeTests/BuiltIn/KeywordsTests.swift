@@ -158,7 +158,7 @@ struct KeywordsTests {
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointStore = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         var hidden = 0
-        model.hidePanel = { hidden += 1 }
+        model.panelHost.hidePanel = { hidden += 1 }
 
         model.query = "?"
         #expect(model.results.first?.section == "Keywords")

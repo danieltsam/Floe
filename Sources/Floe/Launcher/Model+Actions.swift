@@ -11,9 +11,9 @@ import AppKit
 extension LauncherModel {
     private var actionHost: ActionHost {
         ActionHost(
-            showHUD: { [weak self] in self?.showHUD($0) },
+            showHUD: { [weak self] in self?.panelHost.showHUD($0) },
             dismiss: { [weak self] in
-                self?.hidePanel()
+                self?.panelHost.hidePanel()
                 self?.reset()
             },
             preferredApps: resolvedApps.apps,
@@ -61,13 +61,13 @@ extension LauncherModel {
 
     /// Brings a tab forward once the panel is gone. A refusal is answered here, where the user asked for the tab.
     private func switchToBrowserTab(_ tab: BrowserTab) {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         BrowserTabs.activate(tab) { [weak self] outcome in
             switch outcome {
             case .text(BrowserTabScripts.switched): break
             case .refused: SystemCommand.askForAutomation(toControl: tab.browser.name)
-            case .text, .failed: self?.showHUD(String(localized: "That tab is no longer open", bundle: .floe))
+            case .text, .failed: self?.panelHost.showHUD(String(localized: "That tab is no longer open", bundle: .floe))
             }
         }
     }
@@ -81,8 +81,8 @@ extension LauncherModel {
             actions += [nil] + AppActions.actions(for: app, host: actionHost)
         case let .command(command):
             actions.append(ItemAction(title: String(localized: "Configure Extension…", bundle: .floe), symbol: "gearshape") { [weak self] in
-                self?.hidePanel()
-                self?.openSettings(.extensionPage(command.extensionName))
+                self?.panelHost.hidePanel()
+                self?.panelHost.openSettings(.extensionPage(command.extensionName))
             })
         case let .file(file):
             actions += FileActions.actions(for: file.url, host: actionHost)
@@ -118,12 +118,12 @@ extension LauncherModel {
     /// selected one, so Return says what is wrong, or that there is nothing yet.
     func copyCalculation(_ result: String, error: String?) {
         guard error == nil, !result.isEmpty else {
-            showHUD(error ?? String(localized: "Nothing to copy yet", bundle: .floe, comment: "Shown when Return is pressed on a calculation that has no answer."))
+            panelHost.showHUD(error ?? String(localized: "Nothing to copy yet", bundle: .floe, comment: "Shown when Return is pressed on a calculation that has no answer."))
             return
         }
         NSPasteboard.general.copy(result)
-        showHUD(String(localized: "Copied \(result)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
-        hidePanel()
+        panelHost.showHUD(String(localized: "Copied \(result)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
+        panelHost.hidePanel()
         reset()
     }
 
@@ -154,7 +154,7 @@ extension LauncherModel {
         guard Self.canBeHidden(item) else { return }
         settings.hiddenResults[item.id] = item.title
         settings.favorites.removeAll { $0 == item.id }
-        showHUD(String(localized: "Hidden from search. Settings › General brings it back.", bundle: .floe))
+        panelHost.showHUD(String(localized: "Hidden from search. Settings › General brings it back.", bundle: .floe))
         refresh()
     }
 

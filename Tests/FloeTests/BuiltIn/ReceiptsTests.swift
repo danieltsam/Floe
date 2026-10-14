@@ -145,7 +145,7 @@ struct ReceiptsTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = model(in: folder)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         var shown: [String] = []
         model.shell.showOutput = { title, _ in shown.append(title) }
         let file = folder.appendingPathComponent("draft.md")

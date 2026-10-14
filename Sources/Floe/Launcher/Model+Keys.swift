@@ -18,8 +18,8 @@ extension LauncherModel {
             return handleSetupKey(event)
         }
         if event.keyCode == 43, flags == .command {
-            hidePanel()
-            openSettings(nil)
+            panelHost.hidePanel()
+            panelHost.openSettings(nil)
             return true
         }
         if isSearchingMenuBar {
@@ -93,7 +93,7 @@ extension LauncherModel {
         switch event.keyCode {
         case 36: activateSelection(flags)
         case 53: if query.isEmpty {
-                hidePanel()
+                panelHost.hidePanel()
             } else {
                 query = ""
             }
@@ -102,7 +102,7 @@ extension LauncherModel {
                 toggleFavorite(results[selection].item)
             }
         case 40 where flags == .command:
-            showActions()
+            panelHost.showActions()
         default: return false
         }
         return true

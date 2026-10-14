@@ -38,14 +38,14 @@ extension LauncherModel {
     /// Saves what is selected in Finder and the tabs of the browser window in front under a name. The task is for a test to wait on.
     @discardableResult
     func saveCheckpoint(named name: String, note: String) -> Task<Void, Never> {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         return PanelWork.perform { [weak self, finderItems = checkpointing.finderItems, tabs = checkpointing.tabs] in
             let files = await Task { @concurrent in await finderItems() }.value
             let items = await Checkpoint.items(files: files, tabs: tabs())
             guard let self else { return }
             guard !items.isEmpty || !note.isEmpty else {
-                showHUD(String(localized: "Nothing to save. Select files in Finder, open a browser window, or add a note after a colon.", bundle: .floe))
+                panelHost.showHUD(String(localized: "Nothing to save. Select files in Finder, open a browser window, or add a note after a colon.", bundle: .floe))
                 return
             }
             let checkpoint = Checkpoint(name: name, note: note, items: items, saved: Date())
@@ -53,14 +53,14 @@ extension LauncherModel {
             checkpointStore.save(checkpoint)
             reloadCheckpoints()
             record(Receipt.saved(checkpoint, replacing: replaces))
-            showHUD(String(localized: "Saved \(name): \(checkpoint.summary)", bundle: .floe, comment: "The first placeholder is a checkpoint's name, the second what it holds, such as 3 files and 5 tabs."))
+            panelHost.showHUD(String(localized: "Saved \(name): \(checkpoint.summary)", bundle: .floe, comment: "The first placeholder is a checkpoint's name, the second what it holds, such as 3 files and 5 tabs."))
         }
     }
 
     /// Opens what a checkpoint holds: text and code in the editor chosen in Settings, other files in their apps, folders
     /// in Finder, links in the chosen browser. What is gone is said, and listed.
     func resume(_ checkpoint: Checkpoint) {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         let missing = checkpoint.missing()
         // Only an editor the user chose: the role's stand-in is the app text files open in anyway.
@@ -72,9 +72,9 @@ extension LauncherModel {
             }
         }
         if missing.isEmpty {
-            showHUD(checkpoint.note.isEmpty ? String(localized: "Resumed \(checkpoint.name)", bundle: .floe, comment: "The placeholder is a checkpoint's name.") : checkpoint.note)
+            panelHost.showHUD(checkpoint.note.isEmpty ? String(localized: "Resumed \(checkpoint.name)", bundle: .floe, comment: "The placeholder is a checkpoint's name.") : checkpoint.note)
         } else {
-            showHUD(String(localized: "\(missing.count) of \(checkpoint.items.count) are missing", bundle: .floe, comment: "Both placeholders are numbers: how many of a checkpoint's files are gone, and how many things it holds."))
+            panelHost.showHUD(String(localized: "\(missing.count) of \(checkpoint.items.count) are missing", bundle: .floe, comment: "Both placeholders are numbers: how many of a checkpoint's files are gone, and how many things it holds."))
             shell.showOutput(checkpoint.name, checkpoint.details())
         }
     }
@@ -98,7 +98,7 @@ extension LauncherModel {
     func checkpointActions(_ checkpoint: Checkpoint) -> [ItemAction?] {
         [
             ItemAction(title: String(localized: "Show Details", bundle: .floe), symbol: "doc.text") { [weak self] in
-                self?.hidePanel()
+                self?.panelHost.hidePanel()
                 self?.shell.showOutput(checkpoint.name, checkpoint.details())
             },
             ItemAction(title: String(localized: "Save Again", bundle: .floe, comment: "An action that saves a checkpoint over itself with what is open now."), symbol: "arrow.triangle.2.circlepath") { [weak self] in
@@ -106,12 +106,12 @@ extension LauncherModel {
             },
             ItemAction(title: String(localized: "Copy Note", bundle: .floe), symbol: "doc.on.doc") { [weak self] in
                 NSPasteboard.general.copy(checkpoint.note)
-                self?.showHUD(String(localized: "Copied the note", bundle: .floe))
+                self?.panelHost.showHUD(String(localized: "Copied the note", bundle: .floe))
             },
             nil,
             ItemAction(title: String(localized: "Delete Checkpoint…", bundle: .floe), symbol: "trash") { [weak self] in
                 guard let self else { return }
-                hidePanel()
+                panelHost.hidePanel()
                 guard checkpointing.confirmsDelete(checkpoint) else { return }
                 checkpointStore.delete(checkpoint.id)
                 reloadCheckpoints()

@@ -145,9 +145,9 @@ struct FocusTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand, shortcut: "Set Focus")
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         var hidden = 0
-        model.hidePanel = { hidden += 1 }
+        model.panelHost.hidePanel = { hidden += 1 }
 
         model.query = "focus 1 hour"
         let row = try #require(model.results.first?.item)
@@ -203,7 +203,7 @@ struct FocusTests {
         stand.state.withLock { $0.answer = ShortcutsToolResult(succeeded: false, errorOutput: "Error: The shortcut “Set Focus” could not be found.\n") }
         let model = model(in: folder, stand: stand, shortcut: "Set Focus")
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         await model.setFocus(.toggle, shortcut: "Set Focus")?.value
         #expect(said == ["Set Focus failed: Error: The shortcut “Set Focus” could not be found."])
 
@@ -218,7 +218,7 @@ struct FocusTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand, shortcut: "")
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
 
         model.query = "focus off"
         let row = try #require(model.results.first?.item)

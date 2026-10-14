@@ -243,7 +243,7 @@ struct ContactsTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var hidden = 0
-        model.hidePanel = { hidden += 1 }
+        model.panelHost.hidePanel = { hidden += 1 }
         let titles: (ContactPerson) -> [String] = { person in model.rootActions(for: .contact(.person(person))).map { $0?.title ?? "-" } }
 
         let row = RootItem.contact(.person(Stand.ana))

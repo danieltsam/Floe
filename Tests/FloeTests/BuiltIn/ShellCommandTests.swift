@@ -307,7 +307,7 @@ struct ShellCommandTests {
         var shown: [String] = []
         model.shell.showOutput = { title, output in shown.append("\(title): \(output)") }
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
 
         model.query = "> uptime"
         let row = try? #require(model.results.first?.item)

@@ -268,8 +268,8 @@ struct AppleShortcutSearchTests {
         let model = await loadedModel(fake)
         var hides = 0
         var lines: [String] = []
-        model.hidePanel = { hides += 1 }
-        model.showHUD = { lines.append($0) }
+        model.panelHost.hidePanel = { hides += 1 }
+        model.panelHost.showHUD = { lines.append($0) }
         model.query = "resize"
         let row = model.results.first { $0.id == resize.id }?.item
         if let row {
@@ -288,7 +288,7 @@ struct AppleShortcutSearchTests {
         fake.answer("run", with: ShortcutsToolResult(succeeded: false, errorOutput: "Running\nError: The action could not run.\n"))
         let model = await loadedModel(fake)
         let (lines, continuation) = AsyncStream.makeStream(of: String.self)
-        model.showHUD = { continuation.yield($0) }
+        model.panelHost.showHUD = { continuation.yield($0) }
         model.activate(.shortcut(mail))
         #expect(await lines.first { @Sendable _ in true } == "Mail Me the Notes failed: Error: The action could not run.")
     }
@@ -297,7 +297,7 @@ struct AppleShortcutSearchTests {
         let fake = FakeShortcutsTool(list: ShortcutSample.listing)
         let model = await loadedModel(fake)
         var hides = 0
-        model.hidePanel = { hides += 1 }
+        model.panelHost.hidePanel = { hides += 1 }
         let action = try #require(model.rootActions(for: .shortcut(resize)).compactMap(\.self).first { $0.title == "Open in Shortcuts" })
         action.run()
         #expect(hides == 1)

@@ -15,7 +15,7 @@ extension LauncherModel {
         setup = nil
         isSearchingFiles = true
         fileSearch.query = text
-        showPanel()
+        panelHost.showPanel()
         focusToken += 1
     }
 

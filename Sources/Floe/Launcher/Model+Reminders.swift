@@ -24,21 +24,21 @@ extension LauncherModel {
     /// Adds the reminder and leaves a receipt that can delete it. The task is for a test to wait on.
     @discardableResult
     func addReminder(_ draft: ReminderDraft) -> Task<Void, Never> {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         return PanelWork.perform { [weak self, reminding] in
             let isAllowed = await reminding.requestAccess()
             guard let self else { return }
             guard isAllowed else {
-                showHUD(Reminders.Failure.notAllowed.localizedDescription)
+                panelHost.showHUD(Reminders.Failure.notAllowed.localizedDescription)
                 return
             }
             do {
                 let identifier = try reminding.create(draft)
                 record(Receipt(date: Date(), kind: .reminder, subject: draft.title, detail: draft.label(), identifier: identifier))
-                showHUD(String(localized: "Added the reminder \(draft.title)", bundle: .floe, comment: "The placeholder is what the reminder is about, such as call mom."))
+                panelHost.showHUD(String(localized: "Added the reminder \(draft.title)", bundle: .floe, comment: "The placeholder is what the reminder is about, such as call mom."))
             } catch {
-                showHUD(error.localizedDescription)
+                panelHost.showHUD(error.localizedDescription)
             }
         }
     }

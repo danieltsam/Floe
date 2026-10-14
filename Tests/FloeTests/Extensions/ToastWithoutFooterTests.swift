@@ -25,7 +25,7 @@ struct ToastWithoutFooterTests {
         model = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: []))
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("receipts.json"))
         model.checkpointStore = CheckpointStore(file: folder.appendingPathComponent("checkpoints.json"))
-        model.showHUD = { [said] in said.lines.append($0) }
+        model.panelHost.showHUD = { [said] in said.lines.append($0) }
     }
 
     private func session(mode: String) -> ExtensionSession {

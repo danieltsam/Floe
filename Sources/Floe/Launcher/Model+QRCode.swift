@@ -11,14 +11,14 @@ extension LauncherModel {
     /// Return on a QR code: the picture goes to the clipboard.
     func copyQRCode(for text: String) {
         guard let image = ScreenTools.qrCode(for: text) else {
-            showHUD(String(localized: "That is too long for a QR code", bundle: .floe))
+            panelHost.showHUD(String(localized: "That is too long for a QR code", bundle: .floe))
             return
         }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.writeObjects([NSImage(cgImage: image, size: .zero)])
-        hidePanel()
+        panelHost.hidePanel()
         reset()
-        showHUD(String(localized: "Copied the QR code", bundle: .floe))
+        panelHost.showHUD(String(localized: "Copied the QR code", bundle: .floe))
     }
 
     func qrCodeActions(for text: String) -> [ItemAction?] {
@@ -30,9 +30,9 @@ extension LauncherModel {
             ItemAction(title: String(localized: "Save to Downloads", bundle: .floe), symbol: "arrow.down.circle") { [weak self] in
                 guard let self, let folder = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first,
                       let file = writeQRCode(for: text, to: folder) else { return }
-                hidePanel()
+                panelHost.hidePanel()
                 reset()
-                showHUD(String(localized: "Saved \(file.lastPathComponent)", bundle: .floe, comment: "Shown briefly after saving. The placeholder is the name of the file."))
+                panelHost.showHUD(String(localized: "Saved \(file.lastPathComponent)", bundle: .floe, comment: "Shown briefly after saving. The placeholder is the name of the file."))
             },
         ]
     }

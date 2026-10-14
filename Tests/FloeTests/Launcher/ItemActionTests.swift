@@ -105,7 +105,7 @@ struct ItemActionTests {
     @Test func returnOnACalculationWithNothingToCopySaysSo() {
         let model = makeModel()
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         model.activate(.calculator(expression: "100 +", result: "", error: nil, attributedResult: nil))
         model.activate(.calculator(expression: "1 km to kg", result: "", error: "Cannot convert Length to Mass", attributedResult: nil))
         #expect(said == ["Nothing to copy yet", "Cannot convert Length to Mass"])
@@ -136,8 +136,8 @@ struct ItemActionTests {
         let model = makeModel()
         var hidden = 0
         var opened: [SettingsPage?] = []
-        model.hidePanel = { hidden += 1 }
-        model.openSettings = { opened.append($0) }
+        model.panelHost.hidePanel = { hidden += 1 }
+        model.panelHost.openSettings = { opened.append($0) }
 
         for query in ["store", "extension store", "install", "raycast"] {
             model.query = query

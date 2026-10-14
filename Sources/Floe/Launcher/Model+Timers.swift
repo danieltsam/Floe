@@ -54,9 +54,9 @@ extension LauncherModel {
     /// Starts the countdown and leaves a receipt that can stop it. The task is for a test to wait on.
     @discardableResult
     func startTimer(_ draft: TimerDraft) -> Task<Void, Never> {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
-        if let residentRequests {
+        if let residentRequests = panelHost.residentRequests {
             residentRequests(.startTimer(draft))
             return Task {
                 // The resident owns the countdown; this task acknowledges only the forwarded request.
@@ -66,7 +66,7 @@ extension LauncherModel {
         let stop = timing.wait(draft.duration) { [weak self] in self?.timerEnded(timer.id) }
         runningTimers.add(timer, stop: stop)
         record(Receipt(date: timing.now(), kind: .timer, subject: timer.name, detail: TimeLength.text(timer.duration), identifier: timer.id.uuidString))
-        showHUD(String(localized: "Timer started: \(timer.name)", bundle: .floe, comment: "The placeholder is a timer's label, or how long it runs, such as 10 min."))
+        panelHost.showHUD(String(localized: "Timer started: \(timer.name)", bundle: .floe, comment: "The placeholder is a timer's label, or how long it runs, such as 10 min."))
         // Asked now, so the question is answered long before the timer ends.
         return Task { [timing] in _ = await timing.requestAccess() }
     }
@@ -78,17 +78,17 @@ extension LauncherModel {
             if await timing.requestAccess() {
                 timing.notify(timer)
             } else {
-                self?.showHUD(String(localized: "Timer ended: \(timer.name)", bundle: .floe, comment: "The placeholder is a timer's label, or how long it ran, such as 10 min."))
+                self?.panelHost.showHUD(String(localized: "Timer ended: \(timer.name)", bundle: .floe, comment: "The placeholder is a timer's label, or how long it ran, such as 10 min."))
             }
         }
     }
 
     /// Return on a running timer stops it.
     func stop(_ timer: RunningTimer) {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         let outcome: ReceiptUndo.Outcome = stopTimer(timer.id.uuidString) ? .deleted : .alreadyDeleted
-        showHUD(ReceiptUndo.message(for: outcome, subject: timer.name, kind: .timer))
+        panelHost.showHUD(ReceiptUndo.message(for: outcome, subject: timer.name, kind: .timer))
     }
 
     /// Stops the timer a receipt names, forwarding even when the local snapshot is missing it.
@@ -96,7 +96,7 @@ extension LauncherModel {
     func stopTimer(_ identifier: String) -> Bool {
         guard let id = UUID(uuidString: identifier) else { return false }
         let removed = runningTimers.remove(id) != nil
-        residentRequests?(.stopTimer(id))
+        panelHost.residentRequests?(.stopTimer(id))
         return removed
     }
 }

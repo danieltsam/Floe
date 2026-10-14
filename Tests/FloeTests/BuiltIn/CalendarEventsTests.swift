@@ -181,9 +181,9 @@ struct CalendarEventsTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         var hidden = 0
-        model.hidePanel = { hidden += 1 }
+        model.panelHost.hidePanel = { hidden += 1 }
 
         model.query = "event lunch with Ana in 2 hours"
         let row = try #require(model.results.first?.item)
@@ -216,9 +216,9 @@ struct CalendarEventsTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         var hidden = 0
-        model.hidePanel = { hidden += 1 }
+        model.panelHost.hidePanel = { hidden += 1 }
 
         model.query = "event lunch with Ana"
         let row = try #require(model.results.first?.item)
@@ -240,7 +240,7 @@ struct CalendarEventsTests {
         stand.isAllowed = false
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         let draft = EventDraft(title: "lunch", start: Self.time(9, 13))
         await model.addEvent(draft).value
         #expect(said == ["Floe may not use Calendar. Allow full access in System Settings > Privacy & Security > Calendars."])
@@ -268,7 +268,7 @@ struct CalendarEventsTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         var shown: [String] = []
         model.shell.showOutput = { title, _ in shown.append(title) }
         await model.addEvent(EventDraft(title: "lunch", start: Self.time(9, 13))).value
@@ -305,7 +305,7 @@ struct CalendarEventsTests {
         let stand = Stand()
         let model = model(in: folder, stand: stand)
         var said: [String] = []
-        model.showHUD = { said.append($0) }
+        model.panelHost.showHUD = { said.append($0) }
         await model.addEvent(EventDraft(title: "lunch", start: Self.time(9, 13))).value
         let receipt = try #require(model.receipts.all.first)
         stand.held.removeAll()

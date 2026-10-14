@@ -19,7 +19,7 @@ extension LauncherModel {
     func open(_ row: WindowRow) {
         switch row {
         case let .window(window):
-            hidePanel()
+            panelHost.hidePanel()
             reset()
             OpenWindows.focus(window)
         case .access:

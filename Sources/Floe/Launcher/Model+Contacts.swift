@@ -47,7 +47,7 @@ extension LauncherModel {
 
     /// Opens a link through the system once the panel is gone. A link that could not be made opens nothing.
     func reach(_ link: URL?) {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         if let link {
             linkOpener.open(link, nil)
@@ -56,6 +56,6 @@ extension LauncherModel {
 
     private func copyContactDetail(_ text: String) {
         NSPasteboard.general.copy(text)
-        showHUD(String(localized: "Copied \(text)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
+        panelHost.showHUD(String(localized: "Copied \(text)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
     }
 }

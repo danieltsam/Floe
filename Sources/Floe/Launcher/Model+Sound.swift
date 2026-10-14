@@ -17,8 +17,8 @@ extension LauncherModel {
 
     /// Return on a sound device: the panel goes, and the HUD says where sound goes now.
     func use(_ row: SoundDeviceRow) {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
-        showHUD(SoundDevices.use(row.device))
+        panelHost.showHUD(SoundDevices.use(row.device))
     }
 }

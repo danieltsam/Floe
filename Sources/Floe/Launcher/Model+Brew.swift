@@ -29,7 +29,7 @@ extension LauncherModel {
         }
         actions.append(ItemAction(title: String(localized: "Copy Name", bundle: .floe, comment: "A button that copies the name of the selected thing."), symbol: "doc.on.doc") { [weak self] in
             NSPasteboard.general.copy(package.name)
-            self?.showHUD(String(localized: "Copied \(package.name)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
+            self?.panelHost.showHUD(String(localized: "Copied \(package.name)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
         })
         return actions
     }

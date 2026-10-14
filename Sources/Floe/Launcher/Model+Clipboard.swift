@@ -28,19 +28,19 @@ extension LauncherModel {
         isShowingClipboardHistory = true
         clipboardHistory.query = ""
         clipboardHistory.selection = 0
-        showPanel()
+        panelHost.showPanel()
         focusToken += 1
     }
 
     /// Hands the command to the chosen app. One that cannot be opened is named in the HUD.
     private func openClipboardApp(_ destination: ClipboardDestination) {
-        hidePanel()
+        panelHost.hidePanel()
         reset()
         switch destination {
         case .floe: break
         case let .app(app): clipboardOpener.app(app.url)
         case let .link(url, app): clipboardOpener.link(url, app?.url)
-        case let .unavailable(_, message): showHUD(message)
+        case let .unavailable(_, message): panelHost.showHUD(message)
         }
     }
 
