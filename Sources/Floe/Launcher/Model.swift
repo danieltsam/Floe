@@ -912,7 +912,7 @@ final class LauncherModel: ObservableObject {
             ?? URL(fileURLWithPath: (target as NSString).expandingTildeInPath)
         if let application, let app = applicationURL(for: application) {
             linkOpener.open(url, app)
-        } else {
+        } else if !runCommandLink(url) {
             openLink(url)
         }
     }

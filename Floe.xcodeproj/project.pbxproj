@@ -144,6 +144,7 @@
 		69AA9DBF6BCB09577B11454A /* SSHConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2609D6E7C4247E7397CA71E3 /* SSHConnection.swift */; };
 		69FA09CF14D792E717C7D569 /* Permission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44808651241F3E3186FE6311 /* Permission.swift */; };
 		6CBE43C1A44F0870BE884A74 /* ShellCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DE9A8F192C3A915D449B54 /* ShellCommand.swift */; };
+		6CD329F829FDB9ACA6967966 /* Model+CommandLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E73F6083825F4859C962AC /* Model+CommandLinks.swift */; };
 		6CE5AA11626589F4B28D14B8 /* FormViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95D5E9CBA2030703F9BE0381 /* FormViews.swift */; };
 		6D0E9E4812285FA8B0CC5B1D /* NoteDeskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528E8494ABBB91354423ED6F /* NoteDeskView.swift */; };
 		6D1ED192BA73E3475E34A4F3 /* SystemToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1D4654727383118E8D4C8E /* SystemToggles.swift */; };
@@ -366,6 +367,7 @@
 		0145A156F10BC11291C239F3 /* AnswerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerRow.swift; sourceTree = "<group>"; };
 		01C95DCE1D4F4B3F5992F739 /* ClipboardWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardWatcher.swift; sourceTree = "<group>"; };
 		01DE9A8F192C3A915D449B54 /* ShellCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellCommand.swift; sourceTree = "<group>"; };
+		02E73F6083825F4859C962AC /* Model+CommandLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+CommandLinks.swift"; sourceTree = "<group>"; };
 		03E2064C17DB821332617CDB /* AIConversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIConversation.swift; sourceTree = "<group>"; };
 		0454DDF1AC4E2934C468C3A3 /* Model+Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Search.swift"; sourceTree = "<group>"; };
 		05230EAF05CC25AF3298E02F /* project.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = project.yml; sourceTree = "<group>"; };
@@ -1125,6 +1127,7 @@
 				7D44DC6C879E178D802C6207 /* Model+Brew.swift */,
 				FE645075079A42E9C95DFC8D /* Model+Checkpoints.swift */,
 				43B92AFF31F28A7B38B57533 /* Model+Clipboard.swift */,
+				02E73F6083825F4859C962AC /* Model+CommandLinks.swift */,
 				904F7F168FD09FD071DA42DD /* Model+Contacts.swift */,
 				131B24A184BFA978BDBF3E32 /* Model+Events.swift */,
 				2234D2B648CB43AAC46A640C /* Model+FileSearch.swift */,
@@ -1594,6 +1597,7 @@
 				38461EE4B9C82BBC1F900134 /* Model+Brew.swift in Sources */,
 				1501CD18D048572CC8745494 /* Model+Checkpoints.swift in Sources */,
 				553CA566F3573D1B855CA623 /* Model+Clipboard.swift in Sources */,
+				6CD329F829FDB9ACA6967966 /* Model+CommandLinks.swift in Sources */,
 				6223E1261CB9B7B6068FA8EA /* Model+Contacts.swift in Sources */,
 				A57BC5FA8376CB2A1F0C85EA /* Model+Events.swift in Sources */,
 				7D2D1045117CC5A14C8132C4 /* Model+FileSearch.swift in Sources */,
