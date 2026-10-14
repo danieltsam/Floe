@@ -375,4 +375,16 @@ struct RankingTests {
         #expect(found("brew") == ["Brewfile", "Show Installed", "Upgrade"])
         #expect(found("bw") == ["Brewfile"], "scattered letters of the extension's name do not find its commands")
     }
+
+    @Test func aCommandAnswersToItsManifestKeywordsBehindATitleThatMatches() {
+        var items = Fixture.command("items", extension: "vault", title: "Search Items")
+        items.keywords = ["1p", "login"]
+        let all: [RootItem] = [.command(items), Fixture.app("Login Items"), Fixture.app("Notes")]
+        func found(_ query: String) -> [String] {
+            Ranking.search(all, query: query, favorites: [], alias: { _ in nil }, frecency: { _ in 0 }).map(\.item.title)
+        }
+
+        #expect(found("1p") == ["Search Items"])
+        #expect(found("login") == ["Login Items", "Search Items"])
+    }
 }

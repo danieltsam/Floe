@@ -141,6 +141,18 @@ struct ExtensionCommandTests {
         #expect(command.extensionTitle == "bare")
     }
 
+    @Test func aCommandCarriesItsOwnKeywordsAndItsExtensions() {
+        let commands = ExtensionCommand.commands(
+            inManifest: Fixture.manifest([
+                "name": "vault", "keywords": ["secrets"],
+                "commands": [["name": "items", "keywords": ["1p", "login", 7]], ["name": "lock"]],
+            ]),
+            folder: folder,
+            source: .raycast
+        )
+        #expect(commands.map(\.keywords) == [["1p", "login", "secrets"], ["secrets"]], "a keyword that is not a string is dropped")
+    }
+
     @Test(arguments: [[:], ["name": "no-commands"], ["commands": [["name": "run"]]]] as [[String: any Sendable]])
     func manifestsWithoutANameOrCommandsYieldNothing(manifest: [String: any Sendable]) {
         #expect(ExtensionCommand.commands(inManifest: Fixture.manifest(manifest), folder: folder, source: .local).isEmpty)

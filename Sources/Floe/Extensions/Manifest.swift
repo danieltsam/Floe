@@ -119,6 +119,8 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
     let arguments: [FieldSpec]
     let extensionPreferences: [FieldSpec]
     let commandPreferences: [FieldSpec]
+    /// The words the manifest lists for the extension and for this command, which the root search also answers to.
+    var keywords: [String] = []
 
     var id: String {
         "\(extensionName)/\(name)"
@@ -136,6 +138,7 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
         let name: String
         let title: String?
         let icon: String?
+        let keywords: Lossy<String>?
         let preferences: Lossy<FieldSpec>?
         let commands: Lossy<ManifestCommand>
     }
@@ -146,6 +149,7 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
         let mode: String?
         let interval: String?
         let icon: String?
+        let keywords: Lossy<String>?
         let arguments: Lossy<FieldSpec>?
         let preferences: Lossy<FieldSpec>?
     }
@@ -178,7 +182,8 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
                 icon: custom ?? command.icon ?? manifest.icon,
                 arguments: command.arguments?.elements ?? [],
                 extensionPreferences: manifest.preferences?.elements ?? [],
-                commandPreferences: command.preferences?.elements ?? []
+                commandPreferences: command.preferences?.elements ?? [],
+                keywords: (command.keywords?.elements ?? []) + (manifest.keywords?.elements ?? [])
             )
         }
     }
