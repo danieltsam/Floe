@@ -148,6 +148,18 @@ struct ExtensionCommandTests {
         #expect(command.extensionTitle == "bare")
     }
 
+    @Test func theOwnerIsTheManifestsOwnerElseItsAuthorInEitherShape() {
+        func owner(_ fields: [String: Any]) -> String? {
+            let manifest = fields.merging(["name": "bare", "commands": [["name": "run"]]]) { first, _ in first }
+            return ExtensionCommand.commands(inManifest: Fixture.manifest(manifest), folder: folder, source: .local).first?.owner
+        }
+        #expect(owner(["author": "someone"]) == "someone")
+        #expect(owner(["author": ["name": "someone"]]) == "someone")
+        #expect(owner(["author": "someone", "owner": "team"]) == "team")
+        #expect(owner(["author": 42]) == nil, "an author in no shape Raycast uses is no author, and the manifest still reads")
+        #expect(owner([:]) == nil)
+    }
+
     @Test func aCommandCarriesItsOwnKeywordsAndItsExtensions() {
         let commands = ExtensionCommand.commands(
             inManifest: Fixture.manifest([

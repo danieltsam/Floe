@@ -133,6 +133,8 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
     var keywords: [String] = []
     /// The manifest's disabledByDefault: the command stays off until the user switches it on in Settings.
     var isDisabledByDefault = false
+    /// Who the extension's links name: the manifest's owner, or else its author. Nil when it has neither.
+    var owner: String?
 
     var id: String {
         "\(extensionName)/\(name)"
@@ -148,12 +150,26 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
 
     private struct Manifest: Decodable {
         let name: String
+        let owner: String?
+        let author: Author?
         let title: String?
         let icon: String?
         let keywords: Lossy<String>?
         let platforms: Lossy<String>?
         let preferences: Lossy<FieldSpec>?
         let commands: Lossy<ManifestCommand>
+    }
+
+    /// A name, or an object with one; anything else is no author rather than a manifest that cannot be read.
+    private struct Author: Decodable {
+        let name: String?
+
+        private enum Keys: String, CodingKey { case name }
+
+        init(from decoder: Decoder) throws {
+            name = (try? decoder.singleValueContainer().decode(String.self))
+                ?? (try? decoder.container(keyedBy: Keys.self).decode(String.self, forKey: .name))
+        }
     }
 
     private struct ManifestCommand: Decodable {
@@ -204,7 +220,8 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
                 extensionPreferences: manifest.preferences?.elements ?? [],
                 commandPreferences: command.preferences?.elements ?? [],
                 keywords: (command.keywords?.elements ?? []) + (manifest.keywords?.elements ?? []),
-                isDisabledByDefault: command.disabledByDefault ?? false
+                isDisabledByDefault: command.disabledByDefault ?? false,
+                owner: manifest.owner ?? manifest.author?.name
             )
         }
     }

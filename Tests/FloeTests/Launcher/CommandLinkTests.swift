@@ -87,6 +87,20 @@ struct CommandLinkTests {
         #expect(try opened.urls == [#require(URL(string: target))])
     }
 
+    @Test func aLinkRunsACommandOnlyForTheOwnerItsExtensionNames() {
+        var owned = Fixture.command("planets")
+        owned.owner = "someone"
+        let model = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: [owned]), isResident: true)
+        var requests: [PanelRequest] = []
+        model.presentInPanelProcess = { requests.append($0) }
+        model.linkOpener = opened.opener
+        model.handleBackgroundMessage(["type": "open", "target": "raycast://extensions/someone-else/sample/planets"])
+        #expect(requests.isEmpty)
+        #expect(opened.urls.count == 1, "another owner's extension of the same name is not this one")
+        model.handleBackgroundMessage(["type": "open", "target": "raycast://extensions/Someone/sample/planets"])
+        #expect(requests.map(\.isCommand) == [true])
+    }
+
     @Test func aLinkToADisabledCommandGoesToTheSystem() {
         settings.disabledCommands = ["sample/planets"]
         #expect(requests(opening: "raycast://extensions/someone/sample/planets").isEmpty)
