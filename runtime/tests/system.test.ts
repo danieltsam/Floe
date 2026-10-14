@@ -87,6 +87,16 @@ describe("toasts and HUD", () => {
     expect(calls).toEqual(["primary", "secondary", "redo"]);
   });
 
+  // An extension may pass the Error it caught as the message. As JSON that is {}, which the app reads as no message.
+  test("a title or message that is not text is sent as text", async () => {
+    const toast = await api.showToast({ style: api.Toast.Style.Failure, title: "Error", message: new Error("model not found") });
+    toast.title = 404 as never;
+    expect(sent("toast").map(({ title, message }) => [title, message])).toEqual([
+      ["Error", "model not found"],
+      ["404", "model not found"],
+    ]);
+  });
+
   test("changing the options object after creating the toast does not change the toast", async () => {
     const options = { title: "Original" };
     const toast = new api.Toast(options);
@@ -530,6 +540,15 @@ describe("AI", () => {
     process.env.FLOE_AI = "1";
     expect(api.environment.canAccess(api.AI)).toBe(true);
     expect(api.environment.canAccess(api.OAuth)).toBe(false);
+  });
+
+  // An extension that asks before it reads the selection or the clipboard gives up on a no.
+  test("extensions can use the selection and the clipboard, which the app answers", () => {
+    delete process.env.FLOE_AI;
+    expect([api.getSelectedText, api.getSelectedFinderItems, api.Clipboard].map(api.environment.canAccess)).toEqual([true, true, true]);
+    expect(api.environment.canAccess("AI")).toBe(false);
+    process.env.FLOE_AI = "1";
+    expect(api.environment.canAccess("AI")).toBe(true);
   });
 });
 

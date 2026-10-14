@@ -263,6 +263,9 @@ function unsupported(feature: string) {
   return showToast({ style: Toast.Style.Failure, title: `${feature} isn't supported yet` });
 }
 
+// Extensions hand a caught Error to a toast as its text. As JSON it would be {}, which the app shows as nothing.
+const toastText = (value: unknown) => (value == null ? undefined : value instanceof Error ? value.message : String(value));
+
 let nextToastId = 1;
 const liveToasts = new Map<number, Toast>();
 export class Toast {
@@ -275,7 +278,7 @@ export class Toast {
   }
   private sync(hidden = false) {
     const { style, title, message, primaryAction, secondaryAction } = this.options;
-    send({ type: "toast", id: this.id, style: style ?? "success", title: title ?? "", message, hidden,
+    send({ type: "toast", id: this.id, style: style ?? "success", title: toastText(title) ?? "", message: toastText(message), hidden,
       primaryTitle: (primaryAction as Props | undefined)?.title,
       secondaryTitle: (secondaryAction as Props | undefined)?.title });
   }
@@ -495,7 +498,9 @@ export const environment = {
   textSize: "medium",
   get launchType() { return ctx.launchType; },
   // The app sets FLOE_AI when AI.ask has something to answer it: an installed tool or a filled-in API.
-  canAccess: (api: unknown) => api === AI && process.env.FLOE_AI === "1",
+  // The selection and the clipboard it always answers; an extension that asks first must hear yes.
+  canAccess: (api: unknown) =>
+    api === AI || api === "AI" ? process.env.FLOE_AI === "1" : api === Clipboard || api === getSelectedText || api === getSelectedFinderItems,
 };
 
 export function launchCommand(_options: Props): Promise<void> {
