@@ -820,21 +820,11 @@ final class LauncherModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: work)
     }
 
-    /// Cancels deferred reset and refreshes foreground catalogs, permissions and stale search data.
+    /// Cancels the deferred reset. What is read again for the search waits for panelDidShow.
     func panelWillShow() {
         isPanelShown = true
         pendingReset?.cancel()
         pendingReset = nil
-        reloadScripts()
-        reloadSSHHosts()
-        reloadShortcuts()
-        // A grant made in System Settings with no request from Floe is noticed here.
-        menuBarSearch.warm()
-        ExchangeRateUpdater.shared.refreshIfStale()
-        reloadCheckpoints()
-        if FileIndexService.shared.state != .off {
-            RecentFileUse.shared.refreshIfStale()
-        }
     }
 
     /// Runs the command that failed again, with the same arguments.

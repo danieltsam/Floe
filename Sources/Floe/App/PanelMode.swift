@@ -211,11 +211,15 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
             panel.displayIfNeeded()
         } else {
             panel.makeKeyAndOrderFront(nil)
+            // Drawn and sent to the screen now, before the reloads below take their turn on the main thread.
+            panel.displayIfNeeded()
+            CATransaction.flush()
         }
         if ProcessInfo.processInfo.environment["FLOE_DEBUG"] != nil {
             NSLog("Panel %d shown key=%d active=%d", getpid(), panel.isKeyWindow ? 1 : 0, NSApp.isActive ? 1 : 0)
         }
         model.focusToken += 1
+        model.panelDidShow()
     }
 
     /// Dismisses the window and starts the idle grace period without canceling leased work.

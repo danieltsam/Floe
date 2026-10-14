@@ -180,6 +180,7 @@ struct AppleShortcutSearchTests {
         let model = makeModel(fake, isOn: false)
         #expect(!model.findsShortcuts)
         model.panelWillShow()
+        model.panelDidShow()
         #expect(model.reloadShortcuts() == nil)
         model.query = "mail"
         #expect(!model.results.contains { $0.id.hasPrefix("shortcut:") })
@@ -192,6 +193,7 @@ struct AppleShortcutSearchTests {
         let fake = FakeShortcutsTool(list: ShortcutSample.listing)
         let model = makeModel(fake)
         model.panelWillShow()
+        model.panelDidShow()
         await model.reloadShortcuts()?.value
         #expect(fake.calls == [FakeShortcutsTool.listing], "asking again while the list is on its way starts nothing")
         #expect(!model.results.contains { $0.id.hasPrefix("shortcut:") })
@@ -226,6 +228,7 @@ struct AppleShortcutSearchTests {
         model.query = "mail m"
         #expect(!model.results.contains { $0.id.hasPrefix("shortcut:") })
         model.panelWillShow()
+        model.panelDidShow()
         #expect(model.shortcutLibrary.shortcuts.isEmpty)
         #expect(fake.calls.count == 1)
     }
