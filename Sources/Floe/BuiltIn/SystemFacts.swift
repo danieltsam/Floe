@@ -21,6 +21,7 @@ nonisolated enum SystemFacts: String, CaseIterable, Sendable {
     /// The readers, so a test can stand in a Mac with a battery, or one without.
     struct Readers: Sendable {
         var battery: @Sendable () -> BatteryReading? = SystemReadings.battery
+        var devices: @Sendable () -> [DeviceBatteryReading] = SystemReadings.deviceBatteries
         var disk: @Sendable () -> Disk? = SystemFacts.readDisk
         var memory: @Sendable () -> MemoryReading? = SystemReadings.memory
         var address: @Sendable () -> AddressReading? = SystemReadings.address
@@ -35,6 +36,13 @@ nonisolated enum SystemFacts: String, CaseIterable, Sendable {
         case .ip: readers.address().map(row)
         case nil: nil
         }
+    }
+
+    /// Every row for a query that is one of the words: `battery` is the Mac's own, then each connected device's.
+    static func rows(for query: String, readers: Readers = Readers(), locale: Locale = .current) -> [AnswerRow] {
+        let own = row(for: query, readers: readers, locale: locale).map { [$0] } ?? []
+        guard SystemFacts(rawValue: query.lowercased()) == .battery else { return own }
+        return own + readers.devices().map { row(for: $0, locale: locale) }
     }
 
     // MARK: Rows
@@ -63,6 +71,25 @@ nonisolated enum SystemFacts: String, CaseIterable, Sendable {
             subtitle: [state, cycles, health].compactMap(\.self).joined(separator: " · "),
             kind: String(localized: "Battery", bundle: .floe, comment: "The kind of a result, shown beside its title."),
             symbol: "battery.75percent"
+        )
+    }
+
+    static func row(for device: DeviceBatteryReading, locale: Locale) -> AnswerRow {
+        let percent: (Int) -> String = { (Double($0) / 100).formatted(.percent.precision(.fractionLength(0)).locale(locale)) }
+        let levels = device.levels.map { level in
+            switch level.component {
+            case .device: percent(level.percent)
+            case .left: String(localized: "Left \(percent(level.percent))", bundle: .floe, comment: "The battery of the left earbud. The placeholder is a percentage.")
+            case .right: String(localized: "Right \(percent(level.percent))", bundle: .floe, comment: "The battery of the right earbud. The placeholder is a percentage.")
+            case .case: String(localized: "Case \(percent(level.percent))", bundle: .floe, comment: "The battery of the earbuds' charging case. The placeholder is a percentage.")
+            }
+        }
+        return AnswerRow(
+            id: "battery:\(device.id)",
+            text: levels.joined(separator: ", "),
+            subtitle: device.name,
+            kind: String(localized: "Battery", bundle: .floe, comment: "The kind of a result, shown beside its title."),
+            symbol: "battery.50percent"
         )
     }
 

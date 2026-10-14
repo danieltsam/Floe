@@ -119,7 +119,7 @@ The [changelog](CHANGELOG.md) describes each in more detail.
 - `uuid`, `password 24` and `lorem 3` make something to paste.
 - `translate hola mundo` and `translate to german good morning` translate with Apple's translation, on this Mac. The row says it is Apple's, and that it can be rough.
 - `output` and `input` list the sound devices; Return makes one the device in use. AirPods show their battery.
-- `battery`, `disk`, `memory` and `ip` show a fact about this Mac, under the other results.
+- `battery`, `disk`, `memory` and `ip` show a fact about this Mac, under the other results. `battery` also lists a connected mouse, keyboard or headphones that report one.
 - `brew ripgrep` finds a Homebrew package; Return installs or upgrades it in your terminal. `brew` alone lists what is installed.
 - `base64`, `unbase64`, `urlencode`, `urldecode`, `uppercase`, `lowercase`, `titlecase` and `sha256` change the text after them, or the clipboard.
 - Command-Y on a file shows it in Quick Look.

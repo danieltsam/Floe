@@ -21,9 +21,10 @@ struct SystemFactsTests {
         )
     }
 
-    private func readers(battery: BatteryReading? = nil, address: AddressReading? = nil) -> SystemFacts.Readers {
+    private func readers(battery: BatteryReading? = nil, address: AddressReading? = nil, devices: [DeviceBatteryReading] = []) -> SystemFacts.Readers {
         SystemFacts.Readers(
             battery: { battery },
+            devices: { devices },
             disk: { SystemFacts.Disk(name: "Macintosh HD", free: 212_000_000_000, total: 494_000_000_000) },
             memory: { MemoryReading(total: 16 * 1024 * 1024 * 1024, used: 11 * 1024 * 1024 * 1024) },
             address: { address }
@@ -79,6 +80,28 @@ struct SystemFactsTests {
         if let address = SystemReadings.address() {
             #expect(address.address.split(separator: ".").count == 4)
         }
+    }
+
+    @Test func batteryAlsoListsTheConnectedDevicesThatReportOne() {
+        let mouse = DeviceBatteryReading(id: "m", name: "Magic Mouse", levels: [(.device, 64)])
+        let buds = DeviceBatteryReading(id: "a", name: "AirPods Pro", levels: [(.left, 80), (.right, 82), (.case, 60)])
+        let rows = SystemFacts.rows(for: "battery", readers: readers(battery: battery(82), devices: [buds, mouse]), locale: english)
+        #expect(rows.map(\.text) == ["82%", "Left 80%, Right 82%, Case 60%", "64%"])
+        #expect(rows.map(\.subtitle) == ["On battery", "AirPods Pro", "Magic Mouse"])
+        #expect(Set(rows.map(\.id)).count == 3)
+        #expect(SystemFacts.rows(for: "battery", readers: readers(devices: [mouse]), locale: english).map(\.subtitle) == ["Magic Mouse"], "a Mac with no battery of its own")
+        #expect(SystemFacts.rows(for: "disk", readers: readers(devices: [mouse]), locale: english).count == 1)
+        #expect(SystemFacts.rows(for: "disk space", readers: readers(devices: [mouse]), locale: english).isEmpty)
+    }
+
+    @Test func aDeviceIsReadFromWhatTheRegistrySaysOfIt() {
+        let mouse = SystemReadings.deviceBattery(properties: ["Product": "Magic Mouse", "BatteryPercent": 64, "SerialNumber": "S1"], registryIdentifier: 7)
+        #expect(mouse == DeviceBatteryReading(id: "S1", name: "Magic Mouse", levels: [(.device, 64)]))
+        let buds = SystemReadings.deviceBattery(properties: ["Name": "Buds", "BatteryPercentLeft": 80, "BatteryPercentCase": 60], registryIdentifier: 9)
+        #expect(buds == DeviceBatteryReading(id: "9", name: "Buds", levels: [(.left, 80), (.case, 60)]))
+        #expect(SystemReadings.deviceBattery(properties: ["Product": "Hub"], registryIdentifier: 1) == nil, "no battery, no row")
+        #expect(SystemReadings.deviceBattery(properties: ["BatteryPercent": 255], registryIdentifier: 1) == nil, "a level out of range is none")
+        _ = SystemReadings.deviceBatteries()
     }
 
     @Test func theSentinelsTheSystemPublishesAreNoEstimate() {

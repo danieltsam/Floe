@@ -8,7 +8,7 @@
 //
 //  Floe changes © 2026 René Jiménez, under the same license.
 //
-//  Adapted for Floe from Barometer's SystemSources (BatterySource, MemorySource and NetworkSource),
+//  Adapted for Floe from Barometer's SystemSources (BatterySource, BluetoothBatterySource, MemorySource and NetworkSource),
 //  and cut down: Floe reads once for a row in the search, so the snapshots keep only what that row
 //  shows, and the traffic counters, the adapter, the sensors and the watchers are left out.
 
@@ -30,6 +30,21 @@ nonisolated struct BatteryReading: Equatable, Sendable {
     /// Nil while the system is not estimating in that direction.
     var timeToEmptyMinutes: Int?
     var timeToFullMinutes: Int?
+}
+
+/// The battery of a mouse, a keyboard or headphones connected to the Mac, by the parts that report one.
+nonisolated struct DeviceBatteryReading: Equatable, Sendable, Identifiable {
+    enum Component: Equatable, Sendable {
+        case device, left, right, `case`
+    }
+
+    var id: String
+    var name: String
+    var levels: [(component: Component, percent: Int)]
+
+    static func == (lhs: DeviceBatteryReading, rhs: DeviceBatteryReading) -> Bool {
+        lhs.id == rhs.id && lhs.name == rhs.name && lhs.levels.elementsEqual(rhs.levels) { $0 == $1 }
+    }
 }
 
 /// One reading of memory in use.
@@ -125,6 +140,63 @@ nonisolated enum SystemReadings {
 
     private static func bool(_ value: Any?) -> Bool? {
         (value as? NSNumber)?.boolValue
+    }
+
+    // MARK: Connected devices
+
+    /// The devices in the registry that report a battery, by name. One that is listed twice is taken where it says the most.
+    static func deviceBatteries() -> [DeviceBatteryReading] {
+        var byIdentifier: [String: DeviceBatteryReading] = [:]
+        for className in ["AppleDeviceManagementHIDEventService", "IOBluetoothDevice"] {
+            for (properties, identifier) in allProperties(matching: className) {
+                guard let reading = deviceBattery(properties: properties, registryIdentifier: identifier) else { continue }
+                if reading.levels.count > (byIdentifier[reading.id]?.levels.count ?? 0) {
+                    byIdentifier[reading.id] = reading
+                }
+            }
+        }
+        return byIdentifier.values.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    static func deviceBattery(properties: [String: Any], registryIdentifier: UInt64) -> DeviceBatteryReading? {
+        let string: ([String]) -> String? = { keys in keys.lazy.compactMap { properties[$0] as? String }.first }
+        let percent: ([String]) -> Int? = { keys in
+            keys.lazy.compactMap { (properties[$0] as? NSNumber)?.intValue }.first { (0 ... 100).contains($0) }
+        }
+        let parts: [(DeviceBatteryReading.Component, [String])] = [
+            (.device, ["BatteryPercent", "BatteryPercentSingle", "BatteryLevel"]),
+            (.left, ["BatteryPercentLeft"]),
+            (.right, ["BatteryPercentRight"]),
+            (.case, ["BatteryPercentCase"]),
+        ]
+        let levels = parts.compactMap { part, keys in percent(keys).map { (component: part, percent: $0) } }
+        guard !levels.isEmpty else { return nil }
+        return DeviceBatteryReading(
+            id: string(["DeviceAddress", "SerialNumber"]) ?? String(registryIdentifier),
+            name: string(["Product", "ProductName", "DeviceName", "Name"]) ?? "Bluetooth Device",
+            levels: levels
+        )
+    }
+
+    private static func allProperties(matching className: String) -> [([String: Any], UInt64)] {
+        guard let matching = IOServiceMatching(className) else { return [] }
+        var iterator: io_iterator_t = 0
+        guard IOServiceGetMatchingServices(kIOMainPortDefault, matching, &iterator) == KERN_SUCCESS else { return [] }
+        defer { IOObjectRelease(iterator) }
+        var result: [([String: Any], UInt64)] = []
+        while true {
+            let service = IOIteratorNext(iterator)
+            guard service != 0 else { break }
+            defer { IOObjectRelease(service) }
+            var unmanagedProperties: Unmanaged<CFMutableDictionary>?
+            var identifier: UInt64 = 0
+            guard IORegistryEntryGetRegistryEntryID(service, &identifier) == KERN_SUCCESS,
+                  IORegistryEntryCreateCFProperties(service, &unmanagedProperties, nil, 0) == KERN_SUCCESS,
+                  let properties = unmanagedProperties?.takeRetainedValue() as? [String: Any]
+            else { continue }
+            result.append((properties, identifier))
+        }
+        return result
     }
 
     // MARK: Memory
