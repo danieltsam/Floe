@@ -7,6 +7,7 @@
 
 import AppKit
 @testable import Floe
+import Synchronization
 import Testing
 
 @MainActor final class NoteDeskTests {
@@ -147,20 +148,22 @@ import Testing
         #expect(try NoteDesk.save("theirs\n", to: note, readAt: nil) == .written(modified: NoteDesk.modified(note)), "the same text is no conflict")
     }
 
-    @Test func aListingThatFinishesAfterANewerOneIsDropped() async throws {
-        let calls = CallLog()
+    @Test func aListingThatFinishesAfterANewerOneIsDropped() async {
+        let isFirst = Mutex(true)
+        let (entries, entered) = AsyncStream.makeStream(of: Void.self)
+        let release = DispatchSemaphore(value: 0)
         let desk = NoteDeskModel(app: .folder, folder: vault.path, list: { folder in
-            calls.note("listed")
-            // The first listing is the slow one, and comes back after the second.
-            if calls.all.count == 1 {
-                Thread.sleep(forTimeInterval: 0.3)
-                return []
-            }
-            return NoteDesk.notes(in: folder)
+            // The first listing is held until the second one has finished.
+            guard isFirst.withLock({ defer { $0 = false }; return $0 }) else { return NoteDesk.notes(in: folder) }
+            entered.yield()
+            release.wait()
+            return []
         })
         let older = desk.start()
-        try await Task.sleep(for: .milliseconds(50))
+        var entry = entries.makeAsyncIterator()
+        await entry.next()
         await desk.start().value
+        release.signal()
         await older.value
         #expect(desk.notes.map(\.name) == ["Plan", "Ideas", "Old"], "the older, empty listing does not replace the newer one")
     }
