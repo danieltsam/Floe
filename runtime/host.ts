@@ -16,6 +16,7 @@ import { dispatchEvent, render, renderInFull, toError } from "./renderer";
 import { NavigationRoot, commandDrewItself, handleToastAction } from "./api/index";
 import { bundle, findEntry } from "./build";
 import { flushCaches } from "./cache";
+import { withNodeCause } from "./fetch";
 import { lineSplitter } from "./lines";
 import { isRecording, observe } from "./access";
 
@@ -94,6 +95,8 @@ const launchProps = {
   arguments: argumentsJSON ? JSON.parse(argumentsJSON) : {},
   fallbackText: undefined,
 };
+
+globalThis.fetch = withNodeCause(globalThis.fetch);
 
 try {
   const entry = await bundle(findEntry());
