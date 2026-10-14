@@ -60,6 +60,8 @@ export function fingerprint(entry: string): string {
     sources: newestChange(entry.startsWith(sources + path.sep) ? sources : entry),
     manifest: newestChange(path.join(ctx.extDir, "package.json")),
     dependencies: newestChange(path.join(ctx.extDir, "node_modules", ".package-lock.json")) || newestChange(path.join(ctx.extDir, "bun.lock")),
+    // What __dirname is defined as, so a bundle built before it was is built again.
+    root: ctx.extDir,
     shim: shimPath,
     shimChanged: newestChange(path.join(import.meta.dir, "api")),
     react: require.resolve("react"),
@@ -84,6 +86,12 @@ function buildUnchecked(entry: string, outdir: string) {
     target: "bun",
     format: "esm",
     naming: `${ctx.commandName}.js`,
+    // Raycast's own build leaves one file per command at the extension's root, and extensions find their
+    // assets from there. Bun would put each source file's own folder in its place.
+    define: {
+      __dirname: JSON.stringify(ctx.extDir),
+      __filename: JSON.stringify(path.join(ctx.extDir, `${ctx.commandName}.js`)),
+    },
     plugins: [
       {
         name: "raycast-shim",

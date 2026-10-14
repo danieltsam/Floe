@@ -176,6 +176,25 @@ describe("bundle", () => {
     expect(find(tree, "List.Item").props.title).toBe("from the bundle");
   });
 
+  // Raycast builds each command into one file at the extension's root, so that is where an extension
+  // expects __dirname to be, and where it looks for its assets from a file deep in src.
+  test("a source file's __dirname is the extension's folder, as in the bundle Raycast builds", async () => {
+    const extDir = makeExtension(
+      {
+        "src/where.ts": 'import { place } from "./core/devices/place";\nexport default () => place;',
+        "src/core/devices/place.ts":
+          'import fs from "node:fs";\nimport path from "node:path";\nexport const place = { dir: __dirname, file: __filename, script: fs.readFileSync(path.resolve(__dirname, "assets/scripts/hello.applescript"), "utf8") };',
+        "assets/scripts/hello.applescript": 'return "hello"',
+      },
+      "where",
+    );
+    const place = (await import(await bundle(findEntry()))).default();
+
+    expect(place.dir).toBe(extDir);
+    expect(place.file).toBe(path.join(extDir, "where.js"));
+    expect(place.script).toBe('return "hello"');
+  });
+
   test("reuses the cached bundle until a source file changes", async () => {
     const extDir = makeExtension({ "src/cached.ts": "export default () => 1;" }, "cached");
     const entry = findEntry();
