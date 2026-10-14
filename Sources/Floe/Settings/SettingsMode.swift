@@ -69,10 +69,7 @@ final class SettingsAppDelegate: NSObject, NSApplicationDelegate {
         link.handler = { [weak self] in self?.handle($0) }
         link.start()
 
-        settings.onSaved = { link.send(.settingsChanged) }
-        SnippetStore.shared.onSaved = { link.send(.storeChanged(.snippets)) }
-        QuicklinkStore.shared.onSaved = { link.send(.storeChanged(.quicklinks)) }
-        PreferenceStore.onSaved = { link.send(.storeChanged(.preferences)) }
+        SharedStores.announceSaves(settings: settings, send: link.send)
         settings.$isRecordingHotkey.removeDuplicates().dropFirst()
             .sink { link.send(.recording($0)) }
             .store(in: &cancellables)
@@ -116,7 +113,7 @@ final class SettingsAppDelegate: NSObject, NSApplicationDelegate {
         case .settingsChanged:
             settings.reload()
         case .storeChanged:
-            reload(message.store)
+            SharedStores.reload(message.store)
         case .showPage:
             window.show(page: SettingsPage(id: message.payload))
         case .updatesState:
@@ -133,14 +130,6 @@ final class SettingsAppDelegate: NSObject, NSApplicationDelegate {
             SettingsSyncStatus.shared.status = SyncStatus(text: message.payload) ?? SyncStatus()
         default:
             break
-        }
-    }
-
-    private func reload(_ store: LinkStore?) {
-        switch store {
-        case .snippets: SnippetStore.shared.reload()
-        case .quicklinks: QuicklinkStore.shared.reload()
-        case .preferences, nil: break
         }
     }
 

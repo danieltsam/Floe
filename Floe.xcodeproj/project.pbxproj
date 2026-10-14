@@ -62,6 +62,7 @@
 		2B1A399FDE1939D1D734D098 /* BrowserTabs.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8527BDAB44BF2D98CE3BD42 /* BrowserTabs.swift */; };
 		2BFEE6E8DD8086DE1C2073D7 /* CalendarEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B51B0E39DFF60B021A02923 /* CalendarEvents.swift */; };
 		2C40C06B4FFD0149F302B4C5 /* SettingsSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3100D60F947CCED23DE9323E /* SettingsSyncService.swift */; };
+		2D727CC2445AAC4F56D021BC /* SharedStores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348720DBE211B7470E8566C5 /* SharedStores.swift */; };
 		2DB3E601CF97F2DDF0C51F46 /* Reminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C9473A53B6666AEE0D77E1 /* Reminders.swift */; };
 		2F2C92D19D7245D7F8BC804D /* NoteDesk.swift in Sources */ = {isa = PBXBuildFile; fileRef = B464443DD490926A31FA4AE7 /* NoteDesk.swift */; };
 		30006369197A5CD610686735 /* ThawAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF06C3F297B3836936EA6CA5 /* ThawAppearance.swift */; };
@@ -448,6 +449,7 @@
 		3403F2FFC4C6AC53013ACA55 /* ChatCompletionStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCompletionStream.swift; sourceTree = "<group>"; };
 		342BD805AEDC50518DA23278 /* fend-corpus.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "fend-corpus.py"; sourceTree = "<group>"; };
 		346C26CF75579A6E00675695 /* Calculator+Shorthand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Calculator+Shorthand.swift"; sourceTree = "<group>"; };
+		348720DBE211B7470E8566C5 /* SharedStores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedStores.swift; sourceTree = "<group>"; };
 		356E0065655492468F2D518F /* SystemReadings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemReadings.swift; sourceTree = "<group>"; };
 		35DAB6F738D66C12AB99B0C1 /* generate-credits.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "generate-credits.py"; sourceTree = "<group>"; };
 		35F8F20630467F0633497F89 /* SettingsSidebarPaneList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSidebarPaneList.swift; sourceTree = "<group>"; };
@@ -1246,6 +1248,7 @@
 				FFCE42B5277736D7F8DD7E0D /* SearchCommand.swift */,
 				CAE1FD745114DE428E9E078B /* SettingsProcess.swift */,
 				3100D60F947CCED23DE9323E /* SettingsSyncService.swift */,
+				348720DBE211B7470E8566C5 /* SharedStores.swift */,
 				1AF1D982AAAE8FF36B96F53F /* UpdateLogic.swift */,
 				70891E9ABBE4E3EFF52220DE /* UpdatesLink.swift */,
 			);
@@ -1729,6 +1732,7 @@
 				0ACA1EC1D9EEAAEA9749B129 /* SettingsView.swift in Sources */,
 				7B518EA27B443804350FDA49 /* SettingsWindow.swift in Sources */,
 				4E1766F160310A9E2F6577A9 /* SetupFormModel.swift in Sources */,
+				2D727CC2445AAC4F56D021BC /* SharedStores.swift in Sources */,
 				91F1AB81D0B571ED89DE6970 /* Shell.swift in Sources */,
 				B4DF4A9E271F020F5004EDA3 /* ShellAliases.swift in Sources */,
 				DC38D65DEC1867DF56070A6D /* ShellCommand+Running.swift in Sources */,

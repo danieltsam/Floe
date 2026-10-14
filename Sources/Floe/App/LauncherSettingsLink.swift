@@ -41,11 +41,8 @@ final class LauncherSettingsLink {
         link.handler = { [weak self] in self?.handle($0) }
         link.start()
 
-        settings.onSaved = { link.send(.settingsChanged) }
-        SnippetStore.shared.onSaved = { link.send(.storeChanged(.snippets)) }
-        QuicklinkStore.shared.onSaved = { link.send(.storeChanged(.quicklinks)) }
         let sync = sync
-        PreferenceStore.onSaved = { sync.extensionSettingsChanged() }
+        SharedStores.announceSaves(settings: settings, preferencesSaved: { sync.extensionSettingsChanged() }, send: link.send)
         // An extension installed after its record arrived takes the record once the scan lists it.
         model.catalog.$allCommands.dropFirst()
             .sink { _ in sync.extensionSettingsChanged() }
@@ -105,9 +102,7 @@ final class LauncherSettingsLink {
 
     /// Recovers foreground-saved changes after its pipe closes, including an unexpected exit.
     func refreshFromPanel() {
-        settings.reload()
-        SnippetStore.shared.reload()
-        QuicklinkStore.shared.reload()
+        SharedStores.reloadAll(settings: settings)
     }
 
     /// Accepts only the foreground's supported settings mutations and relays them to Settings.
@@ -128,7 +123,7 @@ final class LauncherSettingsLink {
         case .settingsChanged:
             settings.reload()
         case .storeChanged:
-            reload(message.store)
+            SharedStores.reload(message.store) { [sync] in sync.extensionSettingsChanged() }
         case .ready:
             // A process just started has its window up by now.
             process.activate()
@@ -143,16 +138,6 @@ final class LauncherSettingsLink {
             suspendHotkeys(local: settings.isRecordingHotkey)
         default:
             perform(message)
-        }
-    }
-
-    /// Reloads only the named persistent store; absent or unsupported names do nothing.
-    private func reload(_ store: LinkStore?) {
-        switch store {
-        case .snippets: SnippetStore.shared.reload()
-        case .quicklinks: QuicklinkStore.shared.reload()
-        case .preferences: sync.extensionSettingsChanged()
-        case nil: break
         }
     }
 

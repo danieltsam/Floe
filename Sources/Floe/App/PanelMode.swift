@@ -73,13 +73,13 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
             self?.model.menuBarSearch.accessWasGranted()
             self?.model.refresh()
         }
-        settings.onSaved = { [channel] in
-            CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
-            channel.send(.settings(LinkMessage.Kind.settingsChanged.rawValue, ""))
+        SharedStores.announceSaves(settings: settings) { [channel] message in
+            // The defaults reach the disk before the resident reads them again.
+            if message.kind == .settingsChanged {
+                CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
+            }
+            channel.send(.settings(message.kind.rawValue, message.payload))
         }
-        SnippetStore.shared.onSaved = { [channel] in channel.send(.settings(LinkMessage.Kind.storeChanged.rawValue, LinkStore.snippets.rawValue)) }
-        QuicklinkStore.shared.onSaved = { [channel] in channel.send(.settings(LinkMessage.Kind.storeChanged.rawValue, LinkStore.quicklinks.rawValue)) }
-        PreferenceStore.onSaved = { [channel] in channel.send(.settings(LinkMessage.Kind.storeChanged.rawValue, LinkStore.preferences.rawValue)) }
         appWatcher = AppFolderWatcher { [weak self] in self?.model.catalog.reloadApps() }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self, self.panel?.isKeyWindow == true else { return event }
@@ -128,9 +128,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
             }
         case .refresh: model.refresh()
         case .reload:
-            settings.reload()
-            SnippetStore.shared.reload()
-            QuicklinkStore.shared.reload()
+            SharedStores.reloadAll(settings: settings)
             model.catalog.reloadCommands()
             model.catalog.reloadScripts()
             model.refresh()
