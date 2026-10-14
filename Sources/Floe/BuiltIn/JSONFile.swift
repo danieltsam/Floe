@@ -14,8 +14,11 @@ nonisolated enum JSONFile {
         (try? Data(contentsOf: file)).flatMap { try? JSONDecoder().decode(Value.self, from: $0) }
     }
 
-    static func write(_ value: some Encodable, to file: URL) {
-        try? JSONEncoder().encode(value).write(to: file, options: .atomic)
+    /// The folder the file sits in is made when it is missing. False when nothing was written.
+    @discardableResult
+    static func write(_ value: some Encodable, to file: URL) -> Bool {
+        try? FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+        return (try? JSONEncoder().encode(value).write(to: file, options: .atomic)) != nil
     }
 }
 

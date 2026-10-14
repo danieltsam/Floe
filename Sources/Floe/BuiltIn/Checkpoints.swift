@@ -129,7 +129,6 @@ final nonisolated class CheckpointStore: Sendable {
     }
 
     private func write(_ checkpoints: [Checkpoint]) {
-        try? FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
         JSONFile.write(checkpoints, to: file)
     }
 }

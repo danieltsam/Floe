@@ -73,7 +73,7 @@ struct ClipboardHistoryView: View {
                         SearchSectionHeader(title: String(localized: "Pinned", bundle: .floe, comment: "The heading over the copies the user pinned."))
                         ForEach(pinned) { entry in row(entry, entries: entries) }
                     }
-                    ForEach(dayGroups(rest), id: \.title) { group in
+                    ForEach(Self.dayGroups(rest), id: \.title) { group in
                         SearchSectionHeader(title: group.title)
                         ForEach(group.entries) { entry in row(entry, entries: entries) }
                     }
@@ -222,37 +222,24 @@ struct ClipboardHistoryView: View {
         }
     }
 
-    private struct DayGroup {
+    struct DayGroup {
         let title: String
         let entries: [ClipboardEntry]
     }
 
-    private func dayGroups(_ entries: [ClipboardEntry]) -> [DayGroup] {
-        let calendar = Calendar.current
-        var today: [ClipboardEntry] = []
-        var yesterday: [ClipboardEntry] = []
-        var byDay: [Date: [ClipboardEntry]] = [:]
-        for entry in entries {
-            if calendar.isDateInToday(entry.date) {
-                today.append(entry)
-            } else if calendar.isDateInYesterday(entry.date) {
-                yesterday.append(entry)
-            } else {
-                let day = calendar.startOfDay(for: entry.date)
-                byDay[day, default: []].append(entry)
+    static func dayGroups(_ entries: [ClipboardEntry], calendar: Calendar = .current) -> [DayGroup] {
+        Dictionary(grouping: entries) { calendar.startOfDay(for: $0.date) }
+            .sorted { $0.key > $1.key }
+            .map { day, entries in
+                let title = if calendar.isDateInToday(day) {
+                    String(localized: "Today", bundle: .floe, comment: "The heading over what was copied today.")
+                } else if calendar.isDateInYesterday(day) {
+                    String(localized: "Yesterday", bundle: .floe, comment: "The heading over what was copied yesterday.")
+                } else {
+                    dateFormatter.string(from: day)
+                }
+                return DayGroup(title: title, entries: entries)
             }
-        }
-        var groups: [DayGroup] = []
-        if !today.isEmpty {
-            groups.append(DayGroup(title: String(localized: "Today", bundle: .floe, comment: "The heading over what was copied today."), entries: today))
-        }
-        if !yesterday.isEmpty {
-            groups.append(DayGroup(title: String(localized: "Yesterday", bundle: .floe, comment: "The heading over what was copied yesterday."), entries: yesterday))
-        }
-        for day in byDay.keys.sorted(by: >) {
-            groups.append(DayGroup(title: Self.dateFormatter.string(from: day), entries: byDay[day] ?? []))
-        }
-        return groups
     }
 
     private static let dateFormatter: DateFormatter = {

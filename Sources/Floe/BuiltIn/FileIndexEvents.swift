@@ -5,6 +5,7 @@
 //  Copyright (Floe) © 2026 René Jiménez
 //  Licensed under the GNU AGPLv3
 
+import Algorithms
 import CoreServices
 import Foundation
 
@@ -27,18 +28,11 @@ nonisolated enum FileIndexEvents {
     static func changes(paths: [String], flags: [FSEventStreamEventFlags]) -> [FileIndexChange] {
         let lost = FSEventStreamEventFlags(kFSEventStreamEventFlagMustScanSubDirs | kFSEventStreamEventFlagUserDropped | kFSEventStreamEventFlagKernelDropped)
         let unrelated = FSEventStreamEventFlags(kFSEventStreamEventFlagHistoryDone | kFSEventStreamEventFlagMount | kFSEventStreamEventFlagUnmount)
-        var seen = Set<FileIndexChange>()
-        var changes: [FileIndexChange] = []
-        for (path, flag) in zip(paths, flags) where flag & unrelated == 0 {
-            if flag & FSEventStreamEventFlags(kFSEventStreamEventFlagRootChanged) != 0 {
-                return [.everything]
-            }
-            let change = flag & lost != 0 ? FileIndexChange.subtree(path) : .folder(path)
-            if seen.insert(change).inserted {
-                changes.append(change)
-            }
+        let reported = zip(paths, flags).filter { $0.1 & unrelated == 0 }
+        if reported.contains(where: { $0.1 & FSEventStreamEventFlags(kFSEventStreamEventFlagRootChanged) != 0 }) {
+            return [.everything]
         }
-        return changes
+        return Array(reported.map { path, flag in flag & lost != 0 ? FileIndexChange.subtree(path) : .folder(path) }.uniqued())
     }
 
     /// Folders the index never lists, so the stream need not report them: most of what changes under home is in Library.

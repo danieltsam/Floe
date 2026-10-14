@@ -5,6 +5,7 @@
 //  Copyright (Floe) © 2026 René Jiménez
 //  Licensed under the GNU AGPLv3
 
+import Algorithms
 import Darwin
 import Foundation
 
@@ -42,8 +43,7 @@ nonisolated enum Processes {
 
     /// The process numbers in what `lsof -t` printed, each once.
     static func pids(in output: String) -> [Int32] {
-        var seen = Set<Int32>()
-        return output.split(whereSeparator: \.isNewline).compactMap { Int32($0.trimmingCharacters(in: .whitespaces)) }.filter { seen.insert($0).inserted }
+        Array(output.split(whereSeparator: \.isNewline).compactMap { Int32($0.trimmingCharacters(in: .whitespaces)) }.uniqued())
     }
 
     private static let listeners = TimedCache<Int, [Int32]>()
@@ -74,11 +74,11 @@ nonisolated enum Processes {
 
     /// The processes whose name or path holds the typed text, those named so first, then the ones holding most memory.
     static func matching(_ typed: String, in processes: [RunningProcess], excluding own: Int32 = getpid()) -> [RunningProcess] {
-        let found = processes.filter { $0.pid != own && $0.pid > 1 && $0.path.localizedCaseInsensitiveContains(typed) }
-        let named = found.filter { $0.name.localizedCaseInsensitiveContains(typed) }
-        let elsewhere = found.filter { !$0.name.localizedCaseInsensitiveContains(typed) }
-        let byMemory: (RunningProcess, RunningProcess) -> Bool = { $0.memory == $1.memory ? $0.pid < $1.pid : $0.memory > $1.memory }
-        return Array((named.sorted(by: byMemory) + elsewhere.sorted(by: byMemory)).prefix(limit))
+        processes
+            .filter { $0.pid != own && $0.pid > 1 && $0.path.localizedCaseInsensitiveContains(typed) }
+            .map { (process: $0, named: $0.name.localizedCaseInsensitiveContains(typed)) }
+            .min(count: limit) { ($0.named ? 0 : 1, $1.process.memory, $0.process.pid) < ($1.named ? 0 : 1, $0.process.memory, $1.process.pid) }
+            .map(\.process)
     }
 
     /// What sets one row apart from another of the same name: its number and what it holds.

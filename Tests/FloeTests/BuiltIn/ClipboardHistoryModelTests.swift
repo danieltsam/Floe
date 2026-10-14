@@ -124,4 +124,19 @@ final class ClipboardHistoryModelTests {
         #expect(try launcher.handleKey(key(53)))
         #expect(!launcher.isShowingClipboardHistory)
     }
+
+    @Test func theCopiesAreGroupedByDayNewestDayFirstAndKeepTheirOrderInsideADay() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let copy: (String, Int, TimeInterval) -> ClipboardEntry = { text, daysAgo, seconds in
+            let day = calendar.date(byAdding: .day, value: -daysAgo, to: today) ?? today
+            return ClipboardEntry(id: UUID(), kind: .text, text: text, date: day.addingTimeInterval(seconds), pinned: false)
+        }
+        let entries = [copy("five days, late", 5, 90), copy("today, early", 0, 1), copy("three days", 3, 5), copy("yesterday", 1, 60), copy("today, late", 0, 2), copy("five days, early", 5, 30)]
+        let groups = ClipboardHistoryView.dayGroups(entries, calendar: calendar)
+        #expect(groups.map { $0.entries.map(\.text) } == [["today, early", "today, late"], ["yesterday"], ["three days"], ["five days, late", "five days, early"]])
+        #expect(groups.prefix(2).map(\.title) == [String(localized: "Today", bundle: .floe), String(localized: "Yesterday", bundle: .floe)])
+        #expect(Set(groups.map(\.title)).count == 4, "each day under its own heading")
+        #expect(ClipboardHistoryView.dayGroups([], calendar: calendar).isEmpty)
+    }
 }

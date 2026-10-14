@@ -106,9 +106,7 @@ final class SnippetStore: ObservableObject {
     }
 
     private func save() {
-        guard !isLoading, let data = try? JSONEncoder().encode(Saved(snippets: snippets, expansionEnabled: expansionEnabled)) else { return }
-        try? FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try? data.write(to: file, options: .atomic)
+        guard !isLoading, JSONFile.write(Saved(snippets: snippets, expansionEnabled: expansionEnabled), to: file) else { return }
         onSaved?()
     }
 }

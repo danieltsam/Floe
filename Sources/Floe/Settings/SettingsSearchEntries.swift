@@ -893,18 +893,11 @@ extension SearchIndex {
     /// One group per extension: the extension, its preferences, then each command and the
     /// command's preferences. Extensions follow the sidebar's order, by title.
     static func extensionEntries(for commands: [ExtensionCommand]) -> [SearchEntry] {
-        var order: [String] = []
-        var byExtension: [String: [ExtensionCommand]] = [:]
-        for command in commands {
-            if byExtension[command.extensionName] == nil {
-                order.append(command.extensionName)
-            }
-            byExtension[command.extensionName, default: []].append(command)
-        }
-        return order.compactMap { byExtension[$0] }
+        Dictionary(grouping: commands, by: \.extensionName).values
             .sorted { lhs, rhs in
                 guard let left = lhs.first, let right = rhs.first else { return false }
-                return left.extensionTitle.localizedCaseInsensitiveCompare(right.extensionTitle) == .orderedAscending
+                let byTitle = left.extensionTitle.localizedCaseInsensitiveCompare(right.extensionTitle)
+                return byTitle == .orderedSame ? left.extensionName < right.extensionName : byTitle == .orderedAscending
             }
             .flatMap(entries(forExtension:))
     }

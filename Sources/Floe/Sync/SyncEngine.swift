@@ -82,10 +82,7 @@ struct SyncJournalStorage {
     static func file(_ url: URL) -> SyncJournalStorage {
         SyncJournalStorage(
             load: { (try? Data(contentsOf: url)).flatMap { try? JSONDecoder().decode(SyncJournal.self, from: $0) } },
-            save: { journal in
-                try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-                try? JSONEncoder().encode(journal).write(to: url, options: .atomic)
-            }
+            save: { JSONFile.write($0, to: url) }
         )
     }
 }

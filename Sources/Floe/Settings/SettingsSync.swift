@@ -5,6 +5,7 @@
 //  Copyright (Floe) © 2026 René Jiménez
 //  Licensed under the GNU AGPLv3
 
+import Algorithms
 import Foundation
 
 /// Which of Floe's stored settings sync between Macs, and how each becomes records. A setting in neither
@@ -219,9 +220,7 @@ nonisolated enum OrderedSync {
     /// The order may name members that are gone; it never adds or removes one.
     static func arranged<Member: Hashable>(_ members: [Member], by order: [Member]) -> [Member] {
         let held = Set(members)
-        var seen: Set<Member> = []
-        let named = order.filter { held.contains($0) && seen.insert($0).inserted }
-        return named + members.filter { seen.insert($0).inserted }
+        return Array((order.filter(held.contains) + members).uniqued())
     }
 }
 

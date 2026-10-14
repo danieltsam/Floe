@@ -560,4 +560,14 @@ struct SyncEngineTests {
         #expect(UbiquitousSyncStore.change(reason: NSUbiquitousKeyValueStoreInitialSyncChange) == .initialValues)
         #expect(UbiquitousSyncStore.change(reason: nil) == .values)
     }
+
+    @Test func theJournalFileIsWrittenIntoAFolderThatWasNotThereYet() {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("floe-sync-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let storage = SyncJournalStorage.file(folder.appendingPathComponent("deeper/journal.json"))
+        #expect(storage.load() == nil)
+        let journal = SyncJournal(device: "mac", seen: ["alias": "digest"], wasOn: true)
+        storage.save(journal)
+        #expect(storage.load() == journal)
+    }
 }

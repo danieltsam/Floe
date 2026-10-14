@@ -77,17 +77,9 @@ nonisolated struct ScriptCommand: Identifiable, Sendable, Hashable {
         }
         var values: [String: String] = [:]
         for line in text.components(separatedBy: .newlines) {
-            guard let range = line.range(of: "@raycast.") else { continue }
-            let rest = String(line[range.upperBound...]).trimmingCharacters(in: .whitespaces)
-            var end = rest.startIndex
-            while end < rest.endIndex, rest[end].isLetter {
-                end = rest.index(after: end)
-            }
-            while end < rest.endIndex, rest[end].isNumber {
-                end = rest.index(after: end)
-            }
-            let key = String(rest[..<end]).lowercased()
-            let value = String(rest[end...]).trimmingCharacters(in: .whitespaces)
+            guard let match = line.firstMatch(of: /@raycast\.\h*(\p{L}*\p{N}*)(.*)/) else { continue }
+            let key = match.1.lowercased()
+            let value = match.2.trimmingCharacters(in: .whitespaces)
             guard !key.isEmpty, values[key] == nil else { continue }
             values[key] = value
         }

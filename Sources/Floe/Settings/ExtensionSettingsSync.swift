@@ -23,10 +23,7 @@ final class ExtensionSettingsSync {
         static func file(_ url: URL) -> Storage {
             Storage(
                 load: { (try? Data(contentsOf: url)).flatMap { try? JSONDecoder().decode(Held.self, from: $0) } },
-                save: { held in
-                    try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-                    try? JSONEncoder().encode(held).write(to: url, options: .atomic)
-                }
+                save: { JSONFile.write($0, to: url) }
             )
         }
     }

@@ -88,7 +88,6 @@ final nonisolated class ExtensionAccessStore: Sendable {
     }
 
     private func write(_ everything: [String: ExtensionAccess]) {
-        try? FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
         JSONFile.write(everything, to: file)
     }
 }

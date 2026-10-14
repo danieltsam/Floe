@@ -179,4 +179,13 @@ struct ExtensionSettingsSyncTests {
         #expect(fields["weather"]?.keys.sorted() == ["city", "forecast/days", "metric", "units"])
         #expect(ExtensionSettingsSync.syncedTypes.isDisjoint(with: ["password", "file", "directory", "appPicker"]))
     }
+
+    @Test func whatIsHeldIsWrittenIntoAFolderThatWasNotThereYet() {
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let storage = ExtensionSettingsSync.Storage.file(folder.appendingPathComponent("deeper/held.json"))
+        #expect(storage.load() == nil)
+        let held = ExtensionSettingsSync.Held(records: ["weather": "record"], pending: ["notes"])
+        storage.save(held)
+        #expect(storage.load() == held)
+    }
 }

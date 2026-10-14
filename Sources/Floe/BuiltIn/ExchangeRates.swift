@@ -53,7 +53,6 @@ nonisolated enum ExchangeRateStore {
     }
 
     static func save(_ rates: ExchangeRates, to file: URL = file) {
-        try? FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
         JSONFile.write(rates, to: file)
     }
 

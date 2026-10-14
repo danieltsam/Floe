@@ -281,7 +281,6 @@ final nonisolated class ReceiptStore: Sendable {
     }
 
     private func write(_ receipts: [Receipt]) {
-        try? FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
         JSONFile.write(receipts, to: file)
     }
 

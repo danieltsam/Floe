@@ -5,6 +5,7 @@
 //  Copyright (Floe) © 2026 René Jiménez
 //  Licensed under the GNU AGPLv3
 
+import Algorithms
 import Contacts
 import Foundation
 
@@ -129,18 +130,9 @@ nonisolated enum ContactSearch {
         let wanted = folded(query)
         let words = wanted.split(separator: " ").map(String.init)
         guard !words.isEmpty else { return [] }
-        var starting: [ContactPerson] = []
-        var holding: [ContactPerson] = []
-        for person in people {
-            let name = folded(person.name)
-            guard words.allSatisfy(name.contains) else { continue }
-            if name.hasPrefix(wanted) || name.contains(" " + wanted) {
-                starting.append(person)
-            } else {
-                holding.append(person)
-            }
-        }
-        return Array((starting + holding).prefix(limit))
+        let found = people.map { (person: $0, name: folded($0.name)) }.filter { words.allSatisfy($0.name.contains) }
+        let (holding, starting) = found.partitioned { $0.name.hasPrefix(wanted) || $0.name.contains(" " + wanted) }
+        return (starting + holding).prefix(limit).map(\.person)
     }
 
     private static func folded(_ text: String) -> String {

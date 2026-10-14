@@ -152,12 +152,8 @@ final class QuicklinkStore: ObservableObject {
     }
 
     private func save() {
-        guard !isLoading else { return }
-        try? FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
-        if let data = try? JSONEncoder().encode(links) {
-            try? data.write(to: file, options: .atomic)
-            onSaved?()
-        }
+        guard !isLoading, JSONFile.write(links, to: file) else { return }
+        onSaved?()
     }
 }
 

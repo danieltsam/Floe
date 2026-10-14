@@ -175,20 +175,9 @@ extension CalculatorFormatter {
 
     /// The patterns handed to `replacePattern` are fixed strings, so each is compiled once. It stays
     /// NSRegularExpression: Swift's own regex has no lookbehind, which five of the patterns need.
-    private static let compilationLock = NSLock()
-    private static nonisolated(unsafe) var compiledPatterns: [String: NSRegularExpression] = [:]
+    private static let compiledPatterns = TimedCache<String, NSRegularExpression?>()
 
     private static func compiledPattern(_ pattern: String) -> NSRegularExpression? {
-        compilationLock.lock()
-        if let regex = compiledPatterns[pattern] {
-            compilationLock.unlock()
-            return regex
-        }
-        let regex = try? NSRegularExpression(pattern: pattern)
-        if let regex {
-            compiledPatterns[pattern] = regex
-        }
-        compilationLock.unlock()
-        return regex
+        compiledPatterns.value(for: pattern) { try? NSRegularExpression(pattern: pattern) }
     }
 }

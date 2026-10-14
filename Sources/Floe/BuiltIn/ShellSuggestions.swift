@@ -5,6 +5,7 @@
 //  Copyright (Floe) © 2026 René Jiménez
 //  Licensed under the GNU AGPLv3
 
+import Algorithms
 import Foundation
 import Synchronization
 
@@ -94,8 +95,7 @@ nonisolated enum ShellSuggestions {
             let anywhere = earlier.filter { !$0.hasPrefix(started) && $0.localizedCaseInsensitiveContains(started) }
             found += anywhere.prefix(3).map { ShellRow(text: $0, origin: .history) }
         }
-        var seen = Set<String>()
-        return Array(found.filter { seen.insert($0.text).inserted }.prefix(limit))
+        return Array(found.uniqued(on: \.text).prefix(limit))
     }
 
     /// The typed line finished with a name Floe already knows: an application after `open -a`, a host after `ssh` or `scp`.
@@ -174,7 +174,6 @@ nonisolated enum ShellHistory {
     /// command (`: 1700000000:0;ls`); a command carried over several lines is left out.
     static func commands(in text: String) -> [String] {
         var commands: [String] = []
-        var seen = Set<String>()
         var continues = false
         for line in text.split(whereSeparator: \.isNewline) {
             let wasContinuing = continues
@@ -188,7 +187,7 @@ nonisolated enum ShellHistory {
             guard !trimmed.isEmpty, trimmed.count <= 300 else { continue }
             commands.append(trimmed)
         }
-        return commands.reversed().filter { seen.insert($0).inserted }
+        return Array(commands.reversed().uniqued())
     }
 
     static func files(environment: [String: String] = LoginEnvironment.current, home: URL = FileManager.default.homeDirectoryForCurrentUser) -> [URL] {
