@@ -89,7 +89,7 @@ struct NoteDeskView: View {
     @ViewBuilder
     private var note: some View {
         if let notice = desk.notice {
-            ThawEmptyState(systemImage: "doc.text", title: LocalizedStringKey(notice))
+            ThawEmptyState(systemImage: "doc.text", title: "\(notice)")
         } else if desk.isEditing {
             TextEditor(text: $desk.text)
                 .font(.system(size: 13, design: .monospaced))

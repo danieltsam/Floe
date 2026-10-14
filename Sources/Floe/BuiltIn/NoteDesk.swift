@@ -84,7 +84,8 @@ nonisolated enum NoteDesk {
     /// Writes the editor's text, unless the file is no longer the one that was read: then both are kept.
     @MainActor
     static func save(_ text: String, to note: URL, readAt modified: Date?, now: Date = Date()) throws -> Saved {
-        if let onDisk = Self.modified(note), let modified, onDisk != modified, (try? String(contentsOf: note, encoding: .utf8)) != text {
+        // A note read without a date is checked by its text, as one whose date moved is.
+        if let onDisk = Self.modified(note), onDisk != modified, (try? String(contentsOf: note, encoding: .utf8)) != text {
             let beside = note.deletingLastPathComponent()
                 .appendingPathComponent("\(note.deletingPathExtension().lastPathComponent) (Floe \(NoteFiles.stamp("yyyy-MM-dd HH.mm.ss", now))).md")
             try Data(text.utf8).write(to: beside, options: .withoutOverwriting)

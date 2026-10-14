@@ -135,6 +135,36 @@ import Testing
         #expect(try text(of: "Plan.md") == "theirs\n")
     }
 
+    @Test func aNoteReadWithoutADateIsNotOverwrittenWhenItsTextChangedSince() throws {
+        let note = vault.appendingPathComponent("Plan.md")
+        try write("theirs\n", to: "Plan.md", changed: 900)
+        guard case let .keptBeside(copy) = try NoteDesk.save("mine\n", to: note, readAt: nil) else {
+            Issue.record("a note with no date of its own was written over")
+            return
+        }
+        #expect(try text(of: "Plan.md") == "theirs\n")
+        #expect(try String(contentsOf: copy, encoding: .utf8) == "mine\n")
+        #expect(try NoteDesk.save("theirs\n", to: note, readAt: nil) == .written(modified: NoteDesk.modified(note)), "the same text is no conflict")
+    }
+
+    @Test func aListingThatFinishesAfterANewerOneIsDropped() async throws {
+        let calls = CallLog()
+        let desk = NoteDeskModel(app: .folder, folder: vault.path, list: { folder in
+            calls.note("listed")
+            // The first listing is the slow one, and comes back after the second.
+            if calls.all.count == 1 {
+                Thread.sleep(forTimeInterval: 0.3)
+                return []
+            }
+            return NoteDesk.notes(in: folder)
+        })
+        let older = desk.start()
+        try await Task.sleep(for: .milliseconds(50))
+        await desk.start().value
+        await older.value
+        #expect(desk.notes.map(\.name) == ["Plan", "Ideas", "Old"], "the older, empty listing does not replace the newer one")
+    }
+
     @Test func aNewNoteTakesItsNameFromTheSearchAndLeavesAReceipt() async throws {
         let desk = await makeDesk()
         desk.query = "Call Ana"

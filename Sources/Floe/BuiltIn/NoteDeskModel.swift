@@ -38,6 +38,8 @@ final class NoteDeskModel: ObservableObject {
     private var loaded: (url: URL, text: String, modified: Date?)?
     private var pendingSave: DispatchWorkItem?
     private var watch: Timer?
+    /// Counts the listings started, so one that finishes after a newer one is dropped.
+    private var listings = 0
 
     init(
         app: NotesApp,
@@ -93,8 +95,11 @@ final class NoteDeskModel: ObservableObject {
             // The app that owns the folder may write the note on screen: a look at its date is all this costs.
             watch = Timer.scheduledOnMain(withTimeInterval: 1.5, repeats: true) { [weak self] in self?.reloadIfChanged() }
         }
+        listings += 1
+        let listing = listings
         return Task { [list] in
             let found = await Task.detached { list(folder) }.value
+            guard listing == listings else { return }
             notes = found
             select(chosen.flatMap { url in filtered.firstIndex { $0.url == url } } ?? 0)
         }
