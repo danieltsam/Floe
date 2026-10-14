@@ -11,7 +11,7 @@ import NaturalLanguage
 // Its types are not marked Sendable yet; each is made and used inside one call.
 @preconcurrency import Translation
 
-/// `translate hola mundo` and `translate to german good morning`, by the translation macOS does on the Mac.
+/// "translate hola mundo" and "translate to german good morning", by the translation macOS does on the Mac.
 /// The translation is Apple's and can be rough, and the row says both.
 nonisolated enum Translate {
     static let keyword = "translate"

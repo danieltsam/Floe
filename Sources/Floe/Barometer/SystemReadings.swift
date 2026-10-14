@@ -215,7 +215,7 @@ nonisolated enum SystemReadings {
     /// The page size never changes while the system is running, so it is read once.
     private static let pageSize: UInt64? = {
         var value: vm_size_t = 0
-        // The send right `mach_host_self` returns must be released.
+        // The send right mach_host_self returns must be released.
         let host = mach_host_self()
         defer { mach_port_deallocate(mach_task_self_, host) }
         return host_page_size(host, &value) == KERN_SUCCESS ? UInt64(value) : nil

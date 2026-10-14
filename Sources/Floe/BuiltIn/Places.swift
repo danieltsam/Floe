@@ -16,7 +16,7 @@ nonisolated struct Place: Hashable, Sendable {
     var longitude: Double
 }
 
-/// `maps coffee in lisbon`: places by name or address, found by Apple Maps. What is typed after the word is
+/// "maps coffee in lisbon": places by name or address, found by Apple Maps. What is typed after the word is
 /// sent to Apple to find them; nothing is sent for any other search, and Floe asks for no location.
 nonisolated enum Places {
     static let keyword = "maps"

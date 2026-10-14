@@ -96,13 +96,13 @@ enum RootItem: Identifiable {
     case window(WindowRow)
     /// A bookmark of one of the browsers, found by `bookmarks`; Return opens it.
     case bookmark(WebBookmark)
-    /// A device sound plays through or is recorded by, found by `output` or `input`; Return makes it the one in use.
+    /// A device sound plays through or is recorded by, found by "output" or "input"; Return makes it the one in use.
     case soundDevice(SoundDeviceRow)
-    /// The QR code for what was typed after `qr`; Return copies the picture.
+    /// The QR code for what was typed after "qr"; Return copies the picture.
     case qrCode(String)
-    /// A place Apple Maps found for what was typed after `maps`; Return shows it in Maps.
+    /// A place Apple Maps found for what was typed after "maps"; Return shows it in Maps.
     case place(Place)
-    /// A Homebrew package, found by `brew` and its name; Return installs it in the terminal, or upgrades it.
+    /// A Homebrew package, found by "brew" and its name; Return installs it in the terminal, or upgrades it.
     case brew(BrewPackage)
 
     static let menuBarSearchKey = "builtin:menubar-search"

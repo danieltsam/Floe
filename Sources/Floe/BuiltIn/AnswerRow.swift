@@ -44,7 +44,7 @@ struct AnswerRowSearchProvider: SearchProvider {
     var facts = SystemFacts.Readers()
 
     func contribution(for context: SearchContext) -> SearchContribution {
-        // Under the ranked rows: `disk` still opens Disk Utility with Return.
+        // Under the ranked rows: "disk" still opens Disk Utility with Return.
         let found = SystemFacts.rows(for: context.trimmed, readers: facts)
         if !found.isEmpty {
             return SearchContribution(appended: found.map { RootResult(item: .answer($0), section: nil) })

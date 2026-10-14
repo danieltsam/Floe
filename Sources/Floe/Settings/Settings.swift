@@ -27,7 +27,7 @@ final class AppSettings: ObservableObject {
     @Published var emojiSkinTone = EmojiSkinTone.none
     /// Extension names.
     @Published var disabledExtensions: Set<String> = []
-    /// `ExtensionCommand.id`s switched one by one, inside an extension that is on: those switched off, and those off by default switched on.
+    /// Command IDs switched one by one, inside an extension that is on: those switched off, and those off by default switched on.
     @Published var disabledCommands: Set<String> = []
     @Published var enabledCommands: Set<String> = []
     @Published var includeRaycastExtensions = true

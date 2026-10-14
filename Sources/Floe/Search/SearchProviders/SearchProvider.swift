@@ -72,7 +72,7 @@ extension SearchContext {
         return text
     }
 
-    /// As `text(after:)`, and empty for the keyword alone: for a scope whose word by itself lists everything.
+    /// As text(after:), and empty for the keyword alone: for a scope whose word by itself lists everything.
     func text(afterOrAlone keyword: String) -> String? {
         text(after: keyword) ?? (trimmed.lowercased() == keyword.lowercased() ? "" : nil)
     }

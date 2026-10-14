@@ -7,14 +7,14 @@
 
 import Foundation
 
-/// A `raycast://extensions/<owner>/<extension>/<command>` link, which extensions open to start a command.
+/// A raycast://extensions/<owner>/<extension>/<command> link, which extensions open to start a command.
 struct CommandLink {
     let extensionName: String
     let commandName: String
     /// Nil when the link carries none, so a command that takes arguments asks for them.
     let arguments: [String: Any]?
 
-    /// Nil for every other `raycast://` link: those name a feature of Raycast's own.
+    /// Nil for every other raycast:// link: those name a feature of Raycast's own.
     init?(_ url: URL) {
         let names = url.pathComponents.filter { $0 != "/" }
         guard url.scheme?.lowercased() == "raycast", url.host() == "extensions", names.count == 3 else { return nil }

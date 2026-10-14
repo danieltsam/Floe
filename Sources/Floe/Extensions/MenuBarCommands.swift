@@ -51,9 +51,9 @@ extension NSStatusItem: MenuBarStatusItem {
         let presenter: MenuBarPresenter
         var command: ExtensionCommand
         var session: ExtensionSession?
-        /// The session whose render is on screen, which is the one before `session` until that one has drawn.
+        /// The session whose render is on screen, which is the one before the current session until that one has drawn.
         var shown: ExtensionSession?
-        /// Whether a row was clicked while `shown` was the session before.
+        /// Whether a row was clicked while the session before was on screen.
         var shownIsBusy = false
         /// A session that is no longer on screen and is finishing the click it was sent.
         var finishing: ExtensionSession?
@@ -148,7 +148,7 @@ extension NSStatusItem: MenuBarStatusItem {
         run(entry, launchType: launchType)
     }
 
-    /// Gives the entry a fresh session, ending the one it had. With `keepsShown` the one on screen runs on
+    /// Gives the entry a fresh session, ending the one it had. With keepsShown, the one on screen runs on
     /// until the new one has drawn, so a row clicked in between still reaches the session that drew it.
     private func run(_ entry: Entry, launchType: String = "background", keepsShown: Bool = false) {
         entry.cancellables.removeAll()
@@ -177,7 +177,7 @@ extension NSStatusItem: MenuBarStatusItem {
         host.start(session)
     }
 
-    /// Makes `session` the one on screen and ends the one that was, at once unless it has a click to finish.
+    /// Puts the given session on screen and ends the one that was, at once unless it has a click to finish.
     private func handOver(_ entry: Entry?, to session: ExtensionSession?) {
         guard let entry, let session, entry.shown !== session else { return }
         let last = entry.shown

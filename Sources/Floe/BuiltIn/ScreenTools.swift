@@ -130,7 +130,7 @@ nonisolated enum ScreenTools {
     }
 }
 
-/// `qr https://example.com`: the code for what was typed, to copy, look at or save.
+/// "qr https://example.com": the code for what was typed, to copy, look at or save.
 struct QRCodeSearchProvider: SearchProvider {
     func contribution(for context: SearchContext) -> SearchContribution {
         guard let text = context.text(after: ScreenTools.qrKeyword) else { return SearchContribution() }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// A formula or a cask of Homebrew, by the name `brew` knows it under.
+/// A formula or a cask of Homebrew, by the name brew knows it under.
 nonisolated struct BrewPackage: Hashable, Sendable {
     var name: String
     var isCask: Bool
@@ -24,7 +24,7 @@ nonisolated struct BrewPackage: Hashable, Sendable {
     }
 }
 
-/// `brew ripgrep`: Homebrew's packages by name, read from the lists Homebrew keeps on disk. `brew` is never
+/// "brew ripgrep": Homebrew's packages by name, read from the lists Homebrew keeps on disk. The brew command is never
 /// started to search; Return hands the install to the terminal, where it shows what it does and asks what it must.
 nonisolated enum Homebrew {
     static let keyword = "brew"
@@ -40,7 +40,7 @@ nonisolated enum Homebrew {
         var prefixes = [URL(fileURLWithPath: "/opt/homebrew"), URL(fileURLWithPath: "/usr/local")]
         var cache = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Caches/Homebrew/api")
 
-        /// The first prefix that holds the `brew` command.
+        /// The first prefix that holds the brew command.
         var prefix: URL? {
             prefixes.first { FileManager.default.isExecutableFile(atPath: $0.appendingPathComponent("bin/brew").path) }
         }

@@ -14,7 +14,7 @@
 
 import Foundation
 
-/// Battery percentages one Bluetooth device reports, each `nil` while it reports nothing for that part,
+/// Battery percentages one Bluetooth device reports, each nil while it reports nothing for that part,
 /// as for a pod sitting in a closed case.
 nonisolated struct BatteryLevels: Equatable, Sendable {
     var left: Int?
@@ -34,7 +34,7 @@ nonisolated struct BluetoothBatteryReport: Equatable, Sendable {
     var byName: [String: BatteryLevels] = [:]
 
     /// Levels for an audio device. CoreAudio gives a Bluetooth device a UID built from its address, such as
-    /// `70-AE-2A-5E-21-CD:output`; the name is a fallback for a UID in some other shape.
+    /// 70-AE-2A-5E-21-CD:output; the name is a fallback for a UID in some other shape.
     func levels(for device: AudioDevice) -> BatteryLevels? {
         let uid = BluetoothBattery.normalizedAddress(device.uid)
         if let match = byAddress.first(where: { uid.hasPrefix($0.key) }) {
@@ -47,14 +47,14 @@ nonisolated struct BluetoothBatteryReport: Equatable, Sendable {
 nonisolated enum BluetoothBattery {
     /// Apple's Bluetooth vendor ID, carried by AirPods and Beats.
     static let appleVendorID = "0x004C"
-    /// The arguments that make `system_profiler` write the report `parse` reads. It needs no Bluetooth permission.
+    /// The arguments that make system_profiler write the report that parse(_:) reads. It needs no Bluetooth permission.
     static let profilerArguments = ["-json", "SPBluetoothDataType"]
 
     static func normalizedAddress(_ text: String) -> String {
         String(text.uppercased().filter(\.isHexDigit))
     }
 
-    /// Parses `system_profiler -json SPBluetoothDataType`, keeping connected Apple headphones that report at least one level.
+    /// Parses system_profiler -json SPBluetoothDataType, keeping connected Apple headphones that report at least one level.
     static func parse(_ data: Data) -> BluetoothBatteryReport {
         var report = BluetoothBatteryReport()
         guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],

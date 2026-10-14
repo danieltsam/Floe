@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// `battery`, `disk`, `memory` and `ip`: what this Mac says about itself right now. Return copies it.
+/// "battery", "disk", "memory" and "ip": what this Mac says about itself right now. Return copies it.
 /// The battery, the memory and the address are read by Barometer's sources, see SystemReadings.swift.
 nonisolated enum SystemFacts: String, CaseIterable, Sendable {
     case battery, disk, memory, ip
@@ -38,7 +38,7 @@ nonisolated enum SystemFacts: String, CaseIterable, Sendable {
         }
     }
 
-    /// Every row for a query that is one of the words: `battery` is the Mac's own, then each connected device's.
+    /// Every row for a query that is one of the words: "battery" is the Mac's own, then each connected device's.
     static func rows(for query: String, readers: Readers = Readers(), locale: Locale = .current) -> [AnswerRow] {
         let own = row(for: query, readers: readers, locale: locale).map { [$0] } ?? []
         guard SystemFacts(rawValue: query.lowercased()) == .battery else { return own }

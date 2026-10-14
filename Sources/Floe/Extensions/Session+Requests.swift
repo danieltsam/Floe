@@ -124,7 +124,7 @@ extension ExtensionSession {
     /// Tells the host which render references this app reads; a host that writes another kind sends whole renders.
     static let referencesVariable = "FLOE_RENDER_REFERENCES"
     static let accessOff = "off"
-    /// Tells the host whether the app is drawn light or dark, for `environment.appearance`.
+    /// Tells the host whether the app is drawn light or dark, for environment.appearance.
     static let appearanceVariable = "FLOE_APPEARANCE"
 
     /// What the host starts with: the login shell's environment, the command's preferences, whether `AI.ask`

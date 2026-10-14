@@ -31,7 +31,7 @@ nonisolated struct AudioDevice: Identifiable, Equatable, Hashable, Sendable {
     var isVirtual = false
     /// A monitor or TV reached over a video cable, from its transport type.
     var isDisplayOutput = false
-    /// CoreAudio's `kAudioDeviceTransportType*` value. Zero when unknown.
+    /// CoreAudio's kAudioDeviceTransportType* value. Zero when unknown.
     var transportType: UInt32 = 0
 
     var id: String {

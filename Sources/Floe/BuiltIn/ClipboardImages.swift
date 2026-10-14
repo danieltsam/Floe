@@ -31,7 +31,7 @@ extension ClipboardHistoryStore {
         return CGImageDestinationFinalize(destination) ? png as Data : nil
     }
 
-    /// For what only AppKit reads, a PDF above all: scales an image to at most `imageMaxDimension` on its longer side.
+    /// For what only AppKit reads, a PDF above all: scales an image to at most imageMaxDimension on its longer side.
     static nonisolated func downscaledPNG(_ image: NSImage) -> Data? {
         guard let tiff = image.tiffRepresentation,
               let rep = NSBitmapImageRep(data: tiff)

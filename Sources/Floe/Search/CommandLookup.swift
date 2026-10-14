@@ -21,7 +21,7 @@ enum CommandLookup {
         commands.filter { !disabledExtensions.contains($0.extensionName) && isOn($0, disabled: disabledCommands, enabled: enabledCommands) }
     }
 
-    /// A command's own switch: on until switched off, or, for one its manifest marks `disabledByDefault`, off until switched on.
+    /// A command's own switch: on until switched off, or, for one its manifest marks disabledByDefault, off until switched on.
     static func isOn(_ command: ExtensionCommand, disabled: Set<String>, enabled: Set<String>) -> Bool {
         command.isDisabledByDefault ? enabled.contains(command.id) : !disabled.contains(command.id)
     }

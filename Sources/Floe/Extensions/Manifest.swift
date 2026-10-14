@@ -131,7 +131,7 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
     let commandPreferences: [FieldSpec]
     /// The words the manifest lists for the extension and for this command, which the root search also answers to.
     var keywords: [String] = []
-    /// The manifest's `disabledByDefault`: the command stays off until the user switches it on in Settings.
+    /// The manifest's disabledByDefault: the command stays off until the user switches it on in Settings.
     var isDisabledByDefault = false
 
     var id: String {
@@ -178,7 +178,7 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
         return max(value * factor, 10)
     }
 
-    /// Whether a manifest's `platforms` list, of an extension or of a command, has the Mac in it. No list means every platform.
+    /// Whether a manifest's platforms list, of an extension or of a command, has the Mac in it. No list means every platform.
     static func runsOnMac(_ platforms: [String]?) -> Bool {
         platforms?.contains("macOS") ?? true
     }

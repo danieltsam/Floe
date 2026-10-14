@@ -33,7 +33,7 @@ nonisolated struct SoundDeviceRow: Hashable, Sendable {
     }
 }
 
-/// `output airpods` and `input macbook`: the devices sound can go through, to choose one. The devices are read
+/// "output airpods" and "input macbook": the devices sound can go through, to choose one. The devices are read
 /// and set with Audio Priority Bar's sources, see Sources/Floe/AudioPriorityBar.
 nonisolated enum SoundDevices {
     /// The Mac's sound, so a test can stand in for it.
