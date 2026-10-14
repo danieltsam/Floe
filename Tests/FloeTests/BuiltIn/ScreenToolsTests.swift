@@ -8,6 +8,7 @@
 import AppKit
 @testable import Floe
 import Testing
+import Vision
 
 @MainActor struct ScreenToolsTests {
     /// Black text on white, large enough to be read without doubt.
@@ -55,7 +56,12 @@ import Testing
     // MARK: Text
 
     @Test func textInAPictureIsReadAndAPictureWithNoneGivesNothing() async throws {
-        let reading = try await ScreenTools.read(picture(of: "Floe reads 2026"))
+        let image = try picture(of: "Floe reads 2026")
+        // Vision has no text model on some machines, such as the virtual ones CI runs on; there is nothing to check there.
+        guard let lines = try? await RecognizeTextRequest().perform(on: image), !lines.isEmpty else {
+            try Test.cancel("Vision cannot read text on this machine")
+        }
+        let reading = await ScreenTools.read(image)
         #expect(reading.text == "Floe reads 2026")
         #expect(reading.codes.isEmpty)
         #expect(ScreenTools.copied(from: reading)?.line == "Copied the text")
