@@ -20,15 +20,15 @@ describe("withNodeCause", () => {
     expect(error.code).toBe("ECONNREFUSED");
   });
 
-  // Bun 1.4.2 gives the cause as a word, "ConnectionRefused"; 1.4.3 gives none.
-  test("a cause that is only a word becomes one that carries the code", async () => {
-    const worded = Object.assign(new TypeError("Unable to connect", { cause: "ConnectionRefused" }), { code: "ECONNREFUSED" });
+  // What Bun 1.4.2 rejects with; 1.4.3 already says ECONNREFUSED.
+  test("Bun's own word for a refused connection becomes Node's code", async () => {
+    const worded = Object.assign(new TypeError("Unable to connect"), { code: "ConnectionRefused" });
     const rejects = (async () => {
       throw worded;
     }) as never;
     const error = await withNodeCause(rejects)("http://127.0.0.1:1").catch((error) => error);
+    expect(error.code).toBe("ECONNREFUSED");
     expect(error.cause.code).toBe("ECONNREFUSED");
-    expect(error.cause.message).toBe("ConnectionRefused");
   });
 
   test("an answer, an error without a code and one whose cause has its code pass through as they are", async () => {
