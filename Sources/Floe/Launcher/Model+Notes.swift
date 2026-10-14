@@ -10,9 +10,7 @@ import Foundation
 /// The notes view: the folder of notes the user chose, read and written in the panel.
 extension LauncherModel {
     func openNoteDesk() {
-        if let session {
-            end(session)
-        }
+        runner.endOpenCommand()
         setup = nil
         isSearchingMenuBar = false
         isShowingClipboardHistory = false

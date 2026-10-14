@@ -152,7 +152,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             _ = hotkeys.register(keyCombination) { [weak self] in
                 guard let self, settings.isEnabled(command) else { return }
                 UsageStore.shared.recordUse(of: RootItem.command(command).id)
-                model.run(command)
+                model.runner.run(command)
             }
         }
         for script in model.catalog.allScripts {
@@ -192,7 +192,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Flushes resident state and stops owned processes before quitting or ending a benchmark.
     func shutDown() {
-        model.session?.forceStop()
+        model.runner.session?.forceStop()
         menuBarCommands?.stopAll()
         backgroundScheduler?.stopAll()
         panelLink.process.terminate()

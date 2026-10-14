@@ -37,7 +37,7 @@ struct ToastWithoutFooterTests {
         let session = ExtensionSession(command: command)
         session.onMessage = { [model, weak session] message in
             if let session {
-                model.handle(message, from: session)
+                model.runner.handle(message, from: session)
             }
         }
         return session

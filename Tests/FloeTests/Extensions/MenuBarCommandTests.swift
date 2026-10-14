@@ -48,7 +48,7 @@ struct MenuBarCommandTests {
 
         model.activate(item)
         #expect(model.isInMenuBar(status))
-        #expect(model.session == nil, "it gets a status item, not a view in the panel")
+        #expect(model.runner.session == nil, "it gets a status item, not a view in the panel")
         #expect(model.primaryActionTitle(for: item) == "Remove from Menu Bar")
 
         model.activate(item)

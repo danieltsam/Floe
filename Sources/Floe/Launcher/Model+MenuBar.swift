@@ -15,9 +15,7 @@ extension LauncherModel {
             presentInPanelProcess(.builtIn(key))
             return
         }
-        if let session {
-            end(session)
-        }
+        runner.endOpenCommand()
         setup = nil
         isShowingClipboardHistory = false
         closeNoteDesk()

@@ -24,9 +24,9 @@ extension LauncherModel {
             let command = request.command
             PreferenceStore.save(values, fields: request.asked(of: command.extensionPreferences), extensionName: command.extensionName, command: nil)
             PreferenceStore.save(values, fields: request.asked(of: command.commandPreferences), extensionName: command.extensionName, command: command)
-            run(command, arguments: request.arguments)
+            runner.run(command, arguments: request.arguments)
         case .arguments:
-            run(request.command, arguments: values)
+            runner.run(request.command, arguments: values)
         }
     }
 
@@ -41,7 +41,7 @@ extension LauncherModel {
         }
         guard let field = command.preferences.first(where: { $0.name == message["preference"] as? String }) else { return }
         let arguments = session.arguments
-        end(session)
+        runner.end(session)
         let provider = message["provider"] as? String ?? command.extensionTitle
         beginSetup(SetupRequest(command: command, kind: .preferences, fields: [field], provider: provider, arguments: arguments))
     }

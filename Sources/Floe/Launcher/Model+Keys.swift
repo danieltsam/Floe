@@ -25,7 +25,7 @@ extension LauncherModel {
         if isSearchingMenuBar {
             return menuBarSearch.handleKey(event, flags)
         }
-        if let session, session.command.mode == "view", session.alert != nil {
+        if let session = runner.session, session.command.mode == "view", session.alert != nil {
             return handleAlertKey(event, session)
         }
         if isShowingClipboardHistory {
@@ -37,7 +37,7 @@ extension LauncherModel {
         if let noteDesk {
             return noteDesk.handleKey(event, flags)
         }
-        if let session, session.command.mode == "view" {
+        if let session = runner.session, session.command.mode == "view" {
             return session.failure == nil ? handleSessionKey(event, flags, session) : handleFailureKey(event, flags, session)
         }
         if let askAI {
@@ -68,9 +68,9 @@ extension LauncherModel {
     /// The error screen of a command that failed.
     private func handleFailureKey(_ event: NSEvent, _ flags: NSEvent.ModifierFlags, _ session: ExtensionSession) -> Bool {
         switch event.keyCode {
-        case 36: retry()
-        case 53: end(session)
-        case 8 where flags == [.command, .shift]: copyFailure()
+        case 36: runner.retry()
+        case 53: runner.end(session)
+        case 8 where flags == [.command, .shift]: runner.copyFailure()
         default: return false
         }
         return true

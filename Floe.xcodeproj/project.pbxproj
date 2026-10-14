@@ -10,6 +10,7 @@
 		004BED0D1E2A34499BBE5893 /* PiTextStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2226F96023626B3975D533C2 /* PiTextStream.swift */; };
 		0214D1658AFF0A195F3C0604 /* ThawHUDPlacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15BDEE94D408295874A7461E /* ThawHUDPlacement.swift */; };
 		032B04028211B1932FD13B7E /* Model+Modes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C79EAD93A4B7A60D278A13D /* Model+Modes.swift */; };
+		0512C3A3F82B9D244E961191 /* Model+Runner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA6533F2690F10F633F4E840 /* Model+Runner.swift */; };
 		05DE26C5F339D6E008D554CE /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F1F04CB5B238D464961288 /* OnboardingView.swift */; };
 		07D1B8C02F5463F8D2D064B2 /* PanelMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2377700E778EEBBCBC263 /* PanelMode.swift */; };
 		094E8A6179B9B4BFF7352778 /* Model+KeywordRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6DB21EDCEFEFB0C45F1A61 /* Model+KeywordRows.swift */; };
@@ -309,6 +310,7 @@
 		D7E0B83E66118210F276D33F /* Ranking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998C70C5CB4479FCE15FB95F /* Ranking.swift */; };
 		D9AF2C50FA77188325D33F47 /* SyncSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F309AEDF8D21B519596790F8 /* SyncSettingsSection.swift */; };
 		D9D14F0D9B316331EB8F5FD8 /* ShellCommand+Saving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4879EB8733EBCA9F1DF5EF6C /* ShellCommand+Saving.swift */; };
+		DA961FACB1C6D738B8FC46EC /* ExtensionRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707E686E00003A43CD0F9C14 /* ExtensionRunner.swift */; };
 		DB1399B41D12729762D0AEB8 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F6717C76B587E7D9893E90 /* Views.swift */; };
 		DB5155E4669C36EB19D3C709 /* RootItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7094C172B1424B0A25778204 /* RootItem.swift */; };
 		DC38D65DEC1867DF56070A6D /* ShellCommand+Running.swift in Sources */ = {isa = PBXBuildFile; fileRef = E32F78329C981B25442EC7DA /* ShellCommand+Running.swift */; };
@@ -535,6 +537,7 @@
 		6DA122EF4A321FB332D7C2F4 /* ExtensionSettingsSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionSettingsSync.swift; sourceTree = "<group>"; };
 		6DCFAEAF70527DFBFD4F4FF1 /* PropFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropFormat.swift; sourceTree = "<group>"; };
 		6ED07F09546BC4754F0E6C60 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		707E686E00003A43CD0F9C14 /* ExtensionRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionRunner.swift; sourceTree = "<group>"; };
 		70891E9ABBE4E3EFF52220DE /* UpdatesLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatesLink.swift; sourceTree = "<group>"; };
 		7094C172B1424B0A25778204 /* RootItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootItem.swift; sourceTree = "<group>"; };
 		70B21D1572BEDAB065D80604 /* AnswerSearchProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerSearchProviders.swift; sourceTree = "<group>"; };
@@ -622,6 +625,7 @@
 		A8A91D9CFF52277A3BF983DF /* AboutSettingsPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSettingsPane.swift; sourceTree = "<group>"; };
 		A8AEDEB267607D5474C20D6F /* ExtensionListViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionListViews.swift; sourceTree = "<group>"; };
 		AA43444C49957E7742747429 /* SystemCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemCommands.swift; sourceTree = "<group>"; };
+		AA6533F2690F10F633F4E840 /* Model+Runner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Runner.swift"; sourceTree = "<group>"; };
 		AA9F61DE53E08844E504B2A4 /* SearchSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchSource.swift; sourceTree = "<group>"; };
 		AD6E736E94FFB03FFF4F6845 /* SettingsTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTransfer.swift; sourceTree = "<group>"; };
 		AE77F4EE054A6C520DC7476B /* Floe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Floe.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1064,6 +1068,7 @@
 				CC2033FDF332D4135EDF2DEF /* ErrorView.swift */,
 				49F344E4E1A683D2886D89AA /* ExtensionAccess.swift */,
 				A8AEDEB267607D5474C20D6F /* ExtensionListViews.swift */,
+				707E686E00003A43CD0F9C14 /* ExtensionRunner.swift */,
 				CD8A94377EF11E114774E2F4 /* ExtensionStore.swift */,
 				2205CECBFD6D8B785BB4E59D /* ExtensionStore+Details.swift */,
 				CAD93F2D2BBAD30A23622CA2 /* ExtensionStore+Install.swift */,
@@ -1153,6 +1158,7 @@
 				46EF724729FA727A0765924B /* Model+QRCode.swift */,
 				3296675A1A96B585BA2E4F27 /* Model+Reminders.swift */,
 				A0125C5A6869D3F1DBC17EF7 /* Model+RowKeys.swift */,
+				AA6533F2690F10F633F4E840 /* Model+Runner.swift */,
 				0454DDF1AC4E2934C468C3A3 /* Model+Search.swift */,
 				DD2D070B65C29C80130B70B2 /* Model+Setup.swift */,
 				F008D9038CE639EA7F6504A1 /* Model+Shell.swift */,
@@ -1536,6 +1542,7 @@
 				C600E49CB6098283C630DA71 /* ExtensionAccess.swift in Sources */,
 				747084900218D005E77A5CA3 /* ExtensionAccessSection.swift in Sources */,
 				F79ECEE81B269EF3999DF3DA /* ExtensionListViews.swift in Sources */,
+				DA961FACB1C6D738B8FC46EC /* ExtensionRunner.swift in Sources */,
 				D2B7F5F30C8DE1216477CA51 /* ExtensionSettingsSync.swift in Sources */,
 				B1D4EE76DC76E637D007B610 /* ExtensionSettingsView.swift in Sources */,
 				0D93C7C1B3CE156A175DA09A /* ExtensionStore+Details.swift in Sources */,
@@ -1628,6 +1635,7 @@
 				ADC0CC4F54DB5E0FC2134C78 /* Model+QRCode.swift in Sources */,
 				956E0F97DAFB0F571C640208 /* Model+Reminders.swift in Sources */,
 				78E48285BBC07E7630EFC732 /* Model+RowKeys.swift in Sources */,
+				0512C3A3F82B9D244E961191 /* Model+Runner.swift in Sources */,
 				A2354990CC49B38386F33165 /* Model+Search.swift in Sources */,
 				8970B92D5868D82F8F179EDD /* Model+Setup.swift in Sources */,
 				EB15AA1608905694F76A9AF2 /* Model+Shell.swift in Sources */,

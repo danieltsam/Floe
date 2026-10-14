@@ -27,7 +27,7 @@ struct LauncherView: View {
         GlassEffectContainer {
             if let setup = model.setup {
                 SetupView(form: model.setupForm, request: setup).modifier(PanelOnePiece())
-            } else if let session = model.session, session.command.mode == "view" {
+            } else if let session = model.runner.session, session.command.mode == "view" {
                 SessionContainer(model: model, session: session)
             } else if model.isSearchingMenuBar {
                 MenuBarSearchView(search: model.menuBarSearch, launcher: model, focusToken: model.focusToken)

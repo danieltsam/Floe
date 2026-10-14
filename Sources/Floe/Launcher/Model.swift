@@ -38,7 +38,8 @@ final class LauncherModel: ObservableObject {
         rowSelection.select(results.indices.contains(selection) ? results[selection].id : nil)
     }
 
-    @Published private(set) var session: ExtensionSession?
+    /// Runs extension commands and keeps the one on screen.
+    let runner = ExtensionRunner()
     /// The setup form on screen, if any. What is typed into it is `setupForm`'s.
     @Published var setup: SetupRequest?
     /// Not published: typing in the form redraws the form only.
@@ -130,11 +131,7 @@ final class LauncherModel: ObservableObject {
     var recalledQuery: Int?
     private var didAutorun = false
     private var pendingReset: DispatchWorkItem?
-    private var isPanelShown = false
-    /// The last toast shown as a HUD, so the same one is not shown twice.
-    private var toastLine: (session: ObjectIdentifier, id: Int, line: String)?
-    /// Watches the open command's extension while it is one being developed (see HotReload.swift).
-    private var sourceWatcher: DirectoryWatcher?
+    private(set) var isPanelShown = false
     var commands: [ExtensionCommand] {
         CommandLookup.enabled(catalog.allCommands, disabledExtensions: settings.disabledExtensions, disabledCommands: settings.disabledCommands, enabledCommands: settings.enabledCommands)
     }
@@ -185,11 +182,13 @@ final class LauncherModel: ObservableObject {
         catalog = CatalogStore(scanner: scanner, settings: settings, snapshot: snapshot)
         resolvedApps = ResolvedApps(settings: settings)
         catalog.onChange = { [weak self] in self?.catalogChanged($0) }
+        connectRunner()
         guard !isResident else { return }
         connectModes()
-        // The empty-state view reads whether the catalog is loading, which the model does not publish itself.
-        catalog.$isLoading.removeDuplicates().dropFirst()
-            .sink { [weak self] _ in self?.objectWillChange.send() }
+        // Views read the catalog's loading state and the open command through the model, so their changes redraw it.
+        catalog.$isLoading.removeDuplicates().dropFirst().map { _ in () }
+            .merge(with: runner.$session.dropFirst().map { _ in () })
+            .sink { [weak self] in self?.objectWillChange.send() }
             .store(in: &cancellables)
         EmojiCatalog.preload()
         CalendarAgenda.shared.onChange = { [weak self] in self?.refresh() }
@@ -305,7 +304,7 @@ final class LauncherModel: ObservableObject {
             if let launch {
                 launch(command)
             } else {
-                run(command)
+                runner.run(command)
             }
         }
     }
@@ -338,7 +337,7 @@ final class LauncherModel: ObservableObject {
             hidePanel()
             reset()
         case let .command(command):
-            run(command)
+            runner.run(command)
         case let .script(script):
             let text = script.argumentsText(in: query) ?? ""
             run(script, argumentStrings: ScriptRunner.splitArguments(text))
@@ -389,7 +388,7 @@ final class LauncherModel: ObservableObject {
             hidePanel()
             reset()
         case let .snippet(snippet):
-            paste(text: SnippetStore.shared.expanded(snippet))
+            runner.paste(text: SnippetStore.shared.expanded(snippet))
         case let .event(event):
             if let destination = event.meetingURL ?? event.calendarURL {
                 openLink(destination)
@@ -493,129 +492,23 @@ final class LauncherModel: ObservableObject {
     }
 
     /// Runs a command, first asking for missing required preferences and then for its arguments.
-    func run(_ command: ExtensionCommand, arguments: [String: Any]? = nil) {
-        if let presentInPanelProcess {
-            let data = arguments.flatMap { try? JSONSerialization.data(withJSONObject: $0) }
-            presentInPanelProcess(.command(command.id, arguments: data))
-            return
-        }
-        let missing = PreferenceStore.missingRequired(for: command)
-        // Running a menu-bar command is choosing whether it has a status item.
-        if command.mode == "menu-bar", missing.isEmpty {
-            toggleMenuBarCommand(command)
-            return
-        }
-        if let session {
-            end(session)
-        }
-        if !missing.isEmpty {
-            beginSetup(SetupRequest(command: command, kind: .preferences, fields: command.preferences))
-        } else if arguments == nil, !command.arguments.isEmpty {
-            beginSetup(SetupRequest(command: command, kind: .arguments, fields: command.arguments))
-        } else {
-            if command.mode == "view" {
-                showPanel()
-            }
-            launch(command, arguments: arguments ?? [:])
-        }
-    }
-
-    private func launch(_ command: ExtensionCommand, arguments: [String: Any]) {
-        Log.extensions.info("Running \(command.extensionName)/\(command.name) (\(command.mode))")
-        let session = ExtensionSession(command: command, arguments: arguments)
-        session.onMessage = { [weak self, weak session] message in
-            guard let self, let session else { return }
-            self.handle(message, from: session)
-        }
-        self.session = session
-        session.start()
-        sourceWatcher = HotReload.watcher(for: command) { [weak self, weak session] paths in
-            guard let self, let session else { return }
-            self.reload(session, changed: paths)
-        }
-    }
-
-    /// A file of the open command's extension was saved: runs the command again as `retry` does.
-    /// A panel that is hidden while its command waits to be resumed stays hidden.
-    private func reload(_ watched: ExtensionSession, changed paths: [String]) {
-        guard session === watched else { return }
-        if HotReload.changesManifest(paths) {
-            catalog.reloadCommands()
-        }
-        if pendingReset == nil {
-            retry()
-        } else {
-            end(watched)
-            launch(watched.command, arguments: watched.arguments)
-        }
-    }
-
-    func handle(_ message: [String: Any], from session: ExtensionSession) {
-        switch message["type"] as? String {
-        case "exit", "popToRoot":
-            let wasBackground = session.command.mode != "view"
-            end(session)
-            if wasBackground {
-                hidePanel()
-            }
-        case "crashed" where session.command.mode != "view":
-            end(session)
-            showHUD(String(localized: "\(session.command.title) failed", bundle: .floe, comment: "The placeholder is the name of a command."))
-        case "close":
-            hidePanel()
-        case "hud":
-            showHUD(message["title"] as? String ?? "")
-            hidePanel()
-        case "copy":
-            copy(text: message["text"] as? String ?? "", html: message["html"] as? String, file: message["file"] as? String, concealed: message["concealed"] as? Bool ?? false)
-        case "paste":
-            paste(text: message["text"] as? String ?? "", html: message["html"] as? String, file: message["file"] as? String)
-        case "open":
-            open(message["target"] as? String ?? "", application: message["application"] as? String)
-        case "openPreferences", "signIn":
-            showPreferences(message, of: session)
-        default:
-            showToastWithoutFooter(message, of: session)
-        }
-    }
-
-    /// A toast is drawn in the footer of its command's view. A command without a view has no footer, and a
-    /// hidden panel shows none, so there the toast becomes a HUD, as it does in Raycast.
-    private func showToastWithoutFooter(_ message: [String: Any], of session: ExtensionSession) {
-        guard message["type"] as? String == "toast", let toast = session.toast, !toast.line.isEmpty else { return }
-        if session.command.mode == "view" {
-            // A view that is only hidden keeps its progress to itself; what it finished or failed at is said.
-            guard !isPanelShown, toast.style != "animated" else { return }
-        }
-        // Setting a toast's title and then its message sends it twice.
-        let shown = (ObjectIdentifier(session), toast.id, toast.line)
-        guard toastLine.map({ $0 == shown }) != true else { return }
-        toastLine = shown
-        showHUD(toast.line)
-    }
-
-    func end(_ session: ExtensionSession) {
-        // Trailing messages (a HUD after closeMainWindow, say) still need to be read.
-        session.stop(after: 0.5)
-        if self.session === session {
-            self.session = nil
-            sourceWatcher = nil
-            focusToken += 1
-        }
-    }
-
     /// The panel closed. The open command survives for the configured delay, so reopening resumes it.
     func panelDidHide() {
         isPanelShown = false
         pendingReset?.cancel()
         let delay = settings.popToRootDelay
-        guard delay > 0, session != nil || setup != nil else {
+        guard delay > 0, runner.session != nil || setup != nil else {
             reset()
             return
         }
         let work = DispatchWorkItem { [weak self] in self?.reset() }
         pendingReset = work
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(delay), execute: work)
+    }
+
+    /// Whether the panel is hidden with its command kept for the user to come back to.
+    var isWaitingToResume: Bool {
+        pendingReset != nil
     }
 
     /// Cancels the deferred reset. What is read again for the search waits for panelDidShow.
@@ -625,29 +518,12 @@ final class LauncherModel: ObservableObject {
         pendingReset = nil
     }
 
-    /// Runs the command that failed again, with the same arguments.
-    func retry() {
-        guard let session else { return }
-        let command = session.command
-        let arguments = session.arguments
-        end(session)
-        run(command, arguments: arguments)
-    }
-
-    func copyFailure() {
-        guard let session, let failure = session.failure else { return }
-        copy(text: "\(session.command.extensionTitle) › \(session.command.title)\n\(failure.message)\n\n\(failure.details)")
-        showHUD(String(localized: "Copied error details", bundle: .floe))
-    }
-
     /// Back to the root search, ending any open command.
     func reset() {
         guard !isResident else { return }
         pendingReset?.cancel()
         pendingReset = nil
-        if let session {
-            end(session)
-        }
+        runner.endOpenCommand()
         setup = nil
         isSearchingMenuBar = false
         isShowingClipboardHistory = false
@@ -657,60 +533,5 @@ final class LauncherModel: ObservableObject {
         closeAskAI()
         recalledQuery = nil
         query = ""
-    }
-
-    private func copy(text: String, html: String? = nil, file: String? = nil, concealed: Bool = false) {
-        PasteboardContent.write(text: text, html: html, file: file, concealed: concealed)
-    }
-
-    func paste(text: String, html: String? = nil, file: String? = nil) {
-        PasteboardContent.write(text: text, html: html, file: file)
-        if AXIsProcessTrusted() {
-            hidePanel()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                KeySimulation.paste()
-            }
-        } else {
-            showHUD(String(localized: "Copied. Press ⌘V to paste.", bundle: .floe))
-            hidePanel()
-        }
-    }
-
-    /// Handles `open`, `copy`, `paste` and `hud` from sessions the panel doesn't own (menu-bar extras,
-    /// background runs). Background runs never open the panel.
-    func handleBackgroundMessage(_ message: [String: Any]) {
-        switch message["type"] as? String {
-        case "hud":
-            showHUD(message["title"] as? String ?? "")
-        case "copy":
-            copy(text: message["text"] as? String ?? "", html: message["html"] as? String, file: message["file"] as? String, concealed: message["concealed"] as? Bool ?? false)
-        case "paste":
-            // A background run never takes the keyboard from the user; it only copies.
-            copy(text: message["text"] as? String ?? "", html: message["html"] as? String, file: message["file"] as? String)
-            showHUD(String(localized: "Copied. Press ⌘V to paste.", bundle: .floe))
-        case "open":
-            open(message["target"] as? String ?? "", application: message["application"] as? String)
-        default:
-            break
-        }
-    }
-
-    private func open(_ target: String, application: String?) {
-        let url = URL(string: target).flatMap { $0.scheme == nil ? nil : $0 }
-            ?? URL(fileURLWithPath: (target as NSString).expandingTildeInPath)
-        if let application, let app = applicationURL(for: application) {
-            linkOpener.open(url, app)
-        } else if !runCommandLink(url) {
-            openLink(url)
-        }
-    }
-
-    /// Extensions name an app by path, bundle identifier or display name.
-    private func applicationURL(for application: String) -> URL? {
-        if (application as NSString).isAbsolutePath {
-            return URL(fileURLWithPath: application)
-        }
-        return NSWorkspace.shared.urlForApplication(withBundleIdentifier: application)
-            ?? catalog.apps.first { $0.name.caseInsensitiveCompare(application) == .orderedSame }?.url
     }
 }

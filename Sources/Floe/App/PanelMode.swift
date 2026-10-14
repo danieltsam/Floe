@@ -174,7 +174,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
                 await model.catalog.waitForCommands()
                 guard let command = model.commands.first(where: { $0.id == id }) else { return }
                 let arguments = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
-                model.run(command, arguments: arguments)
+                model.runner.run(command, arguments: arguments)
             }
         case let .script(id):
             PanelWork.perform { [model] in
@@ -236,7 +236,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
         guard sequence > 0, !reportedIdle,
               Date().timeIntervalSince(lastActivity) >= 0.75,
               !PanelWork.isBusy, !ModalGuard.isActive,
-              model.session == nil, model.setup == nil,
+              model.runner.session == nil, model.setup == nil,
               !OnboardingWindowController.shared.isOpen,
               !NSApp.windows.contains(where: \.isVisible)
         else { return }
@@ -272,7 +272,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
         if settings.hasUnsavedChanges {
             settings.save()
         }
-        model.session?.forceStop()
+        model.runner.session?.forceStop()
         CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
         channel.drain { exit(0) }
     }

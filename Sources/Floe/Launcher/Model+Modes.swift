@@ -28,7 +28,7 @@ extension LauncherModel {
             refocus: { [weak self] in self?.focusToken += 1 },
             close: close,
             showActions: { [weak self] in self?.showActions() },
-            paste: { [weak self] in self?.paste(text: $0) }
+            paste: { [weak self] in self?.runner.paste(text: $0) }
         )
     }
 }

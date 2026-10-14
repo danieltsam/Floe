@@ -23,9 +23,7 @@ extension LauncherModel {
             openClipboardApp(destination)
             return
         }
-        if let session {
-            end(session)
-        }
+        runner.endOpenCommand()
         setup = nil
         isSearchingMenuBar = false
         isShowingClipboardHistory = true

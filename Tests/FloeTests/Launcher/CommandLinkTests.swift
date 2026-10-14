@@ -53,7 +53,7 @@ struct CommandLinkTests {
         var requests: [PanelRequest] = []
         model.presentInPanelProcess = { requests.append($0) }
         model.linkOpener = opened.opener
-        model.handleBackgroundMessage(["type": "open", "target": target])
+        model.runner.handleBackgroundMessage(["type": "open", "target": target])
         return requests
     }
 
@@ -94,10 +94,10 @@ struct CommandLinkTests {
         var requests: [PanelRequest] = []
         model.presentInPanelProcess = { requests.append($0) }
         model.linkOpener = opened.opener
-        model.handleBackgroundMessage(["type": "open", "target": "raycast://extensions/someone-else/sample/planets"])
+        model.runner.handleBackgroundMessage(["type": "open", "target": "raycast://extensions/someone-else/sample/planets"])
         #expect(requests.isEmpty)
         #expect(opened.urls.count == 1, "another owner's extension of the same name is not this one")
-        model.handleBackgroundMessage(["type": "open", "target": "raycast://extensions/Someone/sample/planets"])
+        model.runner.handleBackgroundMessage(["type": "open", "target": "raycast://extensions/Someone/sample/planets"])
         #expect(requests.map(\.isCommand) == [true])
     }
 
