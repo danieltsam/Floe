@@ -14,6 +14,9 @@ import { ctx } from "./bridge";
 // Bundle the command so that @raycast/api points at our shim and React at the host's copy,
 // whatever the extension's node_modules holds. Both stay external so there is one instance of each.
 export const shimPath = path.join(import.meta.dir, "api/index.ts");
+// Raycast builds every command to CommonJS, where a name a module does not export is undefined and not a failed
+// import. A command with a top-level await cannot be CommonJS, so that one is built as a module.
+const formats = ["cjs", "esm"] as const;
 export async function bundle(entry: string): Promise<string> {
   const outdir = path.join(ctx.supportPath, "build");
   const output = path.join(outdir, `${ctx.commandName}.js`);
@@ -62,6 +65,7 @@ export function fingerprint(entry: string): string {
     dependencies: newestChange(path.join(ctx.extDir, "node_modules", ".package-lock.json")) || newestChange(path.join(ctx.extDir, "bun.lock")),
     // What __dirname is defined as, so a bundle built before it was is built again.
     root: ctx.extDir,
+    formats,
     shim: shimPath,
     shimChanged: newestChange(path.join(import.meta.dir, "api")),
     react: require.resolve("react"),
@@ -71,7 +75,15 @@ export function fingerprint(entry: string): string {
 
 async function build(entry: string, outdir: string) {
   try {
-    return await buildUnchecked(entry, outdir);
+    return await buildUnchecked(entry, outdir, "cjs");
+  } catch {
+    return buildAs(entry, outdir, "esm");
+  }
+}
+
+async function buildAs(entry: string, outdir: string, format: (typeof formats)[number]) {
+  try {
+    return await buildUnchecked(entry, outdir, format);
   } catch (error) {
     // Bun throws an AggregateError whose useful text is in the individual build messages.
     const messages = (error as AggregateError).errors?.map(String).join("\n");
@@ -79,12 +91,12 @@ async function build(entry: string, outdir: string) {
   }
 }
 
-function buildUnchecked(entry: string, outdir: string) {
+function buildUnchecked(entry: string, outdir: string, format: (typeof formats)[number]) {
   return Bun.build({
     entrypoints: [entry],
     outdir,
     target: "bun",
-    format: "esm",
+    format,
     naming: `${ctx.commandName}.js`,
     // Raycast's own build leaves one file per command at the extension's root, and extensions find their
     // assets from there. Bun would put each source file's own folder in its place.

@@ -195,6 +195,42 @@ describe("bundle", () => {
     expect(place.script).toBe('return "hello"');
   });
 
+  // Raycast builds to CommonJS, where a name a module does not export is undefined. As an ES module the same
+  // import stops the command before it starts: "Export named 'EventEmitter' not found in module 'node:stream'".
+  test("a name only CommonJS finds on a Node module is imported, and one no module has is undefined", async () => {
+    makeExtension(
+      {
+        "src/emit.ts":
+          'import { EventEmitter } from "stream";\nimport { Readable, nothingByThisName } from "node:stream";\nexport default () => ({ heard: new EventEmitter().listenerCount("data"), readable: typeof Readable, missing: typeof nothingByThisName });',
+      },
+      "emit",
+    );
+    const command = (await import(await bundle(findEntry()))).default;
+
+    expect(command()).toEqual({ heard: 0, readable: "function", missing: "undefined" });
+  });
+
+  test("a command with a top-level await, which CommonJS cannot hold, is still built", async () => {
+    makeExtension({ "src/waits.ts": "const value = await Promise.resolve(7);\nexport default () => value;" }, "waits");
+    const command = (await import(await bundle(findEntry()))).default;
+
+    expect(command()).toBe(7);
+  });
+
+  // A bundle cached from before was built as an ES module, and one of those fails only when it is imported.
+  test("builds again over a bundle cached from before commands were built as CommonJS", async () => {
+    makeExtension({ "src/older.ts": "export default () => 1;" }, "older");
+    const output = await bundle(findEntry());
+    const stamp = path.join(path.dirname(output), "older.fingerprint");
+    const { formats, ...before } = JSON.parse(fs.readFileSync(stamp, "utf8"));
+    expect(formats).toEqual(["cjs", "esm"]);
+    fs.writeFileSync(stamp, JSON.stringify(before));
+    fs.appendFileSync(output, "\n// marker");
+
+    await bundle(findEntry());
+    expect(fs.readFileSync(output, "utf8")).not.toContain("// marker");
+  });
+
   test("reuses the cached bundle until a source file changes", async () => {
     const extDir = makeExtension({ "src/cached.ts": "export default () => 1;" }, "cached");
     const entry = findEntry();
