@@ -47,7 +47,9 @@ nonisolated enum ScreenTools {
 
     // MARK: Reading
 
-    /// The codes and the text Vision finds in a picture. Empty for one it finds nothing in.
+    /// The codes and the text Vision finds in a picture. Empty for one it finds nothing in. Off the main thread:
+    /// reading takes seconds where no text model is installed.
+    @concurrent
     static func read(_ image: CGImage) async -> ScreenReading {
         var text = RecognizeTextRequest()
         text.recognitionLevel = .accurate
@@ -70,6 +72,7 @@ nonisolated enum ScreenTools {
     }
 
     /// The part of the screen the user drags over, taken by the system's own capture. Nil when Escape ends it.
+    @concurrent
     static func capture() async -> CGImage? {
         let file = FileManager.default.temporaryDirectory.appendingPathComponent("floe-screen-\(UUID().uuidString).png")
         defer { try? FileManager.default.removeItem(at: file) }

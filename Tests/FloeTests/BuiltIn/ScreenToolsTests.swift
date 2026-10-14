@@ -27,6 +27,12 @@ import Vision
         return try #require(rep.cgImage)
     }
 
+    /// Whether Vision itself finds text in a picture, asked off the main thread as Floe asks it.
+    @concurrent
+    private static func visionReadsText(in image: CGImage) async -> Bool {
+        await !((try? RecognizeTextRequest().perform(on: image)) ?? []).isEmpty
+    }
+
     // MARK: Color
 
     @Test func aColorIsWrittenAsItsHexInSRGB() {
@@ -58,7 +64,7 @@ import Vision
     @Test func textInAPictureIsReadAndAPictureWithNoneGivesNothing() async throws {
         let image = try picture(of: "Floe reads 2026")
         // Vision has no text model on some machines, such as the virtual ones CI runs on; there is nothing to check there.
-        guard let lines = try? await RecognizeTextRequest().perform(on: image), !lines.isEmpty else {
+        guard await Self.visionReadsText(in: image) else {
             try Test.cancel("Vision cannot read text on this machine")
         }
         let reading = await ScreenTools.read(image)
