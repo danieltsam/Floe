@@ -61,6 +61,8 @@ struct StoreDetails: Hashable {
     let author: String?
     let iconURL: URL?
     let commands: [StoreCommand]
+    /// False when the manifest lists platforms and the Mac is not one of them.
+    var runsOnMac = true
 }
 
 @MainActor
@@ -111,6 +113,11 @@ final class ExtensionStore: ObservableObject {
 
     func cachedDetails(for name: String) -> StoreDetails? {
         detailsCache[name]
+    }
+
+    /// Takes an extension out of the list. The catalog is names only, so one for another platform is known when its manifest is read.
+    func leaveOut(_ name: String) {
+        catalog.removeAll { $0.name == name }
     }
 
     func loadCatalog(force: Bool = false) async {

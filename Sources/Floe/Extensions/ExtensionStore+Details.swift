@@ -30,6 +30,9 @@ extension ExtensionStore {
         detailsTasks[name] = nil
         if let parsed {
             detailsCache[name] = parsed
+            if !parsed.runsOnMac {
+                leaveOut(name)
+            }
         }
         return parsed
     }
@@ -98,7 +101,7 @@ extension ExtensionStore {
         }()
         let iconURL = iconURL(for: name, icon: manifest["icon"])
         let commands = (manifest["commands"] as? [[String: Any]] ?? []).compactMap { command -> StoreCommand? in
-            guard let commandName = command["name"] as? String else { return nil }
+            guard let commandName = command["name"] as? String, ExtensionCommand.runsOnMac(command["platforms"] as? [String]) else { return nil }
             return StoreCommand(
                 name: commandName,
                 title: command["title"] as? String ?? commandName,
@@ -106,7 +109,8 @@ extension ExtensionStore {
                 mode: command["mode"] as? String ?? "view"
             )
         }
-        return StoreDetails(name: name, title: title, description: description, author: author, iconURL: iconURL, commands: commands)
+        let runsOnMac = ExtensionCommand.runsOnMac(manifest["platforms"] as? [String])
+        return StoreDetails(name: name, title: title, description: description, author: author, iconURL: iconURL, commands: commands, runsOnMac: runsOnMac)
     }
 
     static nonisolated func iconURL(for name: String, icon: Any?) -> URL? {

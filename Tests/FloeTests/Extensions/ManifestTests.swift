@@ -153,6 +153,26 @@ struct ExtensionCommandTests {
         #expect(commands.map(\.keywords) == [["1p", "login", "secrets"], ["secrets"]], "a keyword that is not a string is dropped")
     }
 
+    private func names(platforms: [String]?, commandPlatforms: [String]? = nil) -> [String] {
+        var extra: [String: Any] = ["name": "extra"]
+        extra["platforms"] = commandPlatforms
+        var manifest: [String: Any] = ["name": "tools", "commands": [["name": "run"], extra]]
+        manifest["platforms"] = platforms
+        return ExtensionCommand.commands(inManifest: Fixture.manifest(manifest), folder: folder, source: .raycast).map(\.name)
+    }
+
+    @Test func anExtensionWhosePlatformsLackTheMacHasNoCommands() {
+        #expect(names(platforms: ["Windows"]).isEmpty)
+        #expect(names(platforms: []).isEmpty)
+        #expect(names(platforms: ["macOS", "Windows"]) == ["run", "extra"])
+        #expect(names(platforms: nil) == ["run", "extra"], "no list means every platform")
+    }
+
+    @Test func aCommandWhosePlatformsLackTheMacIsLeftOut() {
+        #expect(names(platforms: nil, commandPlatforms: ["Windows"]) == ["run"])
+        #expect(names(platforms: ["macOS", "Windows"], commandPlatforms: ["macOS"]) == ["run", "extra"])
+    }
+
     @Test(arguments: [[:], ["name": "no-commands"], ["commands": [["name": "run"]]]] as [[String: any Sendable]])
     func manifestsWithoutANameOrCommandsYieldNothing(manifest: [String: any Sendable]) {
         #expect(ExtensionCommand.commands(inManifest: Fixture.manifest(manifest), folder: folder, source: .local).isEmpty)

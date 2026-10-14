@@ -139,6 +139,7 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
         let title: String?
         let icon: String?
         let keywords: Lossy<String>?
+        let platforms: Lossy<String>?
         let preferences: Lossy<FieldSpec>?
         let commands: Lossy<ManifestCommand>
     }
@@ -150,6 +151,7 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
         let interval: String?
         let icon: String?
         let keywords: Lossy<String>?
+        let platforms: Lossy<String>?
         let arguments: Lossy<FieldSpec>?
         let preferences: Lossy<FieldSpec>?
     }
@@ -163,13 +165,18 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
         return max(value * factor, 10)
     }
 
-    /// The commands a package.json declares that Floe can run: view, no-view and menu-bar.
+    /// Whether a manifest's `platforms` list, of an extension or of a command, has the Mac in it. No list means every platform.
+    static func runsOnMac(_ platforms: [String]?) -> Bool {
+        platforms?.contains("macOS") ?? true
+    }
+
+    /// The commands a package.json declares that Floe can run: view, no-view and menu-bar, for the Mac.
     static func commands(inManifest data: Data, folder: URL, source: Source) -> [ExtensionCommand] {
-        guard let manifest = try? JSONDecoder().decode(Manifest.self, from: data) else { return [] }
+        guard let manifest = try? JSONDecoder().decode(Manifest.self, from: data), runsOnMac(manifest.platforms?.elements) else { return [] }
         let custom = CustomIcon.path(for: manifest.name)
         return manifest.commands.elements.compactMap { command in
             let mode = command.mode ?? "view"
-            guard mode == "view" || mode == "no-view" || mode == "menu-bar" else { return nil }
+            guard mode == "view" || mode == "no-view" || mode == "menu-bar", runsOnMac(command.platforms?.elements) else { return nil }
             return ExtensionCommand(
                 extensionDir: folder,
                 extensionName: manifest.name,

@@ -225,6 +225,23 @@ struct ExtensionStoreTests {
         #expect(await store.details(for: "proton-pass", after: .zero)?.title == "Proton Pass", "a row that stays is answered")
     }
 
+    @MainActor @Test func anExtensionForAnotherPlatformLeavesTheListOnceItsManifestIsRead() async {
+        let store = ExtensionStore(catalog: ["everything-search", "proton-pass"]) { url in
+            Data((url.path.contains("everything-search") ? #"{"title":"Everything","platforms":["Windows"]}"# : #"{"platforms":["macOS","Windows"]}"#).utf8)
+        }
+        #expect(await store.details(for: "proton-pass")?.runsOnMac == true)
+        #expect(await store.details(for: "everything-search")?.runsOnMac == false)
+        #expect(store.catalog.map(\.name) == ["proton-pass"])
+    }
+
+    @Test func theStoreListsOnlyTheCommandsForTheMac() {
+        let details = ExtensionStore.parseDetails(name: "bare-test", manifest: [
+            "commands": [["name": "run"], ["name": "registry", "platforms": ["Windows"]], ["name": "both", "platforms": ["macOS", "Windows"]]],
+        ])
+        #expect(details.runsOnMac, "a manifest without platforms is for every platform")
+        #expect(details.commands.map(\.name) == ["run", "both"])
+    }
+
     @MainActor @Test func anIconIsFetchedOnceAndKeptAsAFile() async throws {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("floe-store-icons-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: folder) }
