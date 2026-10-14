@@ -15,27 +15,36 @@ describe("withNodeCause", () => {
     const url = `http://127.0.0.1:${server.port}/api/tags`;
     await server.stop(true);
 
-    const bare = await fetch(url).catch((error) => error);
-    expect([bare instanceof TypeError, bare.code, bare.cause]).toEqual([true, "ECONNREFUSED", undefined]);
-
     const error = await withNodeCause(fetch)(url).catch((error) => error);
     expect(error instanceof TypeError && error.cause && error.cause.code === "ECONNREFUSED").toBe(true);
     expect(error.code).toBe("ECONNREFUSED");
   });
 
-  test("an answer, an error without a code and one that has its cause pass through as they are", async () => {
+  // Bun 1.4.2 gives the cause as a word, "ConnectionRefused"; 1.4.3 gives none.
+  test("a cause that is only a word becomes one that carries the code", async () => {
+    const worded = Object.assign(new TypeError("Unable to connect", { cause: "ConnectionRefused" }), { code: "ECONNREFUSED" });
+    const rejects = (async () => {
+      throw worded;
+    }) as never;
+    const error = await withNodeCause(rejects)("http://127.0.0.1:1").catch((error) => error);
+    expect(error.cause.code).toBe("ECONNREFUSED");
+    expect(error.cause.message).toBe("ConnectionRefused");
+  });
+
+  test("an answer, an error without a code and one whose cause has its code pass through as they are", async () => {
     const response = new Response("ok");
     expect(await withNodeCause((async () => response) as never)("http://example.invalid")).toBe(response);
 
     const plain = new TypeError("not a URL");
-    const caused = Object.assign(new TypeError("fetch failed", { cause: "the reason" }), { code: "ENOTFOUND" });
+    const caused = Object.assign(new TypeError("fetch failed", { cause: Object.assign(new Error("the reason"), { code: "ENOTFOUND" }) }), { code: "ENOTFOUND" });
     for (const thrown of [plain, caused, "a string"]) {
       const rejects = (async () => {
         throw thrown;
       }) as never;
       expect(await withNodeCause(rejects)("http://example.invalid").catch((error) => error)).toBe(thrown);
     }
-    expect([plain.cause, caused.cause]).toEqual([undefined, "the reason"]);
+    expect(plain.cause).toBeUndefined();
+    expect((caused.cause as Error).message).toBe("the reason");
   });
 
   test("what fetch carries stays on it", () => {
