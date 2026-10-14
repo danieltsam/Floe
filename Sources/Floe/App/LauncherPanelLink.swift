@@ -29,7 +29,7 @@ final class LauncherPanelLink {
         model.showPanel = { process.request(.show) }
         model.hidePanel = { process.request(.hide) }
         model.showHUD = { process.request(.hud($0)) }
-        ThawHUD.forward = { process.request(.hud($0)) }
+        OAuthBroker.shared.say { process.request(.hud($0)) }
         model.openSettings = { [settingsLink] in settingsLink.show(page: $0?.id) }
         IncomingURLRouter.shared.forwardOAuth = { process.request(.url($0)) }
         process.onMessage = { [weak self] in self?.receive($0) }

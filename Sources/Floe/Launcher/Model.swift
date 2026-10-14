@@ -418,7 +418,7 @@ final class LauncherModel: ObservableObject {
             controlMusic(control)
             return
         }
-        command.perform()
+        command.perform { [weak self] in self?.showHUD($0) }
     }
 
     /// Copies an emoji without pasting; ⌘↵ on a result.
