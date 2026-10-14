@@ -49,7 +49,7 @@ struct SettingsView: View {
     private var detail: some View {
         if search.isSearching {
             // Results take over the detail column until one is chosen or the query is cleared.
-            SettingsSearchResults(selection: selection, commands: catalog.allCommands)
+            SettingsSearchResults(selection: selection) { SearchIndex.entries(commands: catalog.allCommands) }
         } else {
             pane
         }

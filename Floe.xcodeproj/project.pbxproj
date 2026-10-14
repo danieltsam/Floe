@@ -346,6 +346,7 @@
 		EF336ED0ABEE5F7045163631 /* FloeIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE33B90505045A8A2B0BEA4 /* FloeIntents.swift */; };
 		EFFFF0BD249A3A82BC1E2783 /* ModeHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAB21F1158EF43FF4513FAB /* ModeHost.swift */; };
 		F2E3CB01FB4ADEFCB96510F3 /* Model+Timers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3B446234EAFBF1F5F00CCB /* Model+Timers.swift */; };
+		F3D47F054DB42BC7A6DB4E3F /* SettingsSearchContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44B60602E2E024D1E6485FA /* SettingsSearchContent.swift */; };
 		F5C2DC1C6A98B377558A5033 /* JSONFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB80B2B608F7396A0CCB29AF /* JSONFile.swift */; };
 		F5D20A578065DC4CDB6908F5 /* AnswerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0145A156F10BC11291C239F3 /* AnswerRow.swift */; };
 		F6F6CC495F74091BFFB9F2D3 /* FileSearchScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20728F0A7A1F9A51B9C8D804 /* FileSearchScope.swift */; };
@@ -633,6 +634,7 @@
 		B0B52EC136B33C6626E18EDC /* PreferredAppActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferredAppActions.swift; sourceTree = "<group>"; };
 		B0F9AD2AB64B9F4E07E881FF /* SettingsSearchEntries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSearchEntries.swift; sourceTree = "<group>"; };
 		B13EBB5691E5F0FB7A55BE81 /* SettingsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindow.swift; sourceTree = "<group>"; };
+		B44B60602E2E024D1E6485FA /* SettingsSearchContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSearchContent.swift; sourceTree = "<group>"; };
 		B464443DD490926A31FA4AE7 /* NoteDesk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDesk.swift; sourceTree = "<group>"; };
 		B5F79E7C261FEF649D619BE4 /* release.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = release.sh; sourceTree = "<group>"; };
 		B62548A2DF57C84EDBCBCC0A /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
@@ -1028,6 +1030,7 @@
 				12590EA11A0CFF4478B99322 /* SettingsMerge.swift */,
 				F083CEE0A4DB35A8DBC44B67 /* SettingsMode.swift */,
 				27BC8BADB46258DEB8AE9E40 /* SettingsSalvage.swift */,
+				B44B60602E2E024D1E6485FA /* SettingsSearchContent.swift */,
 				B0F9AD2AB64B9F4E07E881FF /* SettingsSearchEntries.swift */,
 				35F8F20630467F0633497F89 /* SettingsSidebarPaneList.swift */,
 				F50E9D3C5E5A2B3411933263 /* SettingsSync.swift */,
@@ -1739,6 +1742,7 @@
 				E8F562A6C0BF3A1DCBFEDB33 /* SettingsMode.swift in Sources */,
 				FE11195D111F7CC7EA39CF8E /* SettingsProcess.swift in Sources */,
 				55781EB74199BB1FA1342D00 /* SettingsSalvage.swift in Sources */,
+				F3D47F054DB42BC7A6DB4E3F /* SettingsSearchContent.swift in Sources */,
 				3363EA52A0ACF53EE624C1A2 /* SettingsSearchEntries.swift in Sources */,
 				3708D44C226149ED3BCE44C0 /* SettingsSearchNavigation.swift in Sources */,
 				0DCF27A2B10428D7E854DB9E /* SettingsSidebarPaneList.swift in Sources */,

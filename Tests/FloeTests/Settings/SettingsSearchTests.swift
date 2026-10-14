@@ -293,7 +293,7 @@ struct SearchModelTests {
         model.searchText = "convert units"
         #expect(model.displayedGroups.isEmpty)
         // Setting the commands refreshes the results of the query already typed.
-        model.setCommands(SearchFixture.commands)
+        model.setEntries(SearchIndex.entries(commands: SearchFixture.commands))
         let group = try #require(model.displayedGroups.first)
         #expect(group.pane == .extensionPage("zeta-tools"))
         #expect(group.label.title == "Zeta Tools")
@@ -310,22 +310,22 @@ struct SearchModelTests {
     ])
     func extensionsCommandsAndPreferencesAreFoundByTitle(query: String, id: String) {
         let model = SearchModel()
-        model.setCommands(SearchFixture.commands)
+        model.setEntries(SearchIndex.entries(commands: SearchFixture.commands))
         model.searchText = query
         #expect(model.displayedGroups.first?.entries.first?.id == id)
     }
 
     @Test func removedExtensionsLeaveTheIndex() {
         let model = SearchModel()
-        model.setCommands(SearchFixture.commands)
-        model.setCommands([])
+        model.setEntries(SearchIndex.entries(commands: SearchFixture.commands))
+        model.setEntries(SearchIndex.entries(commands: []))
         model.searchText = "convert units"
         #expect(model.displayedGroups.isEmpty)
     }
 
     @Test func resultsStopAtTheLimit() {
         let model = SearchModel()
-        model.setCommands(SearchFixture.manyCommands(SearchModel.resultLimit + 20))
+        model.setEntries(SearchIndex.entries(commands: SearchFixture.manyCommands(SearchModel.resultLimit + 20)))
         model.searchText = "widget"
         #expect(model.resultCount == SearchModel.resultLimit)
     }
@@ -340,7 +340,7 @@ struct SettingsSearchNavigationTests {
     @Test func choosingAResultOpensItsPaneAndEndsTheSearch() throws {
         let selection = SettingsSelection()
         let search = SearchModel()
-        search.setCommands(SearchFixture.commands)
+        search.setEntries(SearchIndex.entries(commands: SearchFixture.commands))
         search.searchText = "timer"
         try SettingsSearchNavigation.selectSearchResult(commandEntry(), selection: selection, search: search)
         #expect(selection.page == .extensionPage("zeta-tools"))
