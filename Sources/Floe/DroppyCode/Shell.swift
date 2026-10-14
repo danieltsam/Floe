@@ -159,8 +159,8 @@ nonisolated enum Shell {
         try Task.checkCancellation()
         // A process ended by a signal carries the signal's number, as it did.
         let status: Int32 = switch result.terminationStatus {
-        case .exited(let code): code
-        case .signaled(let signal): signal
+        case let .exited(code): code
+        case let .signaled(signal): signal
         }
         return ShellResult(status: status, stdout: collector.output(.stdout), stderr: collector.output(.stderr))
     }
