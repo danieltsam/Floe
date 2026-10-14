@@ -24,13 +24,13 @@ struct NoteAndCheckpointReceiptsTests {
         let defaults = UserDefaults(suiteName: "floe-note-receipts-\(UUID().uuidString)")!
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
-        model.checkpointStore = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
+        model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.reminding = ReminderEnvironment(requestAccess: { false }, create: { _ in throw Refused() }, delete: { _ in throw Refused() }, lists: { [] })
         model.scheduling = EventEnvironment(requestAccess: { false }, create: { _ in throw Refused() }, delete: { _ in throw Refused() })
-        model.checkpointing.finderItems = { [] }
-        model.checkpointing.tabs = { [] }
-        model.checkpointing.openFile = { _ in }
-        model.checkpointing.confirmsDelete = { _ in false }
+        model.checkpointRows.environment.finderItems = { [] }
+        model.checkpointRows.environment.tabs = { [] }
+        model.checkpointRows.environment.openFile = { _ in }
+        model.checkpointRows.environment.confirmsDelete = { _ in false }
         model.shellRows.environment.showOutput = { _, _ in }
         model.settings.notesApp = .folder
         model.settings.notesFolder = folder.appendingPathComponent("Notes").path
@@ -245,10 +245,10 @@ struct NoteAndCheckpointReceiptsTests {
         model.panelHost.showHUD = { said.append($0) }
         let file = folder.appendingPathComponent("budget.txt")
         try Data("x".utf8).write(to: file)
-        model.checkpointing.finderItems = { [file] }
+        model.checkpointRows.environment.finderItems = { [file] }
 
-        await model.saveCheckpoint(named: "taxes", note: "call the accountant").value
-        let saved = try #require(model.checkpointStore.all.first)
+        await model.checkpointRows.saveCheckpoint(named: "taxes", note: "call the accountant").value
+        let saved = try #require(model.checkpointRows.store.all.first)
         let receipt = try #require(model.receipts.all.first)
         #expect(receipt.kind == .checkpoint)
         #expect(receipt.subject == "taxes")
@@ -262,8 +262,8 @@ struct NoteAndCheckpointReceiptsTests {
 
         model.activate(row)
         #expect(said.last == "Deleted the checkpoint taxes")
-        #expect(model.checkpointStore.all.isEmpty)
-        #expect(model.checkpoints.isEmpty, "the search no longer finds it")
+        #expect(model.checkpointRows.store.all.isEmpty)
+        #expect(model.checkpointRows.checkpoints.isEmpty, "the search no longer finds it")
         #expect(FileManager.default.fileExists(atPath: file.path), "the files it listed are not touched")
         #expect(model.receipts.all.first?.canUndo == false)
         #expect(model.receipts.all.first?.label().hasSuffix(" · deleted") == true)
@@ -276,27 +276,27 @@ struct NoteAndCheckpointReceiptsTests {
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
 
-        await model.saveCheckpoint(named: "taxes", note: "first").value
-        await model.saveCheckpoint(named: "Taxes", note: "second").value
+        await model.checkpointRows.saveCheckpoint(named: "taxes", note: "first").value
+        await model.checkpointRows.saveCheckpoint(named: "Taxes", note: "second").value
         let receipts = model.receipts.all
         #expect(receipts.map(\.detail) == [
             "a note\nIt replaced an older checkpoint of the same name. Deleting this one does not bring the older one back.",
             "a note",
         ])
-        #expect(model.checkpointStore.all.map(\.note) == ["second"])
+        #expect(model.checkpointRows.store.all.map(\.note) == ["second"])
 
         try model.undo(#require(receipts.last))
         #expect(said.last == "The checkpoint taxes was already deleted", "the older one went when the newer took its place")
-        #expect(model.checkpointStore.all.map(\.note) == ["second"])
+        #expect(model.checkpointRows.store.all.map(\.note) == ["second"])
 
         try model.undo(#require(receipts.first))
         #expect(said.last == "Deleted the checkpoint Taxes")
-        #expect(model.checkpointStore.all.isEmpty, "and the older one does not come back")
+        #expect(model.checkpointRows.store.all.isEmpty, "and the older one does not come back")
         #expect(model.receipts.all.map(\.canUndo) == [false, false])
 
         model.settings.keepsReceipts = false
-        await model.saveCheckpoint(named: "trip", note: "book the train").value
-        #expect(model.checkpointStore.all.map(\.name) == ["trip"])
+        await model.checkpointRows.saveCheckpoint(named: "trip", note: "book the train").value
+        #expect(model.checkpointRows.store.all.map(\.name) == ["trip"])
         #expect(model.receipts.all.count == 2, "receipts switched off: the checkpoint is saved and no record kept")
     }
 

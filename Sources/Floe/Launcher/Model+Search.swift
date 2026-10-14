@@ -26,7 +26,7 @@ extension LauncherModel {
         context.emojiSkinTone = settings.emojiSkinTone
         context.shell = settings.shell
         context.searchSources = settings.searchSources
-        context.checkpoints = checkpoints
+        context.checkpoints = checkpointRows.checkpoints
         context.reminderLists = context.trimmed.lowercased().hasPrefix(ReminderDraft.keyword + " ") ? reminding.lists() : []
         context.timers = runningTimers.all
         context.focusShortcut = settings.focusShortcut

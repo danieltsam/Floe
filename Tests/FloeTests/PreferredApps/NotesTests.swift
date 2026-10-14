@@ -196,7 +196,7 @@ struct NotesTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let model = makeModel(app: .folder)
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
-        model.checkpointStore = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
+        model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
 
         model.query = "todo renew passport"
         let task = try #require(model.results.first?.item)

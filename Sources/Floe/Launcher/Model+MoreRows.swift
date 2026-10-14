@@ -15,12 +15,6 @@ extension LauncherModel {
         if case let .receipt(receipt) = item {
             return undoTitle(for: receipt) ?? String(localized: "Show Details", bundle: .floe)
         }
-        if case .checkpoint = item {
-            return String(localized: "Resume", bundle: .floe, comment: "A verb on a button: open what a checkpoint holds.")
-        }
-        if case .checkpointDraft = item {
-            return String(localized: "Save", bundle: .floe)
-        }
         if case .keyword = item {
             return String(localized: "Type Keyword", bundle: .floe, comment: "A button that puts the selected keyword into the search field, for the user to go on typing.")
         }
@@ -66,10 +60,6 @@ extension LauncherModel {
     func openLater(_ item: RootItem) {
         if openByOwner(item) {
             return
-        } else if case let .checkpoint(checkpoint) = item {
-            resume(checkpoint)
-        } else if case let .checkpointDraft(name, note) = item {
-            saveCheckpoint(named: name, note: note)
         } else if case let .receipt(receipt) = item, receipt.canUndo {
             undo(receipt)
         } else if case let .receipt(receipt) = item {
@@ -137,9 +127,6 @@ extension LauncherModel {
         if case let .receipt(receipt) = item {
             return receiptActions(receipt)
         }
-        if case let .checkpoint(checkpoint) = item {
-            return checkpointActions(checkpoint)
-        }
         if case let .contact(.person(person)) = item {
             return contactActions(for: person)
         }
@@ -182,7 +169,7 @@ extension LauncherModel {
     func undo(_ receipt: Receipt) {
         let delete: (String) throws -> Bool = switch receipt.kind {
         case .event: scheduling.delete
-        case .checkpoint: deleteCheckpoint
+        case .checkpoint: checkpointRows.deleteCheckpoint
         case .timer: stopTimer
         default: reminding.delete
         }

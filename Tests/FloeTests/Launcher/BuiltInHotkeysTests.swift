@@ -11,7 +11,7 @@ struct BuiltInHotkeysTests {
         let settings = AppSettings(defaults: UserDefaults(suiteName: "floe-hotkeys-tests-\(UUID().uuidString)")!)
         let model = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: []))
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
-        model.checkpointStore = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
+        model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         return (model, folder)
     }
 

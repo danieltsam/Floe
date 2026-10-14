@@ -84,7 +84,7 @@ struct ContactsTests {
             scopes: [stand.scope], sources: []
         )
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
-        model.checkpointStore = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
+        model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.linkOpener = stand.opener
         return model
     }

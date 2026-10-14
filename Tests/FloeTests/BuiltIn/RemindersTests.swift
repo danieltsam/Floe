@@ -63,7 +63,7 @@ struct RemindersTests {
         let defaults = UserDefaults(suiteName: "floe-reminders-\(UUID().uuidString)")!
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
-        model.checkpointStore = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
+        model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.reminding = ReminderEnvironment(
             requestAccess: { stand.isAllowed },
             create: { draft in

@@ -156,7 +156,7 @@ struct KeywordsTests {
         let scopes: [any SearchScope] = [KeywordSearchScope(), KeywordSearchScope(keyword: KeywordSearchScope.mark)]
         let model = LauncherModel(settings: settings, usage: usage, snapshot: CatalogSnapshot(apps: [], commands: []), scopes: scopes, sources: [])
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
-        model.checkpointStore = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
+        model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         var hidden = 0
         model.panelHost.hidePanel = { hidden += 1 }
 

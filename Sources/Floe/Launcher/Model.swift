@@ -103,17 +103,14 @@ final class LauncherModel: ObservableObject {
     let usage: UsageStore
     /// Shell commands and running processes. Tests replace parts of its environment.
     lazy var shellRows = makeShellRows()
+    lazy var checkpointRows = makeCheckpointRows()
     /// Where receipts are kept. Tests give one of their own.
     var receipts = ReceiptStore.shared
-    var checkpointStore = CheckpointStore.shared
-    var checkpointing = CheckpointEnvironment()
     var reminding = ReminderEnvironment()
     var scheduling = EventEnvironment()
     var timing = TimerEnvironment()
     var music = MusicEnvironment()
     let runningTimers = RunningTimers()
-    /// The saved checkpoints, read when the launcher opens and when one is saved or deleted.
-    var checkpoints: [Checkpoint] = []
     /// Where in the remembered searches the field stands, while the Up arrow walks back through them.
     var recalledQuery: Int?
     private var didAutorun = false
