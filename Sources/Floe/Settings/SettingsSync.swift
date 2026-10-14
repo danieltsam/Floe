@@ -70,6 +70,7 @@ enum SettingsSync {
         "includeRaycastExtensions": "reads a folder on this Mac and loads the code in it",
         "disabledExtensions": "switching an extension back on runs its code, which is decided on each Mac",
         "disabledCommands": "switching a command back on runs its code, which is decided on each Mac",
+        "enabledCommands": "switching a command on runs its code, which is decided on each Mac",
         "menuBarCommands": "the commands running in this Mac's menu bar",
         "menuBarItemNames": "keyed by where an item sits in this Mac's menu bar",
         "searchSources": "each source was switched on here after macOS asked for access",

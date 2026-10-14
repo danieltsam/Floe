@@ -107,7 +107,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.menuBarCommands = menuBarCommands
         self.backgroundScheduler = backgroundScheduler
         model.$allCommands
-            .combineLatest(settings.$disabledExtensions.removeDuplicates(), settings.$disabledCommands.removeDuplicates(), settings.$menuBarCommands.removeDuplicates())
+            .combineLatest(settings.$disabledExtensions.removeDuplicates(), settings.$disabledCommands.combineLatest(settings.$enabledCommands).removeDuplicates(by: ==), settings.$menuBarCommands.removeDuplicates())
             .sink { [weak self] _, _, _, _ in
                 // After the publishers' willSet, so enabledCommands reads the new values.
                 DispatchQueue.main.async {

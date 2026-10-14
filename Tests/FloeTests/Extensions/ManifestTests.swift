@@ -153,6 +153,15 @@ struct ExtensionCommandTests {
         #expect(commands.map(\.keywords) == [["1p", "login", "secrets"], ["secrets"]], "a keyword that is not a string is dropped")
     }
 
+    @Test func aCommandKnowsWhetherItsManifestLeavesItOffByDefault() {
+        let commands = ExtensionCommand.commands(
+            inManifest: Fixture.manifest(["name": "vault", "commands": [["name": "items"], ["name": "renew", "disabledByDefault": true], ["name": "lock", "disabledByDefault": false]]]),
+            folder: folder,
+            source: .raycast
+        )
+        #expect(commands.map(\.isDisabledByDefault) == [false, true, false])
+    }
+
     private func names(platforms: [String]?, commandPlatforms: [String]? = nil) -> [String] {
         var extra: [String: Any] = ["name": "extra"]
         extra["platforms"] = commandPlatforms

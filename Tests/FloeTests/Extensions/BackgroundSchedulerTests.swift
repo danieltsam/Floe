@@ -98,6 +98,18 @@ final class BackgroundSchedulerTests {
         #expect(Array(scheduler.timers.keys) == [offers.id])
     }
 
+    @Test func aCommandOffByDefaultIsScheduledOnlyOnceItIsSwitchedOn() {
+        var renew = Self.command("renew")
+        renew.isDisabledByDefault = true
+        let model = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: [renew]))
+        scheduler.sync(model.enabledCommands)
+        #expect(scheduler.timers.isEmpty)
+
+        settings.setEnabled(true, for: renew)
+        scheduler.sync(model.enabledCommands)
+        #expect(Array(scheduler.timers.keys) == [renew.id])
+    }
+
     @Test func aCommandGoneFromTheListLosesItsTimer() throws {
         let hourly = Self.command("hourly")
         let daily = Self.command("daily", interval: 86400)

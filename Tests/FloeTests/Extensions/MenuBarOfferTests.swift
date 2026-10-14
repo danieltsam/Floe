@@ -73,4 +73,20 @@ struct MenuBarOfferTests {
         #expect(ExtensionStore.menuBarOffer(for: "floe-test-player", in: root, settings: settings) == nil, "nothing left to add")
         #expect(ExtensionStore.menuBarOffer(for: "floe-test-missing", in: root, settings: settings) == nil, "no manifest, no question")
     }
+
+    @Test func aMenuBarCommandThatIsOffByDefaultIsNotOffered() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("floe-offer-\(UUID().uuidString)", isDirectory: true)
+        let folder = root.appendingPathComponent("floe-test-player", isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let manifest = player.replacingOccurrences(of: #""name": "mini","#, with: #""name": "mini", "disabledByDefault": true,"#)
+        try Data(manifest.utf8).write(to: folder.appendingPathComponent("package.json"))
+        let suite = "floe-offer-tests-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let settings = AppSettings(defaults: defaults, savesAfterEdits: false)
+
+        let offer = try #require(ExtensionStore.menuBarOffer(for: "floe-test-player", in: root, settings: settings))
+        #expect(offer.ready.map(\.title) == ["Now Playing"])
+    }
 }

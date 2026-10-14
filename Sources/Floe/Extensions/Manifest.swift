@@ -121,6 +121,8 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
     let commandPreferences: [FieldSpec]
     /// The words the manifest lists for the extension and for this command, which the root search also answers to.
     var keywords: [String] = []
+    /// The manifest's `disabledByDefault`: the command stays off until the user switches it on in Settings.
+    var isDisabledByDefault = false
 
     var id: String {
         "\(extensionName)/\(name)"
@@ -149,6 +151,7 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
         let title: String?
         let mode: String?
         let interval: String?
+        let disabledByDefault: Bool?
         let icon: String?
         let keywords: Lossy<String>?
         let platforms: Lossy<String>?
@@ -190,7 +193,8 @@ nonisolated struct ExtensionCommand: Identifiable, Sendable {
                 arguments: command.arguments?.elements ?? [],
                 extensionPreferences: manifest.preferences?.elements ?? [],
                 commandPreferences: command.preferences?.elements ?? [],
-                keywords: (command.keywords?.elements ?? []) + (manifest.keywords?.elements ?? [])
+                keywords: (command.keywords?.elements ?? []) + (manifest.keywords?.elements ?? []),
+                isDisabledByDefault: command.disabledByDefault ?? false
             )
         }
     }

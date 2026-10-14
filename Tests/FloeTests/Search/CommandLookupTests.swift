@@ -43,6 +43,14 @@ struct CommandLookupTests {
         #expect(CommandLookup.enabled(all, disabledExtensions: []).map(\.id) == all.map(\.id))
     }
 
+    @Test func aCommandOffByDefaultIsLeftOutUntilItIsSwitchedOn() {
+        var all = all
+        all[1].isDisabledByDefault = true
+        #expect(CommandLookup.enabled(all, disabledExtensions: []).map(\.id) == ["hello/planets", "kill-process/index", "calendar/today", "calendar/show"])
+        #expect(CommandLookup.enabled(all, disabledExtensions: [], enabledCommands: ["hello/greet"]).map(\.id) == all.map(\.id))
+        #expect(CommandLookup.enabled(all, disabledExtensions: ["hello"], enabledCommands: ["hello/greet"]).map(\.extensionName).contains("hello") == false)
+    }
+
     @Test func aCommandIsFoundByItsIdentifier() throws {
         let command = try #require(CommandLookup.command(withID: "hello/greet", in: all))
         #expect(command.title == "Greet")

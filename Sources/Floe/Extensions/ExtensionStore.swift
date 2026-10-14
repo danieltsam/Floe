@@ -159,7 +159,7 @@ final class ExtensionStore: ObservableObject {
     static func menuBarOffer(for name: String, in root: URL = Paths.extensions, settings: AppSettings = .shared) -> MenuBarOffer? {
         let folder = root.appendingPathComponent(name, isDirectory: true)
         guard let manifest = try? Data(contentsOf: folder.appendingPathComponent("package.json")) else { return nil }
-        let commands = ExtensionCommand.commands(inManifest: manifest, folder: folder, source: .local)
+        let commands = ExtensionCommand.commands(inManifest: manifest, folder: folder, source: .local).filter(settings.isEnabled)
         return MenuBarOffer(commands: commands, inMenuBar: settings.menuBarCommands) { !PreferenceStore.missingRequired(for: $0).isEmpty }
     }
 

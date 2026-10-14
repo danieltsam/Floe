@@ -85,6 +85,27 @@ struct AppSettingsTests {
         #expect(settings.disabledCommands.isEmpty)
     }
 
+    @Test func aCommandOffByDefaultIsOffUntilItIsSwitchedOnAndComesBackOn() {
+        let settings = AppSettings(defaults: scratch.defaults, savesAfterEdits: false)
+        var extra = Fixture.command("extra", extension: "hello")
+        extra.isDisabledByDefault = true
+        #expect(!settings.isEnabled(extra))
+
+        settings.enabledBinding(for: extra).wrappedValue = true
+        #expect(settings.isEnabled(extra))
+        #expect(settings.enabledCommands == ["hello/extra"])
+        #expect(settings.disabledCommands.isEmpty)
+        settings.save()
+        #expect(AppSettings(defaults: scratch.defaults).isEnabled(extra))
+
+        settings.disabledExtensions = ["hello"]
+        #expect(!settings.isEnabled(extra), "its extension being off still takes it")
+        settings.disabledExtensions = []
+        settings.enabledBinding(for: extra).wrappedValue = false
+        #expect(!settings.isEnabled(extra))
+        #expect(settings.enabledCommands.isEmpty && settings.disabledCommands.isEmpty, "back at its default, it is in neither list")
+    }
+
     @Test func savedSettingsComeBackInANewInstance() {
         let settings = AppSettings(defaults: scratch.defaults)
         settings.toggleHotkey = nil
