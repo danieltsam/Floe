@@ -6,7 +6,10 @@
 //  Licensed under the GNU AGPLv3
 
 import { afterEach, describe, expect, spyOn, test } from "bun:test";
-import { handlePop, handlePopToRoot, handleReply, request, send, setPopHandler, setPopToRootHandler, setSink } from "../bridge";
+import fs from "node:fs";
+import path from "node:path";
+import { handlePop, handlePopToRoot, handleReply, request, reserveStdout, send, setPopHandler, setPopToRootHandler, setSink } from "../bridge";
+import { makeTempDir } from "./support";
 
 afterEach(() => {
   setSink();
@@ -34,6 +37,48 @@ describe("send", () => {
       expect(stdout.mock.calls.map(([line]) => line)).toEqual(['{"type":"pong"}\n', '{"type":"exit"}\n']);
     } finally {
       stdout.mockRestore();
+    }
+  });
+
+  // An extension rings the bell with process.stdout.write("\x07"). On stdout it is glued onto the next message, which the app then drops.
+  test("once stdout is reserved, a raw write to it goes to stderr and messages still go to stdout", () => {
+    const stdout = spyOn(process.stdout, "write").mockImplementation(() => true);
+    const stderr = spyOn(process.stderr, "write").mockImplementation(() => true);
+    const release = reserveStdout();
+    try {
+      process.stdout.write("\x07");
+      send({ type: "pong" });
+      expect(stdout.mock.calls.map(([line]) => line)).toEqual(['{"type":"pong"}\n']);
+      expect(stderr.mock.calls.map(([text]) => text)).toEqual(["\x07"]);
+    } finally {
+      release();
+      stdout.mockRestore();
+      stderr.mockRestore();
+    }
+  });
+
+  test("the real host keeps a command's raw write out of what the app reads", async () => {
+    const home = makeTempDir("home");
+    const extDir = path.join(home, "extension");
+    fs.mkdirSync(path.join(extDir, "src"), { recursive: true });
+    fs.writeFileSync(path.join(extDir, "package.json"), JSON.stringify({ name: "bell-sample", commands: [{ name: "ring", mode: "no-view" }] }));
+    fs.writeFileSync(
+      path.join(extDir, "src/ring.ts"),
+      'import { showHUD } from "@raycast/api";\nexport default async function Command() { process.stdout.write("\\x07ding"); await showHUD("Timer done"); }',
+    );
+    try {
+      const proc = Bun.spawn(["bun", path.join(import.meta.dir, "../host.ts"), extDir, "ring"], {
+        stdin: "pipe",
+        stdout: "pipe",
+        stderr: "pipe",
+        env: { ...process.env, HOME: home },
+      });
+      const [out, log] = await Promise.all([new Response(proc.stdout).text(), new Response(proc.stderr).text()]);
+      const lines = out.split("\n").filter(Boolean);
+      expect(lines.map((line) => JSON.parse(line).type)).toEqual(["hud", "exit"]);
+      expect(log).toContain("\x07ding");
+    } finally {
+      fs.rmSync(home, { recursive: true, force: true });
     }
   });
 });

@@ -28,9 +28,21 @@ export const ctx = {
 };
 
 type Sink = (line: string) => void;
+let reserved: typeof process.stdout.write | undefined;
 const stdoutSink: Sink = (line) => {
-  process.stdout.write(line);
+  (reserved ?? process.stdout.write).call(process.stdout, line);
 };
+// stdout is the protocol's alone. What an extension writes to process.stdout itself would be glued onto the next
+// message, so from here it goes to stderr with the console output. The function returned puts it back.
+export function reserveStdout(): () => void {
+  const original = process.stdout.write;
+  reserved = original;
+  process.stdout.write = ((...args: Parameters<typeof original>) => process.stderr.write(...args)) as typeof original;
+  return () => {
+    process.stdout.write = original;
+    reserved = undefined;
+  };
+}
 let sink = stdoutSink;
 // Tests replace the sink to capture messages; passing nothing restores stdout.
 export function setSink(replacement: Sink = stdoutSink) {
