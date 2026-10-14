@@ -63,8 +63,8 @@ struct CalendarEventsTests {
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
-        model.reminding = ReminderEnvironment(requestAccess: { false }, create: { _ in throw Refused() }, delete: { _ in throw Refused() }, lists: { [] })
-        model.scheduling = EventEnvironment(
+        model.reminderRows.environment = ReminderEnvironment(requestAccess: { false }, create: { _ in throw Refused() }, delete: { _ in throw Refused() }, lists: { [] })
+        model.eventRows.environment = EventEnvironment(
             requestAccess: {
                 stand.asked += 1
                 return stand.isAllowed
@@ -224,7 +224,7 @@ struct CalendarEventsTests {
         let row = try #require(model.results.first?.item)
         #expect(row.rowLabel == "Add a day or time")
         model.activate(row)
-        await model.addEvent(EventDraft(title: "lunch with Ana", start: nil)).value
+        await model.eventRows.addEvent(EventDraft(title: "lunch with Ana", start: nil)).value
         #expect(said == Array(repeating: "Add a day or time to the event, such as Thursday noon", count: 2))
         #expect(hidden == 0, "the panel stays so the day can be typed")
         #expect(model.query == "event lunch with Ana")
@@ -242,20 +242,20 @@ struct CalendarEventsTests {
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
         let draft = EventDraft(title: "lunch", start: Self.time(9, 13))
-        await model.addEvent(draft).value
+        await model.eventRows.addEvent(draft).value
         #expect(said == ["Floe may not use Calendar. Allow full access in System Settings > Privacy & Security > Calendars."])
         #expect(stand.created.isEmpty)
         #expect(model.receipts.all.isEmpty)
 
         stand.isAllowed = true
         stand.fails = true
-        await model.addEvent(draft).value
+        await model.eventRows.addEvent(draft).value
         #expect(said.last == "Calendar said no", "what Calendar answered is what is said")
         #expect(model.receipts.all.isEmpty)
 
         stand.fails = false
         model.settings.keepsReceipts = false
-        await model.addEvent(draft).value
+        await model.eventRows.addEvent(draft).value
         #expect(stand.created == [draft])
         #expect(model.receipts.all.isEmpty, "receipts switched off: the event is added and no record kept")
     }
@@ -271,7 +271,7 @@ struct CalendarEventsTests {
         model.panelHost.showHUD = { said.append($0) }
         var shown: [String] = []
         model.shellRows.environment.showOutput = { title, _ in shown.append(title) }
-        await model.addEvent(EventDraft(title: "lunch", start: Self.time(9, 13))).value
+        await model.eventRows.addEvent(EventDraft(title: "lunch", start: Self.time(9, 13))).value
         let receipt = try #require(model.receipts.all.first)
         let row = RootItem.receipt(receipt)
         #expect(receipt.canUndo)
@@ -306,7 +306,7 @@ struct CalendarEventsTests {
         let model = model(in: folder, stand: stand)
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.addEvent(EventDraft(title: "lunch", start: Self.time(9, 13))).value
+        await model.eventRows.addEvent(EventDraft(title: "lunch", start: Self.time(9, 13))).value
         let receipt = try #require(model.receipts.all.first)
         stand.held.removeAll()
 

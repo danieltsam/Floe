@@ -30,8 +30,6 @@ extension LauncherModel {
     /// What Return does on a row that makes or stops something from what was typed. Nil for any other row.
     private static func draftTitle(for item: RootItem) -> String? {
         switch item {
-        case .reminderDraft: String(localized: "Add Reminder", bundle: .floe)
-        case .eventDraft: String(localized: "Add Event", bundle: .floe)
         case .contact(.person): String(localized: "Open in Contacts", bundle: .floe, comment: "Contacts is the name of Apple's app.")
         case let .focus(_, shortcut) where shortcut.isEmpty: String(localized: "Open Shortcuts", bundle: .floe, comment: "A button that opens Apple's Shortcuts app.")
         case .focus: String(localized: "Run Shortcut", bundle: .floe, comment: "A button that runs the Shortcut the user named for Focus.")
@@ -70,8 +68,6 @@ extension LauncherModel {
     /// Return on a row that makes, stops or reaches something from what was typed.
     private func openTyped(_ item: RootItem) {
         switch item {
-        case let .reminderDraft(draft): addReminder(draft)
-        case let .eventDraft(draft): addEvent(draft)
         case let .contact(row): open(row)
         case let .outgoing(draft): reach(draft.link)
         case let .focus(request, shortcut): setFocus(request, shortcut: shortcut)
@@ -164,10 +160,10 @@ extension LauncherModel {
     /// Takes back what a receipt records and says what came of it. The list stays, read again.
     func undo(_ receipt: Receipt) {
         let delete: (String) throws -> Bool = switch receipt.kind {
-        case .event: scheduling.delete
+        case .event: eventRows.environment.delete
         case .checkpoint: checkpointRows.deleteCheckpoint
         case .timer: timerRows.stopTimer
-        default: reminding.delete
+        default: reminderRows.environment.delete
         }
         let outcome = ReceiptUndo.undo(receipt, delete: delete)
         if [.putBack, .deleted, .alreadyDeleted].contains(outcome) {

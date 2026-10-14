@@ -105,10 +105,10 @@ final class LauncherModel: ObservableObject {
     lazy var shellRows = makeShellRows()
     lazy var checkpointRows = makeCheckpointRows()
     lazy var timerRows = makeTimerRows()
+    lazy var reminderRows = makeReminderRows()
+    lazy var eventRows = makeEventRows()
     /// Where receipts are kept. Tests give one of their own.
     var receipts = ReceiptStore.shared
-    var reminding = ReminderEnvironment()
-    var scheduling = EventEnvironment()
     var music = MusicEnvironment()
     /// Where in the remembered searches the field stands, while the Up arrow walks back through them.
     var recalledQuery: Int?
@@ -344,12 +344,6 @@ final class LauncherModel: ObservableObject {
             reset()
         case let .snippet(snippet):
             runner.paste(text: SnippetStore.shared.expanded(snippet))
-        case let .event(event):
-            if let destination = event.meetingURL ?? event.calendarURL {
-                openLink(destination)
-            }
-            panelHost.hidePanel()
-            reset()
         case let .calculator(_, result, error, _):
             copyCalculation(result, error: error)
         default:

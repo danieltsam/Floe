@@ -10,7 +10,7 @@ import AppKit
 extension LauncherModel {
     /// The features that own rows, asked in turn what a row's Return, actions and keys do.
     var rowOwners: [any RowOwner] {
-        [shellRows, checkpointRows, timerRows]
+        [shellRows, checkpointRows, timerRows, reminderRows, eventRows]
     }
 
     func ownerReturnTitle(for item: RootItem) -> String? {
@@ -53,10 +53,7 @@ extension LauncherModel {
         rows.host = CheckpointRows.Host(
             hidePanel: { [weak self] in self?.panelHost.hidePanel() },
             showHUD: { [weak self] in self?.panelHost.showHUD($0) },
-            leave: { [weak self] in
-                self?.panelHost.hidePanel()
-                self?.reset()
-            },
+            leave: { [weak self] in self?.leave() },
             record: { [weak self] in self?.record($0) },
             showOutput: { [weak self] in self?.shellRows.environment.showOutput($0, $1) },
             openLink: { [weak self] in self?.openLink($0) },
@@ -73,13 +70,33 @@ extension LauncherModel {
         let rows = TimerRows()
         rows.host = TimerRows.Host(
             showHUD: { [weak self] in self?.panelHost.showHUD($0) },
-            leave: { [weak self] in
-                self?.panelHost.hidePanel()
-                self?.reset()
-            },
+            leave: { [weak self] in self?.leave() },
             record: { [weak self] in self?.record($0) },
             toResident: { [weak self] in self?.panelHost.residentRequests }
         )
         return rows
+    }
+
+    func makeReminderRows() -> ReminderRows {
+        let rows = ReminderRows()
+        rows.host = ReminderRows.Host(showHUD: { [weak self] in self?.panelHost.showHUD($0) }, leave: { [weak self] in self?.leave() }, record: { [weak self] in self?.record($0) })
+        return rows
+    }
+
+    func makeEventRows() -> EventRows {
+        let rows = EventRows()
+        rows.host = EventRows.Host(
+            showHUD: { [weak self] in self?.panelHost.showHUD($0) },
+            leave: { [weak self] in self?.leave() },
+            record: { [weak self] in self?.record($0) },
+            openLink: { [weak self] in self?.openLink($0) }
+        )
+        return rows
+    }
+
+    /// Hides the panel and goes back to the root search.
+    func leave() {
+        panelHost.hidePanel()
+        reset()
     }
 }

@@ -25,8 +25,8 @@ struct NoteAndCheckpointReceiptsTests {
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
-        model.reminding = ReminderEnvironment(requestAccess: { false }, create: { _ in throw Refused() }, delete: { _ in throw Refused() }, lists: { [] })
-        model.scheduling = EventEnvironment(requestAccess: { false }, create: { _ in throw Refused() }, delete: { _ in throw Refused() })
+        model.reminderRows.environment = ReminderEnvironment(requestAccess: { false }, create: { _ in throw Refused() }, delete: { _ in throw Refused() }, lists: { [] })
+        model.eventRows.environment = EventEnvironment(requestAccess: { false }, create: { _ in throw Refused() }, delete: { _ in throw Refused() })
         model.checkpointRows.environment.finderItems = { [] }
         model.checkpointRows.environment.tabs = { [] }
         model.checkpointRows.environment.openFile = { _ in }

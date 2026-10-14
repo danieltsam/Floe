@@ -64,7 +64,7 @@ struct RemindersTests {
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
-        model.reminding = ReminderEnvironment(
+        model.reminderRows.environment = ReminderEnvironment(
             requestAccess: { stand.isAllowed },
             create: { draft in
                 if stand.fails {
@@ -163,7 +163,7 @@ struct RemindersTests {
         #expect(row.title == "Remind: call mom")
         #expect(row.rowLabel == "No date · Work")
         guard case let .reminderDraft(draft) = row else { return }
-        await model.addReminder(draft).value
+        await model.reminderRows.addReminder(draft).value
         #expect(stand.created == [ReminderDraft(title: "call mom", due: nil, list: "Work")])
         #expect(model.receipts.all.first?.detail == "No date · Work")
 
@@ -357,12 +357,12 @@ struct RemindersTests {
         model.query = "remind buy milk"
         let row = try #require(model.results.first?.item)
         #expect(row.rowLabel == "No date")
-        await model.addReminder(ReminderDraft(title: "buy milk", due: nil)).value
+        await model.reminderRows.addReminder(ReminderDraft(title: "buy milk", due: nil)).value
         #expect(stand.created == [ReminderDraft(title: "buy milk", due: nil)])
         #expect(model.receipts.all.first?.detail == "No date")
 
         model.settings.keepsReceipts = false
-        await model.addReminder(ReminderDraft(title: "buy bread", due: nil)).value
+        await model.reminderRows.addReminder(ReminderDraft(title: "buy bread", due: nil)).value
         #expect(stand.created.count == 2)
         #expect(model.receipts.all.count == 1, "receipts switched off: the reminder is added and no record kept")
     }
@@ -375,14 +375,14 @@ struct RemindersTests {
         let model = model(in: folder, stand: stand)
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.addReminder(ReminderDraft(title: "call mom", due: nil)).value
+        await model.reminderRows.addReminder(ReminderDraft(title: "call mom", due: nil)).value
         #expect(said == ["Floe may not use Reminders. Allow it in System Settings > Privacy & Security > Reminders."])
         #expect(stand.created.isEmpty)
         #expect(model.receipts.all.isEmpty)
 
         stand.isAllowed = true
         stand.fails = true
-        await model.addReminder(ReminderDraft(title: "call mom", due: nil)).value
+        await model.reminderRows.addReminder(ReminderDraft(title: "call mom", due: nil)).value
         #expect(said.last == "Reminders said no", "what Reminders answered is what is said")
         #expect(model.receipts.all.isEmpty)
     }
@@ -398,7 +398,7 @@ struct RemindersTests {
         model.panelHost.showHUD = { said.append($0) }
         var shown: [String] = []
         model.shellRows.environment.showOutput = { title, _ in shown.append(title) }
-        await model.addReminder(ReminderDraft(title: "call mom", due: Self.time(9, 17))).value
+        await model.reminderRows.addReminder(ReminderDraft(title: "call mom", due: Self.time(9, 17))).value
         let receipt = try #require(model.receipts.all.first)
         let row = RootItem.receipt(receipt)
         #expect(receipt.canUndo)
@@ -433,7 +433,7 @@ struct RemindersTests {
         let model = model(in: folder, stand: stand)
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.addReminder(ReminderDraft(title: "call mom", due: nil)).value
+        await model.reminderRows.addReminder(ReminderDraft(title: "call mom", due: nil)).value
         let receipt = try #require(model.receipts.all.first)
         stand.held.removeAll()
 
