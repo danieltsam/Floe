@@ -41,9 +41,9 @@ final class LauncherPanelLink {
         process.onMessage = { [weak self] in self?.receive($0) }
         process.onExit = { [settingsLink] in settingsLink.refreshFromPanel() }
         settingsLink.onChange = { process.send(.reload) }
-        model.runningTimers.onChange = { [weak self] in
+        model.timerRows.running.onChange = { [weak self] in
             guard let self else { return }
-            process.send(.timers(self.model.runningTimers.all))
+            process.send(.timers(self.model.timerRows.running.all))
         }
         clipboard.onSnapshotSaved = { process.send(.clipboardChanged) }
         appearance = ThawAppearanceFollower.shared.$status
@@ -55,7 +55,7 @@ final class LauncherPanelLink {
     private func receive(_ packet: PanelPacket) {
         switch packet {
         case .ready:
-            process.send(.timers(model.runningTimers.all))
+            process.send(.timers(model.timerRows.running.all))
             process.send(.clipboardChanged)
             process.send(.appearance(ThawAppearanceFollower.shared.status.rawValue))
         case let .present(request): process.request(request)
@@ -74,8 +74,8 @@ final class LauncherPanelLink {
     /// Applies timer, receipt and clipboard mutations once, using resident state rather than mirrors.
     private func receiveStoreRequest(_ packet: PanelPacket) {
         switch packet {
-        case let .startTimer(draft): model.startTimer(draft)
-        case let .stopTimer(id): _ = model.runningTimers.remove(id)
+        case let .startTimer(draft): model.timerRows.startTimer(draft)
+        case let .stopTimer(id): _ = model.timerRows.running.remove(id)
         case let .receipt(receipt):
             model.record(receipt)
             process.send(.refresh)

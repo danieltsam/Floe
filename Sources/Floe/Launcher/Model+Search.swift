@@ -28,7 +28,7 @@ extension LauncherModel {
         context.searchSources = settings.searchSources
         context.checkpoints = checkpointRows.checkpoints
         context.reminderLists = context.trimmed.lowercased().hasPrefix(ReminderDraft.keyword + " ") ? reminding.lists() : []
-        context.timers = runningTimers.all
+        context.timers = timerRows.running.all
         context.focusShortcut = settings.focusShortcut
         context.aliases = settings.aliases
         context.notesApp = settings.notesApp

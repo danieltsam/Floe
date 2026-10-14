@@ -104,13 +104,12 @@ final class LauncherModel: ObservableObject {
     /// Shell commands and running processes. Tests replace parts of its environment.
     lazy var shellRows = makeShellRows()
     lazy var checkpointRows = makeCheckpointRows()
+    lazy var timerRows = makeTimerRows()
     /// Where receipts are kept. Tests give one of their own.
     var receipts = ReceiptStore.shared
     var reminding = ReminderEnvironment()
     var scheduling = EventEnvironment()
-    var timing = TimerEnvironment()
     var music = MusicEnvironment()
-    let runningTimers = RunningTimers()
     /// Where in the remembered searches the field stands, while the Up arrow walks back through them.
     var recalledQuery: Int?
     private var didAutorun = false

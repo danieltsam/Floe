@@ -35,7 +35,7 @@ struct TimersTests {
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.receipts = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.checkpointRows.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
-        model.timing = TimerEnvironment(
+        model.timerRows.environment = TimerEnvironment(
             now: { stand.now },
             requestAccess: {
                 stand.asked += 1
@@ -60,27 +60,27 @@ struct TimersTests {
         let foreground = model(in: folder, stand: foregroundClock)
         foreground.panelHost.residentRequests = { packet in
             switch packet {
-            case let .startTimer(draft): resident.startTimer(draft)
-            case let .stopTimer(id): _ = resident.runningTimers.remove(id)
+            case let .startTimer(draft): resident.timerRows.startTimer(draft)
+            case let .stopTimer(id): _ = resident.timerRows.running.remove(id)
             default: Issue.record("Unexpected timer request")
             }
         }
-        resident.runningTimers.onChange = { [weak foreground, weak resident] in
-            foreground?.runningTimers.mirror(resident?.runningTimers.all ?? [])
+        resident.timerRows.running.onChange = { [weak foreground, weak resident] in
+            foreground?.timerRows.running.mirror(resident?.timerRows.running.all ?? [])
         }
-        await foreground.startTimer(TimerDraft(duration: 60, label: "tea")).value
+        await foreground.timerRows.startTimer(TimerDraft(duration: 60, label: "tea")).value
         #expect(foregroundClock.waits.isEmpty)
         #expect(clock.waits.count == 1)
-        #expect(foreground.runningTimers.all == resident.runningTimers.all)
-        let timer = try #require(foreground.runningTimers.all.first)
-        foreground.stop(timer)
-        #expect(resident.runningTimers.all.isEmpty)
+        #expect(foreground.timerRows.running.all == resident.timerRows.running.all)
+        let timer = try #require(foreground.timerRows.running.all.first)
+        foreground.timerRows.stop(timer)
+        #expect(resident.timerRows.running.all.isEmpty)
         #expect(clock.calledOff == 1)
 
-        await foreground.startTimer(TimerDraft(duration: 10, label: "eggs")).value
-        resident.runningTimers.onChange = {}
+        await foreground.timerRows.startTimer(TimerDraft(duration: 10, label: "eggs")).value
+        resident.timerRows.running.onChange = {}
         clock.waits.last?.fire()
-        await resident.runningTimers.announcement?.value
+        await resident.timerRows.running.announcement?.value
         #expect(clock.notified.map(\.label) == ["eggs"])
         #expect(foregroundClock.notified.isEmpty)
     }
@@ -92,21 +92,21 @@ struct TimersTests {
         let clock = Stand()
         let resident = model(in: folder, stand: clock)
         let foreground = model(in: folder, stand: Stand())
-        await resident.startTimer(TimerDraft(duration: 60, label: "tea")).value
-        let timer = try #require(resident.runningTimers.all.first)
+        await resident.timerRows.startTimer(TimerDraft(duration: 60, label: "tea")).value
+        let timer = try #require(resident.timerRows.running.all.first)
         var stopped: [UUID] = []
         foreground.panelHost.residentRequests = { packet in
             if case let .stopTimer(id) = packet {
                 stopped.append(id)
-                _ = resident.runningTimers.remove(id)
+                _ = resident.timerRows.running.remove(id)
             }
         }
-        #expect(foreground.runningTimers.all.isEmpty)
-        #expect(!foreground.stopTimer("not an identifier"))
+        #expect(foreground.timerRows.running.all.isEmpty)
+        #expect(!foreground.timerRows.stopTimer("not an identifier"))
         #expect(stopped.isEmpty)
-        #expect(!foreground.stopTimer(timer.id.uuidString), "the Bool reports removal from the local snapshot")
+        #expect(!foreground.timerRows.stopTimer(timer.id.uuidString), "the Bool reports removal from the local snapshot")
         #expect(stopped == [timer.id])
-        #expect(resident.runningTimers.all.isEmpty)
+        #expect(resident.timerRows.running.all.isEmpty)
         #expect(clock.calledOff == 1)
     }
 
@@ -244,15 +244,15 @@ struct TimersTests {
         #expect(model.query.isEmpty)
         #expect(said == ["Timer started: tea"])
         #expect(stand.waits.map(\.seconds) == [300])
-        let running = try #require(model.runningTimers.all.first)
+        let running = try #require(model.timerRows.running.all.first)
         #expect(running.label == "tea")
         #expect(running.duration == 300)
         #expect(running.ends == stand.now.addingTimeInterval(300))
         #expect(stand.notified.isEmpty)
 
-        await model.startTimer(draft).value
+        await model.timerRows.startTimer(draft).value
         #expect(stand.asked == 2, "each start asks whether Floe may post, and macOS shows its question once")
-        #expect(model.runningTimers.all.count == 2)
+        #expect(model.timerRows.running.all.count == 2)
 
         let receipt = try #require(model.receipts.all.last)
         #expect(receipt.kind == .timer)
@@ -270,13 +270,13 @@ struct TimersTests {
         let model = model(in: folder, stand: stand)
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.startTimer(TimerDraft(duration: 600)).value
+        await model.timerRows.startTimer(TimerDraft(duration: 600)).value
         #expect(said == ["Timer started: \(TimeLength.text(600))"])
         #expect(model.receipts.all.first?.subject == TimeLength.text(600))
 
         model.settings.keepsReceipts = false
-        await model.startTimer(TimerDraft(duration: 60)).value
-        #expect(model.runningTimers.all.count == 2)
+        await model.timerRows.startTimer(TimerDraft(duration: 60)).value
+        #expect(model.timerRows.running.all.count == 2)
         #expect(model.receipts.all.count == 1, "receipts switched off: the timer runs and no record is kept")
     }
 
@@ -289,19 +289,19 @@ struct TimersTests {
         let model = model(in: folder, stand: stand)
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.startTimer(TimerDraft(duration: 300, label: "tea")).value
-        await model.startTimer(TimerDraft(duration: 600)).value
+        await model.timerRows.startTimer(TimerDraft(duration: 300, label: "tea")).value
+        await model.timerRows.startTimer(TimerDraft(duration: 600)).value
         said.removeAll()
 
         stand.waits[0].fire()
-        #expect(model.runningTimers.all.map(\.duration) == [600])
-        await model.runningTimers.announcement?.value
+        #expect(model.timerRows.running.all.map(\.duration) == [600])
+        await model.timerRows.running.announcement?.value
         #expect(stand.notified.map(\.name) == ["tea"])
         #expect(said.isEmpty, "the notification says it, so the HUD does not")
         #expect(stand.calledOff == 1)
 
         stand.waits[0].fire()
-        await model.runningTimers.announcement?.value
+        await model.timerRows.running.announcement?.value
         #expect(stand.notified.count == 1, "a timer ends once")
     }
 
@@ -313,14 +313,14 @@ struct TimersTests {
         let model = model(in: folder, stand: stand)
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.startTimer(TimerDraft(duration: 300, label: "tea")).value
+        await model.timerRows.startTimer(TimerDraft(duration: 300, label: "tea")).value
         #expect(said == ["Timer started: tea"])
 
         stand.waits[0].fire()
-        await model.runningTimers.announcement?.value
+        await model.timerRows.running.announcement?.value
         #expect(stand.notified.isEmpty)
         #expect(said.last == "Timer ended: tea")
-        #expect(model.runningTimers.all.isEmpty)
+        #expect(model.timerRows.running.all.isEmpty)
     }
 
     // MARK: Stopping
@@ -332,8 +332,8 @@ struct TimersTests {
         let model = model(in: folder, stand: stand)
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.startTimer(TimerDraft(duration: 300, label: "tea")).value
-        await model.startTimer(TimerDraft(duration: 120, label: "eggs")).value
+        await model.timerRows.startTimer(TimerDraft(duration: 300, label: "tea")).value
+        await model.timerRows.startTimer(TimerDraft(duration: 120, label: "eggs")).value
 
         model.query = "timers"
         #expect(model.results.map(\.item.title) == ["eggs", "tea"])
@@ -343,7 +343,7 @@ struct TimersTests {
 
         model.activate(row)
         #expect(said.last == "Stopped the timer eggs")
-        #expect(model.runningTimers.all.map(\.label) == ["tea"])
+        #expect(model.timerRows.running.all.map(\.label) == ["tea"])
         #expect(stand.calledOff == 1)
 
         model.activate(row)
@@ -359,7 +359,7 @@ struct TimersTests {
         let model = model(in: folder, stand: stand)
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.startTimer(TimerDraft(duration: 300, label: "tea")).value
+        await model.timerRows.startTimer(TimerDraft(duration: 300, label: "tea")).value
         let receipt = try #require(model.receipts.all.first)
         let row = RootItem.receipt(receipt)
         #expect(receipt.canUndo)
@@ -369,7 +369,7 @@ struct TimersTests {
 
         model.activate(row)
         #expect(said.last == "Stopped the timer tea")
-        #expect(model.runningTimers.all.isEmpty)
+        #expect(model.timerRows.running.all.isEmpty)
         #expect(stand.calledOff == 1)
         let after = try #require(model.receipts.all.first)
         #expect(!after.canUndo, "once is enough")
@@ -385,13 +385,13 @@ struct TimersTests {
         let model = model(in: folder, stand: stand)
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.startTimer(TimerDraft(duration: 300, label: "tea")).value
+        await model.timerRows.startTimer(TimerDraft(duration: 300, label: "tea")).value
         stand.waits[0].fire()
-        await model.runningTimers.announcement?.value
+        await model.timerRows.running.announcement?.value
 
         try model.undo(#require(model.receipts.all.first))
         #expect(said.last == "The timer tea is no longer running")
         #expect(model.receipts.all.first?.canUndo == false)
-        #expect(!model.stopTimer("not an identifier"))
+        #expect(!model.timerRows.stopTimer("not an identifier"))
     }
 }

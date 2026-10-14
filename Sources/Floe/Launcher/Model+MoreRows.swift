@@ -32,8 +32,6 @@ extension LauncherModel {
         switch item {
         case .reminderDraft: String(localized: "Add Reminder", bundle: .floe)
         case .eventDraft: String(localized: "Add Event", bundle: .floe)
-        case .timer(.draft): String(localized: "Start Timer", bundle: .floe)
-        case .timer(.running): String(localized: "Stop Timer", bundle: .floe)
         case .contact(.person): String(localized: "Open in Contacts", bundle: .floe, comment: "Contacts is the name of Apple's app.")
         case let .focus(_, shortcut) where shortcut.isEmpty: String(localized: "Open Shortcuts", bundle: .floe, comment: "A button that opens Apple's Shortcuts app.")
         case .focus: String(localized: "Run Shortcut", bundle: .floe, comment: "A button that runs the Shortcut the user named for Focus.")
@@ -74,8 +72,6 @@ extension LauncherModel {
         switch item {
         case let .reminderDraft(draft): addReminder(draft)
         case let .eventDraft(draft): addEvent(draft)
-        case let .timer(.draft(draft)): startTimer(draft)
-        case let .timer(.running(timer)): stop(timer)
         case let .contact(row): open(row)
         case let .outgoing(draft): reach(draft.link)
         case let .focus(request, shortcut): setFocus(request, shortcut: shortcut)
@@ -170,7 +166,7 @@ extension LauncherModel {
         let delete: (String) throws -> Bool = switch receipt.kind {
         case .event: scheduling.delete
         case .checkpoint: checkpointRows.deleteCheckpoint
-        case .timer: stopTimer
+        case .timer: timerRows.stopTimer
         default: reminding.delete
         }
         let outcome = ReceiptUndo.undo(receipt, delete: delete)

@@ -61,6 +61,7 @@
 		27B9A208BDA5311318ECEB4F /* Notes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F2DC8F8AD9102C51C395BF /* Notes.swift */; };
 		2816EB37B245A51EF19F9E38 /* DataPermissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D546F23D684533615EC727A /* DataPermissions.swift */; };
 		2998C9BB3632559AFA952A3F /* ThawIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B855D08974FAFAA9A4F8C92 /* ThawIntegration.swift */; };
+		2AAC5097F19A8EBBE9480A49 /* TimerRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E25E299559D0D3FED496F2D /* TimerRows.swift */; };
 		2B1A399FDE1939D1D734D098 /* BrowserTabs.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8527BDAB44BF2D98CE3BD42 /* BrowserTabs.swift */; };
 		2BFEE6E8DD8086DE1C2073D7 /* CalendarEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B51B0E39DFF60B021A02923 /* CalendarEvents.swift */; };
 		2C40C06B4FFD0149F302B4C5 /* SettingsSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3100D60F947CCED23DE9323E /* SettingsSyncService.swift */; };
@@ -347,7 +348,6 @@
 		EF0417348AC35363DB22EE34 /* Checkpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89ED74354093BA999EF70780 /* Checkpoints.swift */; };
 		EF336ED0ABEE5F7045163631 /* FloeIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE33B90505045A8A2B0BEA4 /* FloeIntents.swift */; };
 		EFFFF0BD249A3A82BC1E2783 /* ModeHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAB21F1158EF43FF4513FAB /* ModeHost.swift */; };
-		F2E3CB01FB4ADEFCB96510F3 /* Model+Timers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3B446234EAFBF1F5F00CCB /* Model+Timers.swift */; };
 		F3D47F054DB42BC7A6DB4E3F /* SettingsSearchContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44B60602E2E024D1E6485FA /* SettingsSearchContent.swift */; };
 		F5C2DC1C6A98B377558A5033 /* JSONFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB80B2B608F7396A0CCB29AF /* JSONFile.swift */; };
 		F5D20A578065DC4CDB6908F5 /* AnswerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0145A156F10BC11291C239F3 /* AnswerRow.swift */; };
@@ -392,7 +392,6 @@
 		09F9F2D1B0F121548F16E784 /* lcov-to-sonar.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "lcov-to-sonar.py"; sourceTree = "<group>"; };
 		0A562FA00C34CCF8F8231B44 /* FinderSelectionSearchProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinderSelectionSearchProvider.swift; sourceTree = "<group>"; };
 		0B1D4654727383118E8D4C8E /* SystemToggles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemToggles.swift; sourceTree = "<group>"; };
-		0B3B446234EAFBF1F5F00CCB /* Model+Timers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Timers.swift"; sourceTree = "<group>"; };
 		0C65960D5E02D3842BE4BFEF /* devrun.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = devrun.sh; sourceTree = "<group>"; };
 		0C79EAD93A4B7A60D278A13D /* Model+Modes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Modes.swift"; sourceTree = "<group>"; };
 		0D8F40351A16F4BD9E39EB5E /* ReceiptsSearchScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptsSearchScope.swift; sourceTree = "<group>"; };
@@ -516,6 +515,7 @@
 		5AED14490D55CBAE59DEB0A8 /* WindowSearchScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowSearchScope.swift; sourceTree = "<group>"; };
 		5AF3BB2338E4948152EECAA1 /* Manifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Manifest.swift; sourceTree = "<group>"; };
 		5C0D9B04517C094B3D5D0788 /* OnboardingPermissionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPermissionsView.swift; sourceTree = "<group>"; };
+		5E25E299559D0D3FED496F2D /* TimerRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerRows.swift; sourceTree = "<group>"; };
 		5EB035C39E569BB620F7844F /* Updates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updates.swift; sourceTree = "<group>"; };
 		5EF4D81C831111FE2EA1FE13 /* SearchRanker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRanker.swift; sourceTree = "<group>"; };
 		5FEFD6D0D5FE1E1CB1726CA6 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
@@ -1175,7 +1175,6 @@
 				DD2D070B65C29C80130B70B2 /* Model+Setup.swift */,
 				673C2E967271AF11E18DB850 /* Model+Showing.swift */,
 				9EB34C96638A7E79B765D99A /* Model+Sound.swift */,
-				0B3B446234EAFBF1F5F00CCB /* Model+Timers.swift */,
 				D79AC1B798765E28268B1B38 /* Model+Windows.swift */,
 				6340BAF88C611B59A548F533 /* PanelBottomBar.swift */,
 				8A64FA2992B47C9D88A77AFE /* PanelHost.swift */,
@@ -1190,6 +1189,7 @@
 				A0347FEC0F0A642505C519EC /* Shortcuts.swift */,
 				DF06C3F297B3836936EA6CA5 /* ThawAppearance.swift */,
 				CCEC0FF25DE49B587C692404 /* ThawAppearanceFollower.swift */,
+				5E25E299559D0D3FED496F2D /* TimerRows.swift */,
 				8CA12F659351BFD56E7C8AAD /* TypingSettle.swift */,
 				26F6717C76B587E7D9893E90 /* Views.swift */,
 			);
@@ -1657,7 +1657,6 @@
 				8970B92D5868D82F8F179EDD /* Model+Setup.swift in Sources */,
 				6BBACAA2852323E5912E3BE8 /* Model+Showing.swift in Sources */,
 				BEB18CC79D88467CD9CE8B4C /* Model+Sound.swift in Sources */,
-				F2E3CB01FB4ADEFCB96510F3 /* Model+Timers.swift in Sources */,
 				27A1AF00B8F3EBF066F76C10 /* Model+Windows.swift in Sources */,
 				6FF25C23C28176E7AE68D90C /* Model.swift in Sources */,
 				DE519FFD07518B87C28314BA /* Modifiers.swift in Sources */,
@@ -1801,6 +1800,7 @@
 				2998C9BB3632559AFA952A3F /* ThawIntegration.swift in Sources */,
 				E0FC20F661321DBDFBBABA35 /* ThawSupportNotice.swift in Sources */,
 				0F19BCEBA7CE82395F375208 /* TimedCache.swift in Sources */,
+				2AAC5097F19A8EBBE9480A49 /* TimerRows.swift in Sources */,
 				7A26FA1C0601C3019A1B841B /* Timers.swift in Sources */,
 				C39675A961D5E41851B51D19 /* ToolTextStream.swift in Sources */,
 				55FDC7AC05C9D718A331845C /* Translate.swift in Sources */,

@@ -139,7 +139,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
             model.catalog.reloadScripts()
             model.refresh()
         case let .timers(timers):
-            model.runningTimers.mirror(timers)
+            model.timerRows.running.mirror(timers)
             model.refresh()
         case .clipboardChanged:
             clipboard.reloadMirror()

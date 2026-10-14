@@ -10,7 +10,7 @@ import AppKit
 extension LauncherModel {
     /// The features that own rows, asked in turn what a row's Return, actions and keys do.
     var rowOwners: [any RowOwner] {
-        [shellRows, checkpointRows]
+        [shellRows, checkpointRows, timerRows]
     }
 
     func ownerReturnTitle(for item: RootItem) -> String? {
@@ -65,6 +65,20 @@ extension LauncherModel {
                 // Only an editor the user chose: the role's stand-in is the app text files open in anyway.
                 return PreferredApps.chosenApp(settings.appChoice(for: .editor), installed: resolvedApps.lookup)
             }
+        )
+        return rows
+    }
+
+    func makeTimerRows() -> TimerRows {
+        let rows = TimerRows()
+        rows.host = TimerRows.Host(
+            showHUD: { [weak self] in self?.panelHost.showHUD($0) },
+            leave: { [weak self] in
+                self?.panelHost.hidePanel()
+                self?.reset()
+            },
+            record: { [weak self] in self?.record($0) },
+            toResident: { [weak self] in self?.panelHost.residentRequests }
         )
         return rows
     }
