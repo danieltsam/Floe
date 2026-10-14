@@ -69,6 +69,19 @@ final class ClipboardHistoryModelTests {
         #expect(model.selection == 1)
     }
 
+    @Test func aCopyArrivingWhileTheListIsOpenLeavesTheSelectionOnTheSameCopy() async {
+        let model = await makeModel()
+        model.selection = 1
+        store.record(ClipboardCapture(content: .text("delta"), date: Date(timeIntervalSince1970: 10), sourceApp: "Tests"))
+        model.entriesChanged()
+        #expect(model.selectedEntry?.text == "beta")
+        if let beta = model.selectedEntry {
+            store.delete(beta)
+        }
+        model.entriesChanged()
+        #expect(model.selectedEntry?.text == "alpha", "a copy that is gone leaves the selection in its place")
+    }
+
     @Test func pinningACopyPutsItFirst() async throws {
         let model = await makeModel()
         model.selection = 2

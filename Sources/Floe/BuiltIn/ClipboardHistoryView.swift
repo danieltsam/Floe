@@ -69,17 +69,19 @@ struct ClipboardHistoryView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 0) {
                     let (rest, pinned) = entries.partitioned(by: \.pinned)
+                    let positions = Dictionary(uniqueKeysWithValues: entries.enumerated().map { ($1.id, $0) })
                     if !pinned.isEmpty {
                         SearchSectionHeader(title: String(localized: "Pinned", bundle: .floe, comment: "The heading over the copies the user pinned."))
-                        ForEach(pinned) { entry in row(entry, entries: entries) }
+                        ForEach(pinned) { entry in row(entry, index: positions[entry.id] ?? 0) }
                     }
                     ForEach(Self.dayGroups(rest), id: \.title) { group in
                         SearchSectionHeader(title: group.title)
-                        ForEach(group.entries) { entry in row(entry, entries: entries) }
+                        ForEach(group.entries) { entry in row(entry, index: positions[entry.id] ?? 0) }
                     }
                 }
             }
             .contentMargins(.all, ThawSpacing.base, for: .scrollContent)
+            .onChange(of: history.entries.map(\.id)) { clipboard.entriesChanged() }
             .onChange(of: clipboard.selection) {
                 if entries.indices.contains(clipboard.selection) {
                     proxy.scrollTo(entries[clipboard.selection].id)
@@ -88,8 +90,7 @@ struct ClipboardHistoryView: View {
         }
     }
 
-    private func row(_ entry: ClipboardEntry, entries: [ClipboardEntry]) -> some View {
-        let index = entries.firstIndex(where: { $0.id == entry.id }) ?? 0
+    private func row(_ entry: ClipboardEntry, index: Int) -> some View {
         let selected = index == clipboard.selection
         return HStack(spacing: 10) {
             Image(systemName: entry.kind.symbol)

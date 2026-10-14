@@ -14,7 +14,12 @@ final class ClipboardHistoryModel: ObservableObject {
         didSet { selection = 0 }
     }
 
-    @Published var selection = 0
+    @Published var selection = 0 {
+        didSet { selectedID = selectedEntry?.id }
+    }
+
+    /// The copy selected last.
+    private var selectedID: UUID?
     var host = ModeHost()
     private let usage: UsageStore
     /// Asked for on first use: the user's own store starts with the first thing that reads it.
@@ -33,6 +38,18 @@ final class ClipboardHistoryModel: ObservableObject {
     var selectedEntry: ClipboardEntry? {
         let entries = filteredEntries()
         return entries.indices.contains(selection) ? entries[selection] : nil
+    }
+
+    /// After the list changes under it, the selection stays on the same copy, or in its place when that one is gone.
+    func entriesChanged() {
+        let entries = filteredEntries()
+        if let selectedID, let index = entries.firstIndex(where: { $0.id == selectedID }) {
+            if index != selection {
+                selection = index
+            }
+        } else {
+            selection = max(0, min(selection, entries.count - 1))
+        }
     }
 
     /// Copies the entry, then pastes with Command-V when Accessibility allows it.
