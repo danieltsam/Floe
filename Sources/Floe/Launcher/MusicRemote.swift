@@ -1,5 +1,5 @@
 //
-//  Model+Music.swift
+//  MusicRemote.swift
 //  Project: Floe
 //
 //  Copyright (Floe) © 2026 René Jiménez
@@ -18,21 +18,25 @@ struct MusicEnvironment {
 }
 
 /// Music, as the launcher controls it.
-extension LauncherModel {
+final class MusicRemote {
+    var environment = MusicEnvironment()
+    /// Says what came of a command.
+    var say: (String) -> Void = { _ in }
+
     /// Tells the open player what to do and says what came of it. The task is for a test to wait on.
     @discardableResult
     func controlMusic(_ command: MusicCommand) -> Task<Void, Never> {
-        switch MusicControls.plan(command, isRunning: music.isRunning) {
+        switch MusicControls.plan(command, isRunning: environment.isRunning) {
         case let .say(line):
-            panelHost.showHUD(line)
+            say(line)
             return Task { /* nothing to run */ }
         case let .run(source, player):
-            return PanelWork.perform { [weak self, music] in
-                let outcome = await MusicControls.run(source, with: music.run)
+            return PanelWork.perform { [weak self, environment] in
+                let outcome = await MusicControls.run(source, with: environment.run)
                 if outcome == .refused {
-                    music.askForAutomation(player.name)
+                    environment.askForAutomation(player.name)
                 } else if let line = MusicControls.line(for: command, outcome: outcome, player: player) {
-                    self?.panelHost.showHUD(line)
+                    self?.say(line)
                 }
             }
         }

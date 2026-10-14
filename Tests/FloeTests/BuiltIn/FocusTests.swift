@@ -166,9 +166,9 @@ struct FocusTests {
         }
         #expect(stand.runs.map(\.input) == ["60"])
 
-        await model.setFocus(request, shortcut: shortcut)?.value
-        await model.setFocus(FocusRequest(change: .off), shortcut: shortcut)?.value
-        await model.setFocus(.toggle, shortcut: shortcut)?.value
+        await model.focusRows.setFocus(request, shortcut: shortcut)?.value
+        await model.focusRows.setFocus(FocusRequest(change: .off), shortcut: shortcut)?.value
+        await model.focusRows.setFocus(.toggle, shortcut: shortcut)?.value
         let run = ["run", "--input-path", "<input>", "--", "Set Focus"]
         #expect(stand.runs.suffix(3) == [.init(arguments: run, input: "60"), .init(arguments: run, input: "off"), .init(arguments: run, input: "toggle")])
         #expect(said.isEmpty, "only a failure is heard of")
@@ -204,11 +204,11 @@ struct FocusTests {
         let model = model(in: folder, stand: stand, shortcut: "Set Focus")
         var said: [String] = []
         model.panelHost.showHUD = { said.append($0) }
-        await model.setFocus(.toggle, shortcut: "Set Focus")?.value
+        await model.focusRows.setFocus(.toggle, shortcut: "Set Focus")?.value
         #expect(said == ["Set Focus failed: Error: The shortcut “Set Focus” could not be found."])
 
         stand.state.withLock { $0.answer = ShortcutsToolResult(succeeded: false) }
-        await model.setFocus(.toggle, shortcut: "Set Focus")?.value
+        await model.focusRows.setFocus(.toggle, shortcut: "Set Focus")?.value
         #expect(said.last == "Set Focus failed. Open it in Shortcuts to see why.")
     }
 
@@ -234,7 +234,7 @@ struct FocusTests {
         let toggle = try #require(model.results.first?.item)
         #expect(toggle.rowLabel == "No Shortcut named in Settings")
         #expect(model.primaryActionTitle(for: toggle) == "Open Shortcuts")
-        #expect(model.setFocus(.toggle, shortcut: "") == nil)
+        #expect(model.focusRows.setFocus(.toggle, shortcut: "") == nil)
         #expect(stand.opened.count == 2)
         #expect(stand.runs.isEmpty)
     }

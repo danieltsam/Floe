@@ -108,7 +108,10 @@ final class LauncherModel: ObservableObject {
     lazy var reminderRows = makeReminderRows()
     lazy var eventRows = makeEventRows()
     lazy var receiptRows = makeReceiptRows()
-    var music = MusicEnvironment()
+    lazy var contactRows = makeContactRows()
+    lazy var focusRows = makeFocusRows()
+    lazy var musicRemote = makeMusicRemote()
+    lazy var emojiRows = makeEmojiRows()
     /// Where in the remembered searches the field stands, while the Up arrow walks back through them.
     var recalledQuery: Int?
     private var didAutorun = false
@@ -265,8 +268,8 @@ final class LauncherModel: ObservableObject {
 
     /// Executes the selected root result, including routing Settings rows to their requested page.
     func activate(_ item: RootItem) {
-        if case let .emoji(entry) = item {
-            pasteEmojiResult(entry)
+        // An emoji keeps its own count of uses and remembers no query.
+        if emojiRows.open(item, flags: []) {
             return
         }
         if item.isScopeResult {
@@ -363,34 +366,10 @@ final class LauncherModel: ObservableObject {
             return
         }
         if let control = command.music {
-            controlMusic(control)
+            musicRemote.controlMusic(control)
             return
         }
         command.perform { [weak self] in self?.panelHost.showHUD($0) }
-    }
-
-    /// Copies an emoji without pasting; ⌘↵ on a result.
-    func copyEmojiResult(_ entry: EmojiResult) {
-        usage.recordUse(of: entry.id)
-        NSPasteboard.general.copy(entry.character)
-        panelHost.showHUD(String(localized: "Copied \(entry.character)", bundle: .floe, comment: "Shown briefly after copying. The placeholder is what was copied, such as a file name."))
-    }
-
-    /// Pastes an emoji into the frontmost app: onto the clipboard plus a ⌘V once the panel is
-    /// gone, when Accessibility access is granted; otherwise the copy plus a "Copied" HUD.
-    func pasteEmojiResult(_ entry: EmojiResult) {
-        usage.recordUse(of: entry.id)
-        NSPasteboard.general.copy(entry.character)
-        guard AXIsProcessTrusted() else {
-            panelHost.showHUD(String(localized: "Copied", bundle: .floe, comment: "Shown briefly after something was put on the clipboard."))
-            return
-        }
-        panelHost.hidePanel()
-        reset()
-        // Pressed once the panel is gone, so the keystroke lands in the app the user came from.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            ClipboardHistoryStore.simulatePaste()
-        }
     }
 
     /// Runs a script command with the given argv. Arguments come from the text typed after its

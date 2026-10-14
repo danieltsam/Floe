@@ -112,9 +112,7 @@ extension LauncherModel {
     private func activateSelection(_ flags: NSEvent.ModifierFlags) {
         guard results.indices.contains(selection) else { return }
         let item = results[selection].item
-        if case let .emoji(entry) = item, flags == .command {
-            copyEmojiResult(entry)
-        } else if !flags.isEmpty, openByOwner(item, flags: flags) {
+        if !flags.isEmpty, openByOwner(item, flags: flags) {
             // A row whose owner gives Return with a key held a meaning of its own.
         } else {
             activate(item)

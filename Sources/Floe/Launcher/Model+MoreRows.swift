@@ -27,11 +27,6 @@ extension LauncherModel {
     /// What Return does on a row that makes or stops something from what was typed. Nil for any other row.
     private static func draftTitle(for item: RootItem) -> String? {
         switch item {
-        case .contact(.person): String(localized: "Open in Contacts", bundle: .floe, comment: "Contacts is the name of Apple's app.")
-        case let .focus(_, shortcut) where shortcut.isEmpty: String(localized: "Open Shortcuts", bundle: .floe, comment: "A button that opens Apple's Shortcuts app.")
-        case .focus: String(localized: "Run Shortcut", bundle: .floe, comment: "A button that runs the Shortcut the user named for Focus.")
-        case .outgoing: String(localized: "Open Draft", bundle: .floe, comment: "A button that opens a new email or message with the text filled in. Nothing is sent.")
-        case .contact(.access): String(localized: "Open Privacy Settings", bundle: .floe, comment: "A button that opens the Privacy pane of System Settings.")
         default: nil
         }
     }
@@ -48,9 +43,6 @@ extension LauncherModel {
     /// Return on a row that makes, stops or reaches something from what was typed.
     private func openTyped(_ item: RootItem) {
         switch item {
-        case let .contact(row): open(row)
-        case let .outgoing(draft): reach(draft.link)
-        case let .focus(request, shortcut): setFocus(request, shortcut: shortcut)
         case let .keyword(hint): type(hint)
         case let .definition(definition): reach(definition.link)
         default: openFound(item)
@@ -96,9 +88,6 @@ extension LauncherModel {
 
     /// The Actions menu of one of these rows, after what Return does.
     func laterActions(for item: RootItem) -> [ItemAction?] {
-        if case let .contact(.person(person)) = item {
-            return contactActions(for: person)
-        }
         if case let .definition(definition) = item {
             return [ItemAction(title: String(localized: "Copy Definition", bundle: .floe), symbol: "doc.on.doc") { [weak self] in self?.copy(definition) }]
         }

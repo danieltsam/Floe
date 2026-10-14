@@ -10,7 +10,7 @@ import AppKit
 extension LauncherModel {
     /// The features that own rows, asked in turn what a row's Return, actions and keys do.
     var rowOwners: [any RowOwner] {
-        [shellRows, checkpointRows, timerRows, reminderRows, eventRows, receiptRows]
+        [shellRows, checkpointRows, timerRows, reminderRows, eventRows, receiptRows, contactRows, focusRows, emojiRows]
     }
 
     func ownerReturnTitle(for item: RootItem) -> String? {
@@ -127,5 +127,46 @@ extension LauncherModel {
     /// Keeps a receipt of something Floe did, unless the user switched that off.
     func record(_ receipt: Receipt) {
         receiptRows.record(receipt)
+    }
+
+    func makeContactRows() -> ContactRows {
+        let rows = ContactRows()
+        rows.host = ContactRows.Host(showHUD: { [weak self] in self?.panelHost.showHUD($0) }, reach: { [weak self] in self?.reach($0) })
+        return rows
+    }
+
+    func makeFocusRows() -> FocusRows {
+        let rows = FocusRows()
+        rows.host = FocusRows.Host(
+            showHUD: { [weak self] in self?.panelHost.showHUD($0) },
+            leave: { [weak self] in self?.leave() },
+            reach: { [weak self] in self?.reach($0) },
+            runShortcut: { [weak self] name, input, say in self?.shortcutLibrary.run(named: name, input: input, showHUD: say) }
+        )
+        return rows
+    }
+
+    func makeMusicRemote() -> MusicRemote {
+        let remote = MusicRemote()
+        remote.say = { [weak self] in self?.panelHost.showHUD($0) }
+        return remote
+    }
+
+    /// Opens a link through the system once the panel is gone. A link that could not be made opens nothing.
+    func reach(_ link: URL?) {
+        leave()
+        if let link {
+            linkOpener.open(link, nil)
+        }
+    }
+
+    func makeEmojiRows() -> EmojiRows {
+        let rows = EmojiRows()
+        rows.host = EmojiRows.Host(
+            showHUD: { [weak self] in self?.panelHost.showHUD($0) },
+            leave: { [weak self] in self?.leave() },
+            recordUse: { [weak self] in self?.usage.recordUse(of: $0) }
+        )
+        return rows
     }
 }
