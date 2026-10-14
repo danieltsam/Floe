@@ -103,6 +103,13 @@ export function observe(options: { own: string[]; report: (found: AccessReport) 
       return original.apply(this, args);
     };
     try {
+      // What the original carries goes with it: util.promisify reads exec's own way of resolving from it,
+      // and without it the promise gives the output as a string where { stdout, stderr } is expected.
+      for (const key of Reflect.ownKeys(original)) {
+        if (key === "length" || key === "name" || key === "prototype") continue;
+        const descriptor = Object.getOwnPropertyDescriptor(original, key);
+        if (descriptor) Object.defineProperty(replacement, key, descriptor);
+      }
       owner[name] = replacement;
       wrapped.push({ owner, name, original });
     } catch {

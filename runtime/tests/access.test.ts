@@ -94,6 +94,21 @@ describe("recording", () => {
     fs.rmSync(folder, { recursive: true });
   });
 
+  // CommonJS code reaches exec through the module object, which is where the wrapper sits. Raycast's own
+  // bundles do, and so does every command Floe builds: promisify(exec) must still give { stdout, stderr }.
+  test("a wrapped function keeps what the original carried, so promisify(exec) still gives stdout and stderr", async () => {
+    const util = require("node:util");
+    const stop = observe({ own: [], report: () => {}, delay: 10 });
+    try {
+      const viaModule = require("node:child_process");
+      expect(await util.promisify(viaModule.exec)("echo hi")).toEqual({ stdout: "hi\n", stderr: "" });
+      expect((await util.promisify(viaModule.execFile)("/bin/echo", ["there"])).stdout).toBe("there\n");
+      expect(typeof (globalThis.fetch as any).preconnect).toBe("function");
+    } finally {
+      stop();
+    }
+  });
+
   test("stopping puts every function back, and a failing record never fails the call", () => {
     const before = [fs.readFileSync, fs.writeFileSync, globalThis.fetch, childProcess.execSync];
     const stop = observe({ own: [], report: () => {}, delay: 10 });
