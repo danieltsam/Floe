@@ -183,6 +183,19 @@ final class ClipboardFormatsTests {
         #expect(formatFiles().count == 2)
     }
 
+    @Test func aMirrorLeavesTheOrderToTheStoreThatWritesTheHistory() async throws {
+        let writer = await makeStore()
+        writer.record(ClipboardCapture(content: .text("older"), date: Date(timeIntervalSince1970: 1), sourceApp: nil))
+        writer.record(ClipboardCapture(content: .text("newer"), date: Date(timeIntervalSince1970: 2), sourceApp: nil))
+        writer.flush()
+        let mirror = ClipboardHistoryStore(files: .onDisk(directory), monitorsPasteboard: false, remote: { _ in })
+        mirror.reloadMirror()
+        await waitFor("the mirror reads the list") { mirror.entries.count == 2 }
+        let older = try #require(mirror.entries.last)
+        mirror.take(.own(older.id))
+        #expect(mirror.entries.map(\.text) == ["newer", "older"])
+    }
+
     @Test func filesGoBackMarkedToo() {
         let entry = ClipboardEntry.files(["/tmp/floe-report.pdf"], date: Date(), sourceApp: nil)
         #expect(ClipboardHistoryStore.writeToPasteboard(entry, board: board, directory: directory))

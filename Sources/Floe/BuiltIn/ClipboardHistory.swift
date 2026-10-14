@@ -261,7 +261,7 @@ final class ClipboardHistoryStore: ObservableObject {
 
     /// Moves an entry to the top as copied now: Floe put it back on the clipboard itself.
     func touch(_ id: UUID, date: Date = Date()) {
-        guard let index = entries.firstIndex(where: { $0.id == id }) else { return }
+        guard remote == nil, let index = entries.firstIndex(where: { $0.id == id }) else { return }
         var entry = entries.remove(at: index)
         entry.date = date
         place(entry)
