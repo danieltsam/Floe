@@ -279,7 +279,6 @@ struct GeneralSettingsView: View {
             WelcomeSettingsSection(showWelcome: showWelcome)
             DiagnosticsSettingsSection(settings: settings)
             PreferredAppsSettingsSection(settings: settings)
-            ClipboardSettingsSection(settings: settings)
             AISettingsSection(settings: settings)
             SyncSettingsSection(settings: settings, sync: sync)
             ThawSection("Your Settings") {

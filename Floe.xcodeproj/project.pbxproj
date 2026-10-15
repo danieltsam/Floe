@@ -24,7 +24,6 @@
 		0CC22E4326434CEFDFDA4E1E /* ResolvedApps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E8F1A9BD91E7E0922EDAF1 /* ResolvedApps.swift */; };
 		0D27F828A96C05BDBDF6AB5E /* ClipboardHistoryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3337622D122C40BD5C4725AD /* ClipboardHistoryModel.swift */; };
 		0D93C7C1B3CE156A175DA09A /* ExtensionStore+Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CECBFD6D8B785BB4E59D /* ExtensionStore+Details.swift */; };
-		0D984E350C7EC004444B7771 /* ClipboardSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8557BC076D2B9DE97E4C6F6 /* ClipboardSettingsSection.swift */; };
 		0DCF27A2B10428D7E854DB9E /* SettingsSidebarPaneList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F8F20630467F0633497F89 /* SettingsSidebarPaneList.swift */; };
 		0F19BCEBA7CE82395F375208 /* TimedCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AC0CCEA2091BF04425482E /* TimedCache.swift */; };
 		11602963ABE1A912CFF0FABE /* PanelHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A64FA2992B47C9D88A77AFE /* PanelHost.swift */; };
@@ -285,6 +284,7 @@
 		C0C507DB95A13EA96467BB39 /* ScreenTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = C328265568FF1ADA014F00C2 /* ScreenTools.swift */; };
 		C0D8DFA2D88369BF431ACB0A /* SearchScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = D18EAB03BB404684596361CB /* SearchScope.swift */; };
 		C1891D04D4AEAC923DF54C31 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED07F09546BC4754F0E6C60 /* Settings.swift */; };
+		C29D17191AC09735C2A54EE2 /* ClipboardAppPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0046B3E5DA999B771938BD7 /* ClipboardAppPicker.swift */; };
 		C39675A961D5E41851B51D19 /* ToolTextStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD6BBFFC885CC8B3D7E3E1C /* ToolTextStream.swift */; };
 		C3A46A5027658323A674E782 /* MainMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4350774BAFE25F278DF643A7 /* MainMenu.swift */; };
 		C3FFE71F491A2342821B1284 /* PanelSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C1DA7F52B1E57FBB729318A /* PanelSections.swift */; };
@@ -654,7 +654,6 @@
 		B5F79E7C261FEF649D619BE4 /* release.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = release.sh; sourceTree = "<group>"; };
 		B62548A2DF57C84EDBCBCC0A /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		B7DAD4E1431B73E8BF3D6DF1 /* check-resident-budget.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "check-resident-budget.py"; sourceTree = "<group>"; };
-		B8557BC076D2B9DE97E4C6F6 /* ClipboardSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardSettingsSection.swift; sourceTree = "<group>"; };
 		B8BEB17B69D9ECF2DA775BBF /* SearchViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViews.swift; sourceTree = "<group>"; };
 		BAAAB6379CF2805E7A3A0A9E /* ScopeRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopeRows.swift; sourceTree = "<group>"; };
 		BB126E15016D489A2EDAAB59 /* ShellRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellRows.swift; sourceTree = "<group>"; };
@@ -734,6 +733,7 @@
 		EEDEE9B782C234A4509ADE9E /* OnboardingSequencer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSequencer.swift; sourceTree = "<group>"; };
 		EF0097F0CFA320C91859D542 /* SectionSearchProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionSearchProviders.swift; sourceTree = "<group>"; };
 		EF6B799E39D0FE2587889128 /* Model+MenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+MenuBar.swift"; sourceTree = "<group>"; };
+		F0046B3E5DA999B771938BD7 /* ClipboardAppPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardAppPicker.swift; sourceTree = "<group>"; };
 		F083CEE0A4DB35A8DBC44B67 /* SettingsMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMode.swift; sourceTree = "<group>"; };
 		F0DE6204FF40A0272CD6A9F8 /* PlaceRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceRows.swift; sourceTree = "<group>"; };
 		F1383B6A0B9756FA63F7C530 /* ClipboardHistoryWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistoryWorker.swift; sourceTree = "<group>"; };
@@ -1353,7 +1353,7 @@
 				E1C94AC63D188A5B6B05B8A9 /* Browser.swift */,
 				EB5F041E3C79172B5F3FC383 /* BrowserActions.swift */,
 				204D867C06D9A7C2C46F9981 /* ClipboardApp.swift */,
-				B8557BC076D2B9DE97E4C6F6 /* ClipboardSettingsSection.swift */,
+				F0046B3E5DA999B771938BD7 /* ClipboardAppPicker.swift */,
 				466049995778825C234A7609 /* KnownNoteFolders.swift */,
 				51CAA5D12A91D04BD800DEFE /* MomentPattern.swift */,
 				25F2DC8F8AD9102C51C395BF /* Notes.swift */,
@@ -1546,6 +1546,7 @@
 				EF0417348AC35363DB22EE34 /* Checkpoints.swift in Sources */,
 				151C30C428615CB5CDE6D403 /* ClaudeTextStream.swift in Sources */,
 				BA6D437F5566FB6CFBFB7BF0 /* ClipboardApp.swift in Sources */,
+				C29D17191AC09735C2A54EE2 /* ClipboardAppPicker.swift in Sources */,
 				DDF1B8ED467C26191865B7F0 /* ClipboardCapture.swift in Sources */,
 				30906D5D3A011707E64608B1 /* ClipboardHistory.swift in Sources */,
 				0D27F828A96C05BDBDF6AB5E /* ClipboardHistoryModel.swift in Sources */,
@@ -1554,7 +1555,6 @@
 				43843EE0BC969FA784DC3B09 /* ClipboardImages.swift in Sources */,
 				CC340248BD0EC94E06B8B032 /* ClipboardPasteboard.swift in Sources */,
 				7ACACBE38F00956CD7375599 /* ClipboardSearchScope.swift in Sources */,
-				0D984E350C7EC004444B7771 /* ClipboardSettingsSection.swift in Sources */,
 				494DC747D7CDE4399F9BE43D /* ClipboardWatcher.swift in Sources */,
 				E72EDDBCB4FB0BD7F431883B /* CloudKitSyncStore.swift in Sources */,
 				3CE88794EBC28CE1D07768F3 /* CloudSyncEvents.swift in Sources */,

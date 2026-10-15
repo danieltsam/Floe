@@ -1073,6 +1073,9 @@
     "Choose Another" : {
 
     },
+    "Choose Floe for Clipboard in Settings → General to keep copies here." : {
+
+    },
     "Choose Image…" : {
 
     },
@@ -1136,10 +1139,7 @@
     "Clipboard History" : {
 
     },
-    "Clipboard history is handled by %@. Floe saves no copies." : {
-      "comment" : "The placeholder is the name of an app."
-    },
-    "Clipboard history is handled by another app. Floe saves no copies." : {
+    "Clipboard history" : {
 
     },
     "Clipboard history is off" : {
@@ -2186,12 +2186,6 @@
     "Keeping your Mac awake" : {
 
     },
-    "Keeps text, links, images and files you copy." : {
-
-    },
-    "Keeps text, links, images and files you copy. Pins survive Clear." : {
-
-    },
     "Kept in %@: %@" : {
       "comment" : "Where the notes on screen are stored. The first placeholder is an app, such as Obsidian; the second is a folder's name.",
       "localizations" : {
@@ -2909,7 +2903,7 @@
     "Opens from Clipboard History in the search." : {
 
     },
-    "Opens from Clipboard History in the search. With another app chosen, Floe saves no copies and keeps the history it has." : {
+    "Opens from Clipboard History in the search. With Off or another app, Floe saves no new copies and keeps the ones it has." : {
 
     },
     "Opens web addresses, quicklinks and the other web links you open from Floe." : {
@@ -3428,9 +3422,6 @@
 
     },
     "Save as Script Command…" : {
-
-    },
-    "Save clipboard history" : {
 
     },
     "Save this command" : {
@@ -4382,9 +4373,6 @@
     "Turn on Apple Intelligence in System Settings to use it here." : {
 
     },
-    "Turn on Save clipboard history in Settings to keep copies here." : {
-
-    },
     "Type Keyword" : {
       "comment" : "A button that puts the selected keyword into the search field, for the user to go on typing."
     },
@@ -4718,7 +4706,7 @@
     "check, checkmark, tick" : {
       "comment" : "Words that find the symbol ✓, separated by commas."
     },
-    "clipboard, clipboard manager, clipboard history, raycast, link, url, preferred app, default app" : {
+    "clipboard, clipboard manager, clipboard history, save, off, copy, paste, pin, raycast, link, url, preferred app, default app" : {
       "comment" : "Words that find the Clipboard app setting in the settings search, separated by commas."
     },
     "clipboard, copies, paste" : {
@@ -4726,9 +4714,6 @@
     },
     "clipboard, history, clear, delete, remove, copies" : {
       "comment" : "Words that find the Clear clipboard history setting in the settings search, separated by commas."
-    },
-    "clipboard, history, copy, paste, copies, pin, clear" : {
-      "comment" : "Words that find the Save clipboard history setting in the settings search, separated by commas."
     },
     "color, colour, eyedropper, color picker, hex" : {
       "comment" : "Words that find the Pick Color from Screen command, separated by commas."

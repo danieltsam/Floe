@@ -57,7 +57,7 @@ struct SettingsStringsTests {
             "general.checkForUpdates",
             "general.diagnosticLogging", "general.menuBarSearchHotkey", "general.builtInHotkeys", "general.menuBarSearchAlias", "general.thawSupport", "general.menuBarCommands",
             "general.terminalApp", "general.editorApp", "general.browserApp", "general.notesApp", "general.clipboardApp",
-            "general.clipboardHistory", "general.clearClipboardHistory", "general.syncsWithICloud", "general.syncsExtensionSettings", "general.syncsPasswords", "general.transferSettings", "general.includeRaycastExtensions", "general.extensionsFolder", "general.runtime",
+            "general.clearClipboardHistory", "general.syncsWithICloud", "general.syncsExtensionSettings", "general.syncsPasswords", "general.transferSettings", "general.includeRaycastExtensions", "general.extensionsFolder", "general.runtime",
             "general.scriptsFolder", "general.aiSource", "general.aiTool", "general.aiAddress", "general.aiModel", "general.aiKey",
             "quicklinks.list", "quicklinks.new", "quicklinks.name", "quicklinks.keyword", "quicklinks.url", "quicklinks.symbol", "quicklinks.fallback",
             "quicklinks.fallbacks",
@@ -128,8 +128,6 @@ struct SettingsStringsTests {
     }
 
     @Test func aNameGoesIntoItsSentence() {
-        #expect(ClipboardApps.settingsNotice(for: .unavailable(app: "Clippy", message: "")) == "Clipboard history is handled by Clippy. Floe saves no copies.")
-        #expect(ClipboardApps.settingsNotice(for: .unavailable(app: nil, message: "")) == "Clipboard history is handled by another app. Floe saves no copies.")
         #expect(AppRole.editor.defaultTitle(appName: "Zed") == "Default for Text Files (Zed)")
         #expect(AppRole.terminal.defaultTitle(appName: nil) == "Terminal")
         #expect(NoteAction.new.title(text: "buy milk") == "New Note “buy milk”")

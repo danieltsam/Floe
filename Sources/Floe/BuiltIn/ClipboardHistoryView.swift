@@ -37,7 +37,7 @@ struct ClipboardHistoryView: View {
             ThawEmptyState(
                 systemImage: "doc.on.clipboard",
                 title: "Clipboard history is off",
-                caption: "Turn on Save clipboard history in Settings to keep copies here."
+                caption: "Choose Floe for Clipboard in Settings → General to keep copies here."
             )
         } else {
             let entries = clipboard.filteredEntries()
