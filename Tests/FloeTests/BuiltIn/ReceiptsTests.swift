@@ -18,7 +18,7 @@ struct ReceiptsTests {
     }
 
     private func model(in folder: URL) -> LauncherModel {
-        let defaults = UserDefaults(suiteName: "floe-receipts-\(UUID().uuidString)")!
+        let defaults = MemoryDefaults()
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         return model

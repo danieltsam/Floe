@@ -28,7 +28,7 @@ struct AppleShortcutSearchTests {
     private let resize = ShortcutSample.resize
 
     init() throws {
-        scratch = try ScratchDefaults()
+        scratch = ScratchDefaults()
     }
 
     private func context(_ query: String, shortcuts: [AppleShortcut] = ShortcutSample.all, _ configure: (inout SearchContext) -> Void = { _ in }) -> SearchContext {

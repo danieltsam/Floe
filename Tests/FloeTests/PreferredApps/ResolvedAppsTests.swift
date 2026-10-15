@@ -16,8 +16,8 @@ struct ResolvedAppsTests {
         AppLookup(url: { _ in asked(); return nil }, plainTextApp: { nil }, exists: { _ in false }, bundleIdentifier: { _ in nil })
     }
 
-    @Test func theAppsAreLookedUpOnceUntilAChoiceOrTheLookupChanges() throws {
-        let scratch = try ScratchDefaults()
+    @Test func theAppsAreLookedUpOnceUntilAChoiceOrTheLookupChanges() {
+        let scratch = ScratchDefaults()
         let settings = AppSettings(defaults: scratch.defaults, savesAfterEdits: false)
         let resolved = ResolvedApps(settings: settings)
         resolved.followChoices()

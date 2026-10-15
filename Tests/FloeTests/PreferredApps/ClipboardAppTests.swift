@@ -55,7 +55,7 @@ struct ClipboardAppTests {
     private let opened = Opened()
 
     init() throws {
-        scratch = try ScratchDefaults()
+        scratch = ScratchDefaults()
         settings = AppSettings(defaults: scratch.defaults, savesAfterEdits: false)
         settings.clipboardHistoryIsParked = false
     }
@@ -126,7 +126,7 @@ struct ClipboardAppTests {
         settings.clipboardHandler = .link
         settings.clipboardURL = "clippy://history"
         let exported = try settings.exportedJSON()
-        let other = try AppSettings(defaults: ScratchDefaults().defaults, savesAfterEdits: false)
+        let other = AppSettings(defaults: ScratchDefaults().defaults, savesAfterEdits: false)
         try other.importJSON(exported)
         #expect(other.clipboardHandler == .link)
         #expect(other.clipboardURL == "clippy://history")

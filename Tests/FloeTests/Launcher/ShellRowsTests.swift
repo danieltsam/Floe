@@ -20,7 +20,7 @@ struct ShellRowsTests {
     private let asked = Asked()
 
     private func rows() throws -> ShellRows {
-        let scratch = try ScratchDefaults()
+        let scratch = ScratchDefaults()
         let rows = ShellRows(settings: AppSettings(defaults: scratch.defaults, savesAfterEdits: false))
         let asked = asked
         rows.host = ShellRows.Host(leave: { asked.left += 1 }, setQuery: { asked.queries.append($0) })

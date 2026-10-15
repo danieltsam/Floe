@@ -78,7 +78,7 @@ struct ContactsTests {
 
     /// A model whose only scope reads the stand-in, and whose links go to it instead of being opened.
     private func model(in folder: URL, stand: Stand) -> LauncherModel {
-        let defaults = UserDefaults(suiteName: "floe-contacts-\(UUID().uuidString)")!
+        let defaults = MemoryDefaults()
         let model = LauncherModel(
             settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []),
             scopes: [stand.scope], sources: []

@@ -54,7 +54,7 @@ struct BrowserTests {
     private let opened = Opened()
 
     init() throws {
-        scratch = try ScratchDefaults()
+        scratch = ScratchDefaults()
         settings = AppSettings(defaults: scratch.defaults, savesAfterEdits: false)
     }
 

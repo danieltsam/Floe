@@ -11,8 +11,8 @@ import Testing
 
 @MainActor
 struct IntentHandlerTests {
-    @Test func aHandlerAnswersFromTheModelAndPresentsWhereItIsTold() async throws {
-        let scratch = try ScratchDefaults()
+    @Test func aHandlerAnswersFromTheModelAndPresentsWhereItIsTold() async {
+        let scratch = ScratchDefaults()
         let settings = AppSettings(defaults: scratch.defaults, savesAfterEdits: false)
         let usage = UsageStore(defaults: scratch.defaults)
         let planets = Fixture.command("planets")

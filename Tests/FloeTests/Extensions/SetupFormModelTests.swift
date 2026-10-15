@@ -58,7 +58,7 @@ struct SetupFormModelTests {
     }
 
     @Test func theLauncherShowsTheFormAndTypingInItDoesNotRepublishTheLauncher() throws {
-        let settings = try AppSettings(defaults: #require(UserDefaults(suiteName: "floe-setup-form-tests-\(UUID().uuidString)")))
+        let settings = AppSettings(defaults: MemoryDefaults())
         let greet = command([Fixture.field("name", required: true)])
         let launcher = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: [greet]), scopes: [], sources: [])
         launcher.runner.run(greet)
@@ -107,7 +107,7 @@ struct SetupFormModelTests {
     }
 
     @Test func aCommandThatAsksToSignInGetsAFormForItsTokenAndIsEnded() throws {
-        let settings = try AppSettings(defaults: #require(UserDefaults(suiteName: "floe-setup-form-tests-\(UUID().uuidString)")))
+        let settings = AppSettings(defaults: MemoryDefaults())
         let search = notion([Fixture.field("token", type: "password"), Fixture.field("open_in")])
         let launcher = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: [search]), scopes: [], sources: [])
         let session = ExtensionSession(command: search, arguments: ["query": "notes"])

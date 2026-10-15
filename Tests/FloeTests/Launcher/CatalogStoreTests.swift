@@ -48,7 +48,7 @@ struct CatalogStoreTests {
     }
 
     private func makeSettings() throws -> (ScratchDefaults, AppSettings) {
-        let scratch = try ScratchDefaults()
+        let scratch = ScratchDefaults()
         return (scratch, AppSettings(defaults: scratch.defaults, savesAfterEdits: false))
     }
 

@@ -23,7 +23,7 @@ struct CheckpointsTests {
     }
 
     private func model(in folder: URL) -> LauncherModel {
-        let defaults = UserDefaults(suiteName: "floe-checkpoints-\(UUID().uuidString)")!
+        let defaults = MemoryDefaults()
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))
         model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))

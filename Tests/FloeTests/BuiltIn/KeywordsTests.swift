@@ -150,7 +150,7 @@ struct KeywordsTests {
     @Test func returnPutsTheKeywordAndASpaceIntoTheSearch() throws {
         let folder = try scratch()
         defer { try? FileManager.default.removeItem(at: folder) }
-        let defaults = try #require(UserDefaults(suiteName: "floe-keywords-\(UUID().uuidString)"))
+        let defaults = MemoryDefaults()
         let settings = AppSettings(defaults: defaults)
         let usage = UsageStore(defaults: defaults)
         let scopes: [any SearchScope] = [KeywordSearchScope(), KeywordSearchScope(keyword: KeywordSearchScope.mark)]

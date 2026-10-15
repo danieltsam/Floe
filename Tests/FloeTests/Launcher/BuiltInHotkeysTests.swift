@@ -8,7 +8,7 @@ struct BuiltInHotkeysTests {
     private func makeModel() -> (LauncherModel, URL) {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("floe-hotkeys-\(UUID().uuidString)")
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        let settings = AppSettings(defaults: UserDefaults(suiteName: "floe-hotkeys-tests-\(UUID().uuidString)")!)
+        let settings = AppSettings(defaults: MemoryDefaults())
         let model = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: []))
         model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))

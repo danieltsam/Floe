@@ -42,7 +42,7 @@ struct TypedLocationSearchProviderTests {
     }
 
     private func makeModel(usage: UsageStore = .shared) -> LauncherModel {
-        let settings = AppSettings(defaults: UserDefaults(suiteName: "floe-typed-location-\(UUID().uuidString)")!)
+        let settings = AppSettings(defaults: MemoryDefaults())
         let model = LauncherModel(settings: settings, usage: usage, snapshot: CatalogSnapshot(apps: [safari], commands: []), scopes: RootSearch.standardScopes { [] }, sources: [])
         // A Mac with no browser, so no row is named after the one on the Mac running the tests.
         model.resolvedApps.lookup = AppLookup(url: { _ in nil }, plainTextApp: { nil }, exists: { _ in false }, bundleIdentifier: { _ in nil })
@@ -176,7 +176,7 @@ struct TypedLocationSearchProviderTests {
     }
 
     @Test func returnOpensTheAddressThroughTheOpenerAndKeepsNoRecordOfIt() throws {
-        let usage = try UsageStore(defaults: #require(UserDefaults(suiteName: "floe-typed-usage-\(UUID().uuidString)")))
+        let usage = UsageStore(defaults: MemoryDefaults())
         let model = makeModel(usage: usage)
         var opened: [URL] = []
         model.scopeResultOpener = {
@@ -204,7 +204,7 @@ struct TypedLocationSearchProviderTests {
         defer { try? FileManager.default.removeItem(at: folder) }
         let file = folder.appendingPathComponent("notes.txt")
         try Data("x".utf8).write(to: file)
-        let usage = try UsageStore(defaults: #require(UserDefaults(suiteName: "floe-typed-usage-\(UUID().uuidString)")))
+        let usage = UsageStore(defaults: MemoryDefaults())
         let model = makeModel(usage: usage)
         var opened: [URL] = []
         model.scopeResultOpener = {

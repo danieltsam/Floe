@@ -64,8 +64,8 @@ import Testing
         #expect(asked.all.isEmpty)
     }
 
-    @Test func aPlaceOffersTheWayThereAndItsAddress() throws {
-        let defaults = try #require(UserDefaults(suiteName: "floe-places-\(UUID().uuidString)"))
+    @Test func aPlaceOffersTheWayThereAndItsAddress() {
+        let defaults = MemoryDefaults()
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
         #expect(model.features.places.placeActions(for: cafe).compactMap { $0?.title } == ["Get Directions", "Copy Address"])
         #expect(model.features.places.actions(for: .place(cafe))?.count == 3)

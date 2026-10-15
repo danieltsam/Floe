@@ -25,10 +25,10 @@ struct SharedStoresTests {
         try body()
     }
 
-    @Test func eachStoreSaysWhichItIsWhenItSaves() throws {
-        let scratch = try ScratchDefaults()
+    @Test func eachStoreSaysWhichItIsWhenItSaves() {
+        let scratch = ScratchDefaults()
         let settings = AppSettings(defaults: scratch.defaults, savesAfterEdits: false)
-        try withSavedHooks {
+        withSavedHooks {
             var sent: [LinkMessage] = []
             SharedStores.announceSaves(settings: settings) { sent.append($0) }
             settings.onSaved?()
@@ -40,10 +40,10 @@ struct SharedStoresTests {
         }
     }
 
-    @Test func aProcessThatActsOnPreferencesItselfIsNotSentThem() throws {
-        let scratch = try ScratchDefaults()
+    @Test func aProcessThatActsOnPreferencesItselfIsNotSentThem() {
+        let scratch = ScratchDefaults()
         let settings = AppSettings(defaults: scratch.defaults, savesAfterEdits: false)
-        try withSavedHooks {
+        withSavedHooks {
             var sent: [LinkMessage] = []
             var acted = 0
             SharedStores.announceSaves(settings: settings, preferencesSaved: { acted += 1 }, send: { sent.append($0) })

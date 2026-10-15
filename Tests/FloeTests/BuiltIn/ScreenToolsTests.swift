@@ -94,7 +94,7 @@ import Vision
         #expect(row.isScopeResult)
         #expect(QRCodeRows().returnTitle(for: row) == "Copy Image")
 
-        let defaults = try #require(UserDefaults(suiteName: "floe-qr-\(UUID().uuidString)"))
+        let defaults = MemoryDefaults()
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("floe-qr-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

@@ -68,7 +68,7 @@ import Testing
     private let model: LauncherModel
 
     init() throws {
-        let defaults = try #require(UserDefaults(suiteName: "floe-window-tests-\(UUID().uuidString)"))
+        let defaults = MemoryDefaults()
         model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
     }
 
@@ -92,7 +92,7 @@ import Testing
     }
 
     @Test func anActionOnAWindowReadsTheWindowsAgain() async throws {
-        let defaults = try #require(UserDefaults(suiteName: "floe-window-tests-\(UUID().uuidString)"))
+        let defaults = MemoryDefaults()
         let scans = Mutex(0)
         let window = OpenWindow(id: "1:0", title: "Inbox", appName: "Mail")
         let scope = WindowSearchScope(isTrusted: { true }, scan: {

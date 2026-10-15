@@ -21,7 +21,7 @@ struct ToastWithoutFooterTests {
     }
 
     init() {
-        let settings = AppSettings(defaults: UserDefaults(suiteName: "floe-toast-tests-\(UUID().uuidString)")!)
+        let settings = AppSettings(defaults: MemoryDefaults())
         model = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: []))
         model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("receipts.json"))
         model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("checkpoints.json"))

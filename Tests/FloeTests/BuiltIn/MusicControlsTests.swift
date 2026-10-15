@@ -53,7 +53,7 @@ struct MusicControlsTests {
 
     /// A model whose players are the stand-in. The lists it fills are the HUD's lines and the apps Automation was asked for.
     private func model(in folder: URL, stand: Stand, said: @escaping (String) -> Void, asked: @escaping (String) -> Void = { _ in }) -> LauncherModel {
-        let defaults = UserDefaults(suiteName: "floe-music-\(UUID().uuidString)")!
+        let defaults = MemoryDefaults()
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))

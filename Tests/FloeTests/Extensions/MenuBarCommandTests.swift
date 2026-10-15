@@ -18,7 +18,7 @@ struct MenuBarCommandTests {
     )
 
     private func makeModel() -> (LauncherModel, AppSettings) {
-        let settings = AppSettings(defaults: UserDefaults(suiteName: "floe-menu-bar-tests-\(UUID().uuidString)")!)
+        let settings = AppSettings(defaults: MemoryDefaults())
         let planets = Fixture.command("planets", extension: "floe-menu-bar-tests")
         return (LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: [planets, status])), settings)
     }

@@ -321,15 +321,15 @@ if options.benchSettings {
         }
     }
     runSettingsSearchBench(search: search, window: window)
-    // General's AI section sits below the fold, so each of its states is drawn on its own, on scratch settings.
-    if let directory = ProcessInfo.processInfo.environment["FLOE_BENCH_DUMP"], let scratch = UserDefaults(suiteName: "floe.bench.\(UUID().uuidString)") {
+    // General's AI section sits below the fold, so each of its states is drawn on its own, on scratch settings that are never saved.
+    if let directory = ProcessInfo.processInfo.environment["FLOE_BENCH_DUMP"], let scratch = UserDefaults(suiteName: "floe.bench.ai") {
         // Name, source, the API's model and key, the tool chosen by name, and the API's service.
         let states: [(String, AISource, String, String?, AITool?, AIService)] = [
             ("ai-tools", .tools, "", nil, nil, .openAI), ("ai-tool-model", .tools, "", nil, .opencode, .openAI),
             ("ai-api", .api, "small", "key-123", nil, .openAI), ("ai-api-incomplete", .api, "", nil, nil, .openAI), ("ai-api-zai", .api, "", nil, nil, .zai),
         ]
         for (name, source, aiModel, key, tool, service) in states {
-            let settings = AppSettings(defaults: scratch)
+            let settings = AppSettings(defaults: scratch, savesAfterEdits: false)
             settings.aiSource = source
             settings.aiModel = aiModel
             settings.aiTool = tool

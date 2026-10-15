@@ -59,7 +59,7 @@ struct CalendarEventsTests {
 
     /// A model whose receipts are in the folder and whose events go to the stand-in, never to Apple Calendar.
     private func model(in folder: URL, stand: Stand) -> LauncherModel {
-        let defaults = UserDefaults(suiteName: "floe-events-\(UUID().uuidString)")!
+        let defaults = MemoryDefaults()
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))

@@ -107,8 +107,8 @@ struct ProcessesTests {
         #expect(keywords.contains("kill") && keywords.contains("port"))
     }
 
-    @Test func returnAsksAProcessToQuitAndTheActionForcesIt() throws {
-        let defaults = try #require(UserDefaults(suiteName: "floe-process-tests-\(UUID().uuidString)"))
+    @Test func returnAsksAProcessToQuitAndTheActionForcesIt() {
+        let defaults = MemoryDefaults()
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.features.receipts.store = ReceiptStore(file: FileManager.default.temporaryDirectory.appendingPathComponent("floe-receipts-\(UUID().uuidString).json"))
         var ended: [String] = []

@@ -31,7 +31,7 @@ struct OutgoingDraftsTests {
 
     /// A model whose links go to the test instead of being opened.
     private func model(in folder: URL, opened: Opened) -> LauncherModel {
-        let defaults = UserDefaults(suiteName: "floe-drafts-\(UUID().uuidString)")!
+        let defaults = MemoryDefaults()
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
         model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))

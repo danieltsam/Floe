@@ -135,7 +135,7 @@ struct LauncherCatalogTests {
     }
 
     private func makeSettings() -> AppSettings {
-        AppSettings(defaults: UserDefaults(suiteName: "floe-catalog-tests-\(UUID().uuidString)")!)
+        AppSettings(defaults: MemoryDefaults())
     }
 
     // MARK: Construction

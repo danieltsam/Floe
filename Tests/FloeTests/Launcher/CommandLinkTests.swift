@@ -44,7 +44,7 @@ struct CommandLinkTests {
     private let opened = Opened()
 
     init() throws {
-        settings = try AppSettings(defaults: #require(UserDefaults(suiteName: "floe-command-links-\(UUID().uuidString)")))
+        settings = AppSettings(defaults: MemoryDefaults())
         model = LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: [], commands: [Fixture.command("planets"), status]), isResident: true)
     }
 

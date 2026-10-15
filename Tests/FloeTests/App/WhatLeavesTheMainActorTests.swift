@@ -48,7 +48,7 @@ struct WhatLeavesTheMainActorTests {
     private let log = ThreadLog()
 
     init() throws {
-        scratch = try ScratchDefaults()
+        scratch = ScratchDefaults()
     }
 
     private func waitFor(_ label: String, _ condition: () -> Bool) async {

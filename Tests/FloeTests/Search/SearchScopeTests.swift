@@ -86,7 +86,7 @@ struct SearchScopeTests {
     }
 
     private func makeModel(scopes: [any SearchScope], apps: [AppEntry] = [], usage: UsageStore = .shared) -> LauncherModel {
-        let settings = AppSettings(defaults: UserDefaults(suiteName: "floe-scope-tests-\(UUID().uuidString)")!)
+        let settings = AppSettings(defaults: MemoryDefaults())
         return LauncherModel(settings: settings, usage: usage, snapshot: CatalogSnapshot(apps: apps, commands: []), scopes: scopes)
     }
 
@@ -354,8 +354,8 @@ struct SearchScopeTests {
         [.file(file("invoice.pdf")), .clipboardEntry(clip("meeting notes")), .menuBarItem(extra("Clock"), name: "Clock"), .menuBarAccess]
     }
 
-    @Test func aScopeRowOpensAsItsOwnViewWouldAndIsNotRecordedAsUsed() throws {
-        let usage = try UsageStore(defaults: #require(UserDefaults(suiteName: "floe-scope-usage-\(UUID().uuidString)")))
+    @Test func aScopeRowOpensAsItsOwnViewWouldAndIsNotRecordedAsUsed() {
+        let usage = UsageStore(defaults: MemoryDefaults())
         let model = makeModel(scopes: [], usage: usage)
         var opened: [String] = []
         model.scopeResultOpener = { opened.append($0.id) }

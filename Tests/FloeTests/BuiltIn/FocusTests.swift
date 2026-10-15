@@ -62,7 +62,7 @@ struct FocusTests {
 
     /// A model whose Shortcuts tool and link opener are the stand-in, with that Shortcut named in its settings.
     private func model(in folder: URL, stand: Stand, shortcut: String) -> LauncherModel {
-        let defaults = UserDefaults(suiteName: "floe-focus-\(UUID().uuidString)")!
+        let defaults = MemoryDefaults()
         let settings = AppSettings(defaults: defaults)
         settings.focusShortcut = shortcut
         let model = LauncherModel(settings: settings, usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []), scopes: [], sources: [])
@@ -242,9 +242,7 @@ struct FocusTests {
     // MARK: The setting
 
     @Test func theShortcutsNameIsKeptWithTheSettings() throws {
-        let suite = "floe-focus-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
+        let defaults = MemoryDefaults()
         let settings = AppSettings(defaults: defaults, savesAfterEdits: false)
         #expect(settings.focusShortcut.isEmpty, "none is named until the user names one")
         settings.focusShortcut = "Set Focus"

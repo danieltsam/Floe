@@ -47,7 +47,7 @@ struct SSHSearchTests {
     private let bastion = SSHHost(alias: "bastion", user: "ops")
 
     init() throws {
-        scratch = try ScratchDefaults()
+        scratch = ScratchDefaults()
     }
 
     private var hosts: [SSHHost] {

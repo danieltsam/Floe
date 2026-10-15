@@ -355,7 +355,7 @@ struct ThawAppearanceFollowerTests {
     private let follower: ThawAppearanceFollower
 
     init() throws {
-        scratch = try ScratchDefaults()
+        scratch = ScratchDefaults()
         settings = AppSettings(defaults: scratch.defaults)
         settings.followsThawAppearance = true
         follower = ThawAppearanceFollower(settings: settings, defaults: scratch.defaults, environment: thaw.environment)
@@ -596,7 +596,7 @@ struct ThawAppearanceSettingTests {
     private let scratch: ScratchDefaults
 
     init() throws {
-        scratch = try ScratchDefaults()
+        scratch = ScratchDefaults()
     }
 
     @Test func followingThawIsOffUntilItIsChosen() {

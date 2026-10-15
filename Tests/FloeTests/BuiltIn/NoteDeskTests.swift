@@ -222,7 +222,7 @@ import Testing
     // MARK: The launcher
 
     @Test func theCommandOpensTheViewAndLeavingItSavesWhatWasTyped() async throws {
-        let defaults = try #require(UserDefaults(suiteName: "floe-notes-desk-\(UUID().uuidString)"))
+        let defaults = MemoryDefaults()
         let settings = AppSettings(defaults: defaults)
         settings.notesApp = .folder
         settings.notesFolder = vault.path

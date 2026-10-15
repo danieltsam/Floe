@@ -19,7 +19,7 @@ struct ItemActionTests {
     }
 
     private func makeModel(apps: [AppEntry] = []) -> LauncherModel {
-        let settings = AppSettings(defaults: UserDefaults(suiteName: "floe-action-tests-\(UUID().uuidString)")!)
+        let settings = AppSettings(defaults: MemoryDefaults())
         return LauncherModel(settings: settings, snapshot: CatalogSnapshot(apps: apps, commands: []))
     }
 
@@ -168,7 +168,7 @@ struct ItemActionTests {
     }
 
     private func scratchDefaults() -> UserDefaults {
-        UserDefaults(suiteName: "floe-query-tests-\(UUID().uuidString)")!
+        MemoryDefaults()
     }
 
     @Test func aSearchIsRememberedOnceAndTheOldestGivesWay() {

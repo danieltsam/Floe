@@ -21,7 +21,7 @@ struct NoteAndCheckpointReceiptsTests {
 
     /// A model whose stores are in the folder, whose notes go to the Notes folder inside it, and that reaches nothing else.
     private func model(in folder: URL) -> LauncherModel {
-        let defaults = UserDefaults(suiteName: "floe-note-receipts-\(UUID().uuidString)")!
+        let defaults = MemoryDefaults()
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: UsageStore(defaults: defaults), snapshot: CatalogSnapshot(apps: [], commands: []))
         model.features.receipts.store = ReceiptStore(file: folder.appendingPathComponent("Receipts.json"))
         model.features.checkpoints.store = CheckpointStore(file: folder.appendingPathComponent("Checkpoints.json"))

@@ -66,7 +66,7 @@ struct PanelOwnershipTests {
 
     /// Hotkey routing must leave the resident's search state and results uninitialized.
     @Test func residentHotkeysForwardInsteadOfBuildingForegroundState() throws {
-        let scratch = try ScratchDefaults()
+        let scratch = ScratchDefaults()
         let model = LauncherModel(settings: AppSettings(defaults: scratch.defaults, savesAfterEdits: false), usage: UsageStore(defaults: scratch.defaults), snapshot: CatalogSnapshot(apps: [], commands: []), isResident: true)
         var requests: [PanelRequest] = []
         var localShows = 0

@@ -52,7 +52,7 @@ struct ShellCommandTests {
         let written = try JSONEncoder().encode(ShellSettings.off)
         #expect(try JSONDecoder().decode(ShellSettings.self, from: written) == .off)
 
-        let defaults = try #require(UserDefaults(suiteName: "floe-shell-settings-\(UUID().uuidString)"))
+        let defaults = MemoryDefaults()
         let settings = AppSettings(defaults: defaults)
         settings.shell.prefix = .exclamation
         settings.shell.suggests = false
@@ -293,8 +293,8 @@ struct ShellCommandTests {
         #expect(ShellCommandSearchProvider().contribution(for: context("uptime", prefix: .greaterThan)).pinned.isEmpty)
     }
 
-    @Test func returnRunsItSaysWhatItPrintedAndRemembersTheSearch() async throws {
-        let defaults = try #require(UserDefaults(suiteName: "floe-shell-tests-\(UUID().uuidString)"))
+    @Test func returnRunsItSaysWhatItPrintedAndRemembersTheSearch() async {
+        let defaults = MemoryDefaults()
         let usage = UsageStore(defaults: defaults)
         let model = LauncherModel(settings: AppSettings(defaults: defaults), usage: usage, snapshot: CatalogSnapshot(apps: [], commands: []))
         model.features.receipts.store = ReceiptStore(file: FileManager.default.temporaryDirectory.appendingPathComponent("floe-receipts-\(UUID().uuidString).json"))
