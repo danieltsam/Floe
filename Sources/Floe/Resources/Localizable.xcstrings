@@ -1061,7 +1061,7 @@
     "Check only" : {
       "comment" : "Automatic updates: check, and do not download."
     },
-    "Checking asks %@ whether a newer version exists. Floe asked before it started doing this." : {
+    "Checking asks %@ whether a newer version exists. Floe asked before it started. The switch is in General." : {
       "comment" : "The placeholder is the address of a server."
     },
     "Checkout failed" : {

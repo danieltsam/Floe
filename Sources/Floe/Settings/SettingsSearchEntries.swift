@@ -387,7 +387,7 @@ extension SearchIndex {
         privacy(
             "recordsExtensionAccess",
             String(localized: "Record what extensions reach", bundle: .floe),
-            section: String(localized: "Shell Commands", bundle: .floe),
+            section: String(localized: "Extensions", bundle: .floe),
             keywords: String(
                 localized: "extensions, record, access, hosts, folders, programs, network, reached, forget",
                 bundle: .floe,
