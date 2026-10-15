@@ -26,6 +26,7 @@
 		0D93C7C1B3CE156A175DA09A /* ExtensionStore+Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CECBFD6D8B785BB4E59D /* ExtensionStore+Details.swift */; };
 		0DCF27A2B10428D7E854DB9E /* SettingsSidebarPaneList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F8F20630467F0633497F89 /* SettingsSidebarPaneList.swift */; };
 		0F19BCEBA7CE82395F375208 /* TimedCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AC0CCEA2091BF04425482E /* TimedCache.swift */; };
+		10215C34C46EB5734FFF1555 /* CommandsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A362E9AB289C28B3231DAA86 /* CommandsSettingsView.swift */; };
 		11602963ABE1A912CFF0FABE /* PanelHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A64FA2992B47C9D88A77AFE /* PanelHost.swift */; };
 		12A955B077D59F5A83B199BD /* MenuBarContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A545F0B8FCA3D5CE64B8F58D /* MenuBarContent.swift */; };
 		12ED4372071031940B98F3E7 /* SoundDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19187452229CDBA698C4EBB7 /* SoundDevices.swift */; };
@@ -213,6 +214,7 @@
 		8EAE509AD6E9394C63FE4DF2 /* MusicRemote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B070AC3C2D08AF75B901F4F /* MusicRemote.swift */; };
 		9037519AEB25256659DFBACD /* Processes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A03C3284393A0228D0A522B /* Processes.swift */; };
 		90D90D58FD0E2F8119C8FAB7 /* CustomIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70BF33F9908B530D3859110 /* CustomIcon.swift */; };
+		913C4F8D447FFB733EDA97C1 /* CommandsSearchEntries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CB95A6A550F06FFBB325DA /* CommandsSearchEntries.swift */; };
 		91C071541FA07E255D2EA080 /* MainThreadCallbacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A351EFA50EC3D806BFCF8F78 /* MainThreadCallbacks.swift */; };
 		91F1AB81D0B571ED89DE6970 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DB0B59E18CDED97CC2F777E /* Shell.swift */; };
 		922FAD71CBC0B27CA0F5291E /* ExtensionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 615C6D1FFFC788BD983EA13C /* ExtensionViews.swift */; };
@@ -419,6 +421,7 @@
 		15F463C41E01C04BDA443705 /* UpdateChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChannel.swift; sourceTree = "<group>"; };
 		160599BC034DE48D363AAF41 /* BuiltInCommandsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInCommandsSection.swift; sourceTree = "<group>"; };
 		1799F047450A092C64765090 /* SSHSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHSearch.swift; sourceTree = "<group>"; };
+		17CB95A6A550F06FFBB325DA /* CommandsSearchEntries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandsSearchEntries.swift; sourceTree = "<group>"; };
 		18AE47F6CBCD4D215A877C26 /* ChangelogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangelogView.swift; sourceTree = "<group>"; };
 		19187452229CDBA698C4EBB7 /* SoundDevices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundDevices.swift; sourceTree = "<group>"; };
 		1AF1D982AAAE8FF36B96F53F /* UpdateLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateLogic.swift; sourceTree = "<group>"; };
@@ -625,6 +628,7 @@
 		A2443DAEFA2A54768C09AA21 /* DirectoryWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryWatcher.swift; sourceTree = "<group>"; };
 		A2EB088D66A4B7D987B2E29F /* AppleIntelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligence.swift; sourceTree = "<group>"; };
 		A351EFA50EC3D806BFCF8F78 /* MainThreadCallbacks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainThreadCallbacks.swift; sourceTree = "<group>"; };
+		A362E9AB289C28B3231DAA86 /* CommandsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandsSettingsView.swift; sourceTree = "<group>"; };
 		A3C81261CE15AEE17420CF79 /* CloudSyncMirror.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncMirror.swift; sourceTree = "<group>"; };
 		A3F1F04CB5B238D464961288 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A48EE7BCE3DB6DB75403FC86 /* GlassSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassSupport.swift; sourceTree = "<group>"; };
@@ -1035,6 +1039,8 @@
 				EB4F5761AF75C9E1E6A5A4FF /* AppearanceSettingsPane.swift */,
 				E59A064A8AD21347832FE98F /* ApplicationSettingsView.swift */,
 				160599BC034DE48D363AAF41 /* BuiltInCommandsSection.swift */,
+				17CB95A6A550F06FFBB325DA /* CommandsSearchEntries.swift */,
+				A362E9AB289C28B3231DAA86 /* CommandsSettingsView.swift */,
 				13D930183FBABDD9AA57D1BD /* DiagnosticsSettingsSection.swift */,
 				48E70E737A40E9F3F1036BA0 /* ExtensionAccessSection.swift */,
 				6DA122EF4A321FB332D7C2F4 /* ExtensionSettingsSync.swift */,
@@ -1561,6 +1567,8 @@
 				405E1D08FF1A978391E412C2 /* CloudSyncMirror.swift in Sources */,
 				EA815C3636FA09BACDC4C6FD /* CloudSyncRecords.swift in Sources */,
 				17A8AE401EEDE0AD68A2D7D2 /* CommandLookup.swift in Sources */,
+				913C4F8D447FFB733EDA97C1 /* CommandsSearchEntries.swift in Sources */,
+				10215C34C46EB5734FFF1555 /* CommandsSettingsView.swift in Sources */,
 				1CF870CE6B7FE8A1A3850672 /* ContactRows.swift in Sources */,
 				A6C6CEA52FE88F03991F5AE9 /* Contacts.swift in Sources */,
 				274767D215F2E177AF2E97D5 /* Credits.swift in Sources */,

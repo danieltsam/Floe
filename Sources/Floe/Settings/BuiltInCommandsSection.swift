@@ -8,7 +8,7 @@
 import SwiftUI
 import ThawUI
 
-/// Floe's own commands, each on one line with the alias and hotkey it answers to, as an extension's commands are.
+/// Floe's own commands with their aliases and hotkeys, then the options a few of them take.
 struct BuiltInCommandsSection: View {
     @ObservedObject var settings: AppSettings
 
@@ -21,6 +21,15 @@ struct BuiltInCommandsSection: View {
                 ForEach(SystemCommand.allCases) { command in
                     row(for: .system(command))
                 }
+            }
+            Picker("Emoji skin tone", selection: $settings.emojiSkinTone) {
+                ForEach(EmojiSkinTone.allCases) { tone in
+                    Text(verbatim: tone.applied(to: "\u{1F44B}") + " " + tone.label).tag(tone)
+                }
+            }
+            TextField(text: $settings.focusShortcut, prompt: Text("None")) {
+                Text("Shortcut for Focus")
+                Text("A Shortcut of yours that sets Focus. It receives the number of minutes, or the word off or toggle.")
             }
             ThawSupportNotice()
         }

@@ -251,9 +251,9 @@ struct FocusTests {
         settings.save()
         #expect(AppSettings(defaults: defaults, savesAfterEdits: false).focusShortcut == "Set Focus")
 
-        let entry = try #require(SearchIndex.staticEntries.first { $0.id == "general.focusShortcut" })
+        let entry = try #require(SearchIndex.staticEntries.first { $0.id == "commands.focusShortcut" })
         #expect(entry.title == "Shortcut for Focus")
-        #expect(entry.pane == .general)
+        #expect(entry.pane == .commands)
         #expect(entry.descriptionText?.contains("the number of minutes, or the word off or toggle") == true)
     }
 }

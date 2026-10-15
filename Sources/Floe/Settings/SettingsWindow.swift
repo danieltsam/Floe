@@ -74,6 +74,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
 
 nonisolated enum SettingsPage: Hashable {
     case general
+    case commands
     case applications
     case quicklinks
     case snippets
@@ -86,6 +87,7 @@ nonisolated enum SettingsPage: Hashable {
     private static let extensionPrefix = "extension:"
     private static let fixed: [String: SettingsPage] = [
         "general": .general,
+        "commands": .commands,
         "applications": .applications,
         "quicklinks": .quicklinks,
         "snippets": .snippets,

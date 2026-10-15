@@ -132,6 +132,7 @@ struct SearchIndexTests {
             #expect(!entry.title.isEmpty)
             switch entry.pane {
             case .general: #expect(entry.paneLabel == .general)
+            case .commands: #expect(entry.paneLabel == .commands)
             case .applications: #expect(entry.paneLabel == .applications)
             case .appearance: #expect(entry.paneLabel == .appearance)
             case .quicklinks: #expect(entry.paneLabel == .quicklinks)
@@ -144,7 +145,7 @@ struct SearchIndexTests {
         }
     }
 
-    @Test(arguments: [SettingsPage.general, .applications, .quicklinks, .snippets, .extensionStore, .appearance, .privacy, .about])
+    @Test(arguments: [SettingsPage.general, .commands, .applications, .quicklinks, .snippets, .extensionStore, .appearance, .privacy, .about])
     func everyPaneOfFloeCanBeFoundByName(pane: SettingsPage) {
         #expect(SearchIndex.paneEntries.contains { $0.pane == pane })
     }
@@ -228,13 +229,13 @@ struct SearchModelTests {
         ("dock", "general.showInDock"),
         ("pop to root", "general.popToRootDelay"),
         ("return to root", "general.popToRootDelay"),
-        ("menu bar", "general.menuBarSearchHotkey"),
+        ("menu bar", "commands.menuBarSearchHotkey"),
         ("permissions", "privacy.permissions"),
         ("accessibility", "privacy.accessibility"),
         ("check for updates", "general.checkForUpdates"),
-        ("raycast", "general.includeRaycastExtensions"),
-        ("extensions folder", "general.extensionsFolder"),
-        ("bun", "general.runtime"),
+        ("raycast", "commands.includeRaycastExtensions"),
+        ("extensions folder", "commands.extensionsFolder"),
+        ("bun", "commands.runtime"),
         ("applications", "pane.applications"),
         ("about", "pane.about"),
         ("credits", "pane.about"),

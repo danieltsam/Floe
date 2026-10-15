@@ -961,6 +961,12 @@
     "Built-in Commands" : {
 
     },
+    "Built-in, shell, script and menu bar commands" : {
+
+    },
+    "Built-in, shell, script and menu bar commands, and where extensions come from." : {
+
+    },
     "Bun install failed" : {
       "comment" : "What went wrong while installing an extension. Bun is the name of a tool."
     },
@@ -1164,7 +1170,7 @@
       "comment" : "The heading a command of an extension is listed under.\nThe kind of a result, shown beside its title."
     },
     "Commands" : {
-      "comment" : "A heading over a list of commands."
+      "comment" : "The name of a settings page."
     },
     "Commands on: %lld of %lld" : {
       "comment" : "Both placeholders are numbers: how many of an extension's commands are switched on, and how many it has.",
@@ -3823,7 +3829,7 @@
         }
       }
     },
-    "Startup, hotkeys and built-in commands" : {
+    "Startup, preferred apps, AI and sync" : {
 
     },
     "Status" : {
@@ -4717,6 +4723,9 @@
     },
     "color, colour, eyedropper, color picker, hex" : {
       "comment" : "Words that find the Pick Color from Screen command, separated by commas."
+    },
+    "commands, built-in, hotkey, alias, shell, script, menu bar, extensions, raycast" : {
+      "comment" : "Words that find the Commands page in the settings search, separated by commas."
     },
     "contacts, contact, people, person, address book, phone, email" : {
       "comment" : "Words that find the Contacts section of Privacy in the settings search, separated by commas."
