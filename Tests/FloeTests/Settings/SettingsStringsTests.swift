@@ -55,7 +55,7 @@ struct SettingsStringsTests {
             "privacy.searchSources.tabs", "privacy.searchSources.shortcuts", "privacy.indexesFileNames", "privacy.shellCommands", "privacy.recordsExtensionAccess", "privacy.reminders", "privacy.contacts", "privacy.keepsReceipts", "privacy.remembersSearches", "privacy.fetchesExchangeRates", "privacy.aiOnThisMacOnly",
             "general.toggleHotkey", "general.launchAtLogin", "general.showInDock", "general.popToRootDelay", "general.emojiSkinTone", "general.focusShortcut", "general.runsShellCommands", "general.suggestsShellCommands", "general.recognizesCommands",
             "general.checkForUpdates",
-            "general.diagnosticLogging", "general.menuBarSearchHotkey", "general.builtInHotkeys", "general.menuBarSearchAlias", "general.thawSupport", "general.menuBarCommands",
+            "general.diagnosticLogging", "general.menuBarSearchHotkey", "general.builtInHotkeys", "general.thawSupport", "general.menuBarCommands",
             "general.terminalApp", "general.editorApp", "general.browserApp", "general.notesApp", "general.clipboardApp",
             "general.clearClipboardHistory", "general.syncsWithICloud", "general.syncsExtensionSettings", "general.syncsPasswords", "general.transferSettings", "general.includeRaycastExtensions", "general.extensionsFolder", "general.runtime",
             "general.scriptsFolder", "general.aiSource", "general.aiTool", "general.aiAddress", "general.aiModel", "general.aiKey",
@@ -80,7 +80,7 @@ struct SettingsStringsTests {
         let underMenuBarItems = found("Menu Bar Items")
         #expect(underMenuBarItems == ["general.menuBarSearchHotkey", "general.thawSupport"])
         for id in underMenuBarItems {
-            #expect(try #require(SearchIndex.staticEntries.first { $0.id == id }).section == "Menu Bar Items")
+            #expect(try #require(SearchIndex.staticEntries.first { $0.id == id }).section == "Built-in Commands")
         }
         #expect(found("tint") == ["appearance.tintStyle", "appearance.tintColor", "appearance.tintOpacity", "pane.appearance"], "the ranking is the one it was")
     }

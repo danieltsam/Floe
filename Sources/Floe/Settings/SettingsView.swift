@@ -252,29 +252,7 @@ struct GeneralSettingsView: View {
                     }
                 }
             }
-            BuiltInHotkeysSection(settings: settings)
-            ThawSection("Menu Bar Items") {
-                HotkeyRecorder(
-                    keyCombination: Binding(
-                        get: { settings.commandHotkeys[RootItem.menuBarSearchKey] },
-                        set: { settings.commandHotkeys[RootItem.menuBarSearchKey] = $0 }
-                    ),
-                    onRecordingChange: { settings.isRecordingHotkey = $0 },
-                    label: {
-                        Text("Search Menu Bar Items")
-                        Text("Find an item in the menu bar and open its menu.")
-                    }
-                )
-                TextField(
-                    "Alias",
-                    text: Binding(
-                        get: { settings.aliases[RootItem.menuBarSearchKey] ?? "" },
-                        set: { settings.aliases[RootItem.menuBarSearchKey] = $0.isEmpty ? nil : $0 }
-                    ),
-                    prompt: Text("None")
-                )
-                ThawSupportNotice()
-            }
+            BuiltInCommandsSection(settings: settings)
             MenuBarCommandsSettingsSection(catalog: catalog, settings: settings)
             WelcomeSettingsSection(showWelcome: showWelcome)
             DiagnosticsSettingsSection(settings: settings)

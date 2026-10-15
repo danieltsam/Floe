@@ -958,6 +958,9 @@
     "Build" : {
       "comment" : "A label before the build number of this app."
     },
+    "Built-in Commands" : {
+
+    },
     "Bun install failed" : {
       "comment" : "What went wrong while installing an extension. Bun is the name of a tool."
     },
@@ -2089,9 +2092,6 @@
     },
     "Hotkey" : {
       "comment" : "A column heading over keyboard shortcuts."
-    },
-    "Hotkeys for Built-in Commands" : {
-
     },
     "How Floe works" : {
 
@@ -4853,14 +4853,14 @@
     "history, searches, queries, recent, remember, forget, clear, up arrow" : {
       "comment" : "Words that find the Remember searches setting in the settings search, separated by commas."
     },
-    "hotkey, shortcut, keyboard, emoji, clipboard, file search, system commands, lock, sleep, play, pause" : {
-      "comment" : "Words that find the hotkeys for Floe's own commands in the settings search, separated by commas."
+    "hotkey, shortcut, keyboard, alias, emoji, clipboard, file search, system commands, lock, sleep, play, pause" : {
+      "comment" : "Words that find the hotkeys and aliases of Floe's own commands in the settings search, separated by commas."
+    },
+    "hotkey, shortcut, keyboard, alias, menu bar, status items, icons" : {
+      "comment" : "Words that find the Search Menu Bar Items setting in the settings search, separated by commas."
     },
     "hotkey, shortcut, keyboard, global, toggle, show, launcher, summon" : {
       "comment" : "Words that find the Open Floe setting in the settings search, separated by commas."
-    },
-    "hotkey, shortcut, keyboard, menu bar, status items, icons" : {
-      "comment" : "Words that find the Search Menu Bar Items setting in the settings search, separated by commas."
     },
     "iCloud" : {
 
@@ -4903,9 +4903,6 @@
     },
     "menu bar" : {
       "comment" : "Words that find the Control Center pane of System Settings, separated by commas."
-    },
-    "menu bar, keyword, abbreviation, short name" : {
-      "comment" : "Words that find the Alias setting in the settings search, separated by commas."
     },
     "monitor, screen, resolution, night shift, brightness" : {
       "comment" : "Words that find the Displays pane of System Settings, separated by commas."

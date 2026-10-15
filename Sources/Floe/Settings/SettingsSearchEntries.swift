@@ -583,38 +583,28 @@ extension SearchIndex {
             "menuBarSearchHotkey",
             String(localized: "Search Menu Bar Items", bundle: .floe),
             description: String(localized: "Find an item in the menu bar and open its menu.", bundle: .floe),
-            section: String(localized: "Menu Bar Items", bundle: .floe),
+            section: String(localized: "Built-in Commands", bundle: .floe),
             keywords: String(
-                localized: "hotkey, shortcut, keyboard, menu bar, status items, icons",
+                localized: "hotkey, shortcut, keyboard, alias, menu bar, status items, icons",
                 bundle: .floe,
                 comment: "Words that find the Search Menu Bar Items setting in the settings search, separated by commas."
             ).searchTerms
         ),
         .general(
             "builtInHotkeys",
-            String(localized: "Hotkeys for Built-in Commands", bundle: .floe),
-            section: String(localized: "Hotkeys for Built-in Commands", bundle: .floe),
+            String(localized: "Built-in Commands", bundle: .floe),
+            section: String(localized: "Built-in Commands", bundle: .floe),
             keywords: String(
-                localized: "hotkey, shortcut, keyboard, emoji, clipboard, file search, system commands, lock, sleep, play, pause",
+                localized: "hotkey, shortcut, keyboard, alias, emoji, clipboard, file search, system commands, lock, sleep, play, pause",
                 bundle: .floe,
-                comment: "Words that find the hotkeys for Floe's own commands in the settings search, separated by commas."
-            ).searchTerms
-        ),
-        .general(
-            "menuBarSearchAlias",
-            String(localized: "Alias", bundle: .floe, comment: "A short name typed in the search to find a command."),
-            section: String(localized: "Menu Bar Items", bundle: .floe),
-            keywords: String(
-                localized: "menu bar, keyword, abbreviation, short name",
-                bundle: .floe,
-                comment: "Words that find the Alias setting in the settings search, separated by commas."
+                comment: "Words that find the hotkeys and aliases of Floe's own commands in the settings search, separated by commas."
             ).searchTerms
         ),
         .general(
             "thawSupport",
             String(localized: "Thaw", bundle: .floe, comment: "Thaw is the name of an app."),
             description: String(localized: "Thaw's actions are in the search: type “thaw” to see them.", bundle: .floe, comment: "The word in quotation marks is typed as it is and stays in English."),
-            section: String(localized: "Menu Bar Items", bundle: .floe),
+            section: String(localized: "Built-in Commands", bundle: .floe),
             keywords: String(
                 localized: "thaw, hidden items, thaw bar, menu bar manager",
                 bundle: .floe,
