@@ -173,13 +173,7 @@ nonisolated enum IconThumbnail {
         guard shorter > 0 else { return nil }
         // Twice the size wanted: the last halving is drawn at high quality, which ImageIO's own scaling is not.
         let wanted = Int((Double(pixels * 2) * Double(longer) / Double(shorter)).rounded(.up))
-        let options: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceShouldCacheImmediately: true,
-            kCGImageSourceThumbnailMaxPixelSize: min(longer, wanted),
-        ]
-        guard let decoded = CGImageSourceCreateThumbnailAtIndex(source, best, options as CFDictionary) else { return nil }
+        guard let decoded = source.thumbnail(at: best, maxPixelSize: min(longer, wanted)) else { return nil }
         let factor = min(1, CGFloat(pixels) / CGFloat(min(decoded.width, decoded.height)))
         let width = max(1, Int((CGFloat(decoded.width) * factor).rounded()))
         let height = max(1, Int((CGFloat(decoded.height) * factor).rounded()))
@@ -222,5 +216,22 @@ nonisolated enum IconThumbnail {
         context.interpolationQuality = .high
         draw(context)
         return context.makeImage()
+    }
+}
+
+nonisolated extension CGImageSource {
+    /// A decode scaled to `maxPixelSize`. ShouldCacheImmediately would keep every decoded image for as long
+    /// as the process runs, even with caching off.
+    static func thumbnailOptions(maxPixelSize: Int) -> [CFString: Any] {
+        [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCache: false,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+        ]
+    }
+
+    func thumbnail(at index: Int, maxPixelSize: Int) -> CGImage? {
+        CGImageSourceCreateThumbnailAtIndex(self, index, Self.thumbnailOptions(maxPixelSize: maxPixelSize) as CFDictionary)
     }
 }

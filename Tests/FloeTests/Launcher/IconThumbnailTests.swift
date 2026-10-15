@@ -71,6 +71,12 @@ struct IconThumbnailTests {
         #expect(image.height == pixels)
     }
 
+    @Test func imageIOKeepsNoDecodedImage() {
+        let options = CGImageSource.thumbnailOptions(maxPixelSize: 64)
+        #expect(options[kCGImageSourceShouldCache] as? Bool == false)
+        #expect(options[kCGImageSourceShouldCacheImmediately] == nil, "it keeps each decoded image, 3 MB for a copied screenshot")
+    }
+
     @Test func anImageFileIsDownsampledUntilItsShorterSideFillsTheSquare() throws {
         try Self.withAssets { folder in
             let wide = folder.appendingPathComponent("wide.png")
