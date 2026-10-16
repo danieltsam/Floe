@@ -157,8 +157,8 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
         case let .timers(timers):
             model.features.timers.running.mirror(timers)
             model.refresh()
-        case .clipboardChanged:
-            clipboard.reloadMirror()
+        case let .clipboard(change):
+            clipboard.apply(change)
         default: break
         }
     }

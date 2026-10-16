@@ -328,6 +328,7 @@
 		DB1399B41D12729762D0AEB8 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F6717C76B587E7D9893E90 /* Views.swift */; };
 		DB5155E4669C36EB19D3C709 /* RootItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7094C172B1424B0A25778204 /* RootItem.swift */; };
 		DC38D65DEC1867DF56070A6D /* ShellCommand+Running.swift in Sources */ = {isa = PBXBuildFile; fileRef = E32F78329C981B25442EC7DA /* ShellCommand+Running.swift */; };
+		DDBD30696A5918B304D9E3A0 /* ClipboardChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49CDB7569803869EB1B682 /* ClipboardChange.swift */; };
 		DDE3A35DA6CD07052C65F920 /* Homebrew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F677180E72D99949B2F7FB /* Homebrew.swift */; };
 		DDF1B8ED467C26191865B7F0 /* ClipboardCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C585799DE740F98865EF15 /* ClipboardCapture.swift */; };
 		DE24BEC6112E282D23DADFCC /* TextExpander.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C6B48A96B5E4B8222CF9E45 /* TextExpander.swift */; };
@@ -644,6 +645,7 @@
 		AA43444C49957E7742747429 /* SystemCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemCommands.swift; sourceTree = "<group>"; };
 		AA6533F2690F10F633F4E840 /* Model+Runner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Runner.swift"; sourceTree = "<group>"; };
 		AA9F61DE53E08844E504B2A4 /* SearchSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchSource.swift; sourceTree = "<group>"; };
+		AB49CDB7569803869EB1B682 /* ClipboardChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardChange.swift; sourceTree = "<group>"; };
 		ABA2EE37539DCD54AA49D6C9 /* RowHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowHost.swift; sourceTree = "<group>"; };
 		ACEA04274E0B77D710CBC5AC /* ReminderRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderRows.swift; sourceTree = "<group>"; };
 		AD6E736E94FFB03FFF4F6845 /* SettingsTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTransfer.swift; sourceTree = "<group>"; };
@@ -910,6 +912,7 @@
 				7B51B0E39DFF60B021A02923 /* CalendarEvents.swift */,
 				89ED74354093BA999EF70780 /* Checkpoints.swift */,
 				D4C585799DE740F98865EF15 /* ClipboardCapture.swift */,
+				AB49CDB7569803869EB1B682 /* ClipboardChange.swift */,
 				99AB656A4E0B8D90F2163B46 /* ClipboardHistory.swift */,
 				3337622D122C40BD5C4725AD /* ClipboardHistoryModel.swift */,
 				3E273FBD36E3C7B1016D6E96 /* ClipboardHistoryView.swift */,
@@ -1554,6 +1557,7 @@
 				BA6D437F5566FB6CFBFB7BF0 /* ClipboardApp.swift in Sources */,
 				C29D17191AC09735C2A54EE2 /* ClipboardAppPicker.swift in Sources */,
 				DDF1B8ED467C26191865B7F0 /* ClipboardCapture.swift in Sources */,
+				DDBD30696A5918B304D9E3A0 /* ClipboardChange.swift in Sources */,
 				30906D5D3A011707E64608B1 /* ClipboardHistory.swift in Sources */,
 				0D27F828A96C05BDBDF6AB5E /* ClipboardHistoryModel.swift in Sources */,
 				96848551FAC428C8C578F0EE /* ClipboardHistoryView.swift in Sources */,

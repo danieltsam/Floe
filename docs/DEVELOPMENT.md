@@ -64,9 +64,9 @@ resume delay, open output/permission windows and finite work started by the user
 shell commands and automation alive after dismissal; add a lease when adding another asynchronous action that must
 outlive its panel. Timers belong to the resident, not a foreground lease. EOF ends the child if the resident dies.
 
-Clipboard pin/delete/clear operations and timer/usage/receipt writes go to the resident. The foreground reloads the
-clipboard's saved snapshot after a save notification, so opening history does not make the resident encode a second
-large copy. The foreground's file index may read and watch the cache but never writes or removes the resident's cache.
+Clipboard pin/delete/clear operations and timer/usage/receipt writes go to the resident. After each save the resident
+sends the foreground only the entries that changed and the ones gone (`ClipboardChange`); the foreground reads the
+whole saved list only when it starts, or when a change arrives before that first read finished. The foreground's file index may read and watch the cache but never writes or removes the resident's cache.
 Settings changes and extension preferences are relayed through the resident to Settings and sync.
 
 The **30 MiB budget is for the resident**, including after foreground use, not the sum of active UI and extension

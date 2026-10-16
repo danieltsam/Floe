@@ -45,7 +45,7 @@ final class LauncherPanelLink {
             guard let self else { return }
             process.send(.timers(self.model.features.timers.running.all))
         }
-        clipboard.onSnapshotSaved = { process.send(.clipboardChanged) }
+        clipboard.onSaved = { process.send(.clipboard($0)) }
         appearance = ThawAppearanceFollower.shared.$status
             .receive(on: DispatchQueue.main)
             .sink { process.send(.appearance($0.rawValue)) }
@@ -56,7 +56,7 @@ final class LauncherPanelLink {
         switch packet {
         case .ready:
             process.send(.timers(model.features.timers.running.all))
-            process.send(.clipboardChanged)
+            process.send(.clipboard(.reload))
             process.send(.appearance(ThawAppearanceFollower.shared.status.rawValue))
         case let .present(request): process.request(request)
         case let .openSettings(page): settingsLink.show(page: page)

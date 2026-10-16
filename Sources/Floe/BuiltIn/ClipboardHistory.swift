@@ -11,7 +11,7 @@ import ApplicationServices
 import Combine
 
 /// One saved clipboard item: text, a link, an image or a set of files.
-nonisolated struct ClipboardEntry: Identifiable, Codable, Sendable {
+nonisolated struct ClipboardEntry: Identifiable, Codable, Sendable, Equatable {
     enum Kind: String, Codable, Sendable {
         case text, link, image, file
     }
@@ -91,7 +91,8 @@ final class ClipboardHistoryStore: ObservableObject {
     }
 
     @Published private(set) var entries: [ClipboardEntry] = []
-    var onSnapshotSaved: (() -> Void)?
+    /// Called in the resident once the history on disk changed, with what changed since the last call.
+    var onSaved: ((ClipboardChange) -> Void)?
 
     /// What the folder holds once the worker has caught up: counted from disk at load, then kept.
     var storedBytes: Int {
@@ -108,6 +109,8 @@ final class ClipboardHistoryStore: ObservableObject {
     private let limits: Limits
     private let worker: ClipboardHistoryWorker
     private var ledger = ClipboardByteLedger()
+    /// The list as last written, which the next change is counted from.
+    private var written: [ClipboardEntry] = []
     /// Files the list no longer uses, removed by the worker with the next save.
     private var unusedFiles: [String] = []
     /// Goes up with every Clear, so a copy still being processed when it happened is not kept.
@@ -203,21 +206,25 @@ final class ClipboardHistoryStore: ObservableObject {
             case let .loaded(stored, sizes):
                 ledger = ClipboardByteLedger(sizes: sizes)
                 entries = stored
+                written = stored
                 isLoaded = true
                 if clearsWhenLoaded {
                     clearsWhenLoaded = false
                     removeUnpinned()
                 }
-                onSnapshotSaved?()
+                onSaved?(.reload)
             case let .prepared(entry, sizes, epoch):
                 if epoch == self.epoch {
                     insert(entry, sizes: sizes)
                 } else {
                     worker.remove(entry.fileNames)
                 }
-            case let .saved(bytes):
+            case let .saved(bytes, list):
                 ledger.set(ClipboardFiles.historyName, bytes: bytes)
-                onSnapshotSaved?()
+                if let change = ClipboardChange.between(written, list) {
+                    written = list
+                    onSaved?(change)
+                }
             case let .unstored(names):
                 forget(names)
             }
@@ -274,13 +281,6 @@ final class ClipboardHistoryStore: ObservableObject {
         entry.date = date
         place(entry)
         save()
-    }
-
-    /// Only the resident writes history. The mirror reloads after its atomic save, without
-    /// asking the resident to encode a second, potentially large clipboard snapshot.
-    func reloadMirror() {
-        guard remote != nil else { return }
-        worker.load()
     }
 
     /// Toggles a pin in the resident, or forwards its ID without mutating a foreground snapshot.
@@ -364,5 +364,24 @@ final class ClipboardHistoryStore: ObservableObject {
         guard !name.isEmpty else { return }
         ledger.remove(name)
         unusedFiles.append(name)
+    }
+}
+
+extension ClipboardHistoryStore {
+    /// Only the resident writes history; the panel's copy takes what the resident says changed.
+    /// Before its first read of the file has finished, a change could be older than what that read finds, so it reads again.
+    func apply(_ change: ClipboardChange) {
+        guard remote != nil else { return }
+        switch change {
+        case .reload:
+            worker.load()
+        case let .entries(changed, removed):
+            guard isLoaded else {
+                worker.load()
+                return
+            }
+            let replaced = Set(removed + changed.map(\.id))
+            entries = (entries.filter { !replaced.contains($0.id) } + changed).sorted { $0.date > $1.date }
+        }
     }
 }

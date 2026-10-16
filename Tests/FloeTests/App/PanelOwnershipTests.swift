@@ -49,7 +49,7 @@ struct PanelOwnershipTests {
         let file = directory.appendingPathComponent(ClipboardFiles.historyName)
         let saved = try JSONEncoder().encode([entry])
         try saved.write(to: file)
-        store.reloadMirror()
+        store.apply(.reload)
         store.flush()
         store.togglePin(entry)
         store.delete(entry)
@@ -59,7 +59,7 @@ struct PanelOwnershipTests {
         #expect(store.entries.map(\.id) == [entry.id], "only the resident's snapshot changes the mirror")
         #expect(try Data(contentsOf: file) == saved)
         try Data("[]".utf8).write(to: file)
-        store.reloadMirror()
+        store.apply(.reload)
         store.flush()
         #expect(store.entries.isEmpty)
     }
