@@ -40,13 +40,14 @@ struct LauncherView: View {
             } else if let asking = model.askAI {
                 AskAIView(launcher: model, asking: asking)
             } else {
-                RootView(model: model, isCollapsed: state.isCollapsed(in: settings.launcherLayout))
+                RootView(model: model, refusal: model.refusal, isCollapsed: state.isCollapsed(in: settings.launcherLayout))
             }
         }
         .frame(width: size.width, height: size.height, alignment: .top)
         .environment(\.searchFieldShape, settings.searchFieldShape)
         .environment(\.pointerRest, model.pointerRest)
         .modifier(PanelLook(look: look, pieces: settings.separatesSearchField ? PanelPieces(look: look, fieldShape: settings.searchFieldShape, heights: heights) : nil))
+        .modifier(RefusalShake(refusal: model.refusal))
         .padding(Self.margin)
         // The window is resized a moment before or after the content: the search bar stays at the top meanwhile.
         .frame(maxHeight: .infinity, alignment: .top)
@@ -60,10 +61,11 @@ struct SearchBar<Accessory: View>: View {
     @Binding var text: String
     let focusToken: Int
     var isLoading = false
+    var isRefused = false
     @ViewBuilder var accessory: Accessory
 
     var body: some View {
-        SearchQueryField(prompt: placeholder, text: $text, focusToken: focusToken, isLoading: isLoading) { accessory }
+        SearchQueryField(prompt: placeholder, text: $text, focusToken: focusToken, isLoading: isLoading, isRefused: isRefused) { accessory }
     }
 }
 
@@ -122,12 +124,13 @@ struct KeyCap: View {
 
 struct RootView: View {
     @ObservedObject var model: LauncherModel
+    @ObservedObject var refusal: ReturnRefusal
     var isCollapsed = false
 
     var body: some View {
         let results = model.results
         PanelSections(showsContent: !isCollapsed) {
-            SearchBar(placeholder: String(localized: "Search apps and commands…", bundle: .floe), text: $model.query, focusToken: model.focusToken, isLoading: model.catalog.isLoading || model.isAwaitingResults) { EmptyView() }
+            SearchBar(placeholder: String(localized: "Search apps and commands…", bundle: .floe), text: $model.query, focusToken: model.focusToken, isLoading: model.catalog.isLoading || model.isAwaitingResults, isRefused: refusal.isShown) { EmptyView() }
         } content: {
             if results.isEmpty, !model.catalog.isLoading, !model.isAwaitingResults {
                 ThawEmptyState(

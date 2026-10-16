@@ -111,7 +111,10 @@ extension LauncherModel {
 
     /// Return on the selected result. With Command an emoji is copied, not pasted, and a shell command opens in a terminal.
     private func activateSelection(_ flags: NSEvent.ModifierFlags) {
-        guard results.indices.contains(selection) else { return }
+        guard results.indices.contains(selection) else {
+            refusal.refuse()
+            return
+        }
         let item = results[selection].item
         if !flags.isEmpty, openByOwner(item, flags: flags) {
             // A row whose owner gives Return with a key held a meaning of its own.

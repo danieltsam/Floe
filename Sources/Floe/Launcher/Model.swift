@@ -11,7 +11,10 @@ import Combine
 
 final class LauncherModel: ObservableObject {
     @Published var query = "" {
-        didSet { typing.changed { [weak self] in self?.refresh() } }
+        didSet {
+            refusal.clear()
+            typing.changed { [weak self] in self?.refresh() }
+        }
     }
 
     let typing = TypingSettle()
@@ -34,6 +37,7 @@ final class LauncherModel: ObservableObject {
     private(set) var resultsVersion = 0
     let rowSelection = RowSelection()
     let pointerRest = PointerRest()
+    let refusal = ReturnRefusal()
 
     private func tellTheSelectedRow() {
         rowSelection.select(results.indices.contains(selection) ? results[selection].id : nil)
