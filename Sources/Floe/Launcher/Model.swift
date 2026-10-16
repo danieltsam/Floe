@@ -194,45 +194,6 @@ final class LauncherModel: ObservableObject {
         selection = selected.flatMap { id in results.firstIndex { $0.id == id } } ?? min(selection, max(results.count - 1, 0))
     }
 
-    func alias(for item: RootItem) -> String? {
-        RootSearch.alias(for: item, aliases: settings.aliases)
-    }
-
-    func isFavorite(_ item: RootItem) -> Bool {
-        settings.favorites.contains(item.id)
-    }
-
-    func toggleFavorite(_ item: RootItem) {
-        if case .searchFiles = item {
-            // The fallback row names a query, not a thing: it has no favorites entry.
-            return
-        }
-        if item.isScopeResult {
-            return
-        }
-        if case .askAI = item {
-            return
-        }
-        if let index = settings.favorites.firstIndex(of: item.id) {
-            settings.favorites.remove(at: index)
-            panelHost.showHUD(String(localized: "Removed from Favorites", bundle: .floe))
-        } else {
-            settings.favorites.append(item.id)
-            panelHost.showHUD(String(localized: "Added to Favorites", bundle: .floe))
-        }
-        refresh()
-    }
-
-    /// Opens an app, or hides it if it's already in front, like a per-app hotkey in Thaw.
-    func toggleApp(_ app: AppEntry) {
-        usage.recordUse(of: RootItem.app(app).id)
-        if let running = NSWorkspace.shared.frontmostApplication, running.bundleURL?.standardizedFileURL == app.url.standardizedFileURL {
-            running.hide()
-        } else {
-            NSWorkspace.shared.openWithoutWaiting(app.url)
-        }
-    }
-
     /// `FLOE_AUTORUN=extension/command` opens a command at startup, for screenshots and debugging.
     /// It waits for the command load that is current when it runs and attempts the command once;
     /// later rescans never rerun it.

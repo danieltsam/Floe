@@ -5,7 +5,7 @@
 //  Copyright (Floe) © 2026 René Jiménez
 //  Licensed under the GNU AGPLv3
 
-import Foundation
+import AppKit
 
 /// Floe's own commands that a hotkey can run from anywhere: its views and the system commands.
 extension LauncherModel {
@@ -47,6 +47,16 @@ extension LauncherModel {
             features.system.run(command)
         default:
             break
+        }
+    }
+
+    /// Opens an app, or hides it if it's already in front, like a per-app hotkey in Thaw.
+    func toggleApp(_ app: AppEntry) {
+        usage.recordUse(of: RootItem.app(app).id)
+        if let running = NSWorkspace.shared.frontmostApplication, running.bundleURL?.standardizedFileURL == app.url.standardizedFileURL {
+            running.hide()
+        } else {
+            NSWorkspace.shared.openWithoutWaiting(app.url)
         }
     }
 }
