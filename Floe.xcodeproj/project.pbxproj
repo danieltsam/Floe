@@ -143,6 +143,7 @@
 		63306AA3252F2A2A9842CF02 /* FendCore in Frameworks */ = {isa = PBXBuildFile; productRef = 92E0A24A8713739E9D70A6B1 /* FendCore */; };
 		634C27A628FB29D607187209 /* Session+Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2368E725055044F98037A035 /* Session+Memory.swift */; };
 		63A875F55A40AC8CB417058E /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 3F4985D458BAC986B45EABD6 /* Localizable.xcstrings */; };
+		64C8CC116C231286FCA54282 /* PointerRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AF25D77D813A73B4FDFCF2B /* PointerRest.swift */; };
 		64F62455A795921AB4CC8B2C /* PanelWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C8EE020371AFE3E9301BD1 /* PanelWork.swift */; };
 		66D62EF86F9750EBD438D121 /* MenuBarPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15CFC538C631DB3824BC675A /* MenuBarPresenter.swift */; };
 		680FA3F8DCF482E6FAA0A3FB /* ResidentBench.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5434E886881B25B817AF43E6 /* ResidentBench.swift */; };
@@ -525,6 +526,7 @@
 		56AB9468971A521D2FC58DD1 /* LauncherLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherLayout.swift; sourceTree = "<group>"; };
 		5A2019932B9B6873D549A377 /* PreferredAppsSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferredAppsSettingsSection.swift; sourceTree = "<group>"; };
 		5AED14490D55CBAE59DEB0A8 /* WindowSearchScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowSearchScope.swift; sourceTree = "<group>"; };
+		5AF25D77D813A73B4FDFCF2B /* PointerRest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointerRest.swift; sourceTree = "<group>"; };
 		5AF3BB2338E4948152EECAA1 /* Manifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Manifest.swift; sourceTree = "<group>"; };
 		5C0D9B04517C094B3D5D0788 /* OnboardingPermissionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPermissionsView.swift; sourceTree = "<group>"; };
 		5E25E299559D0D3FED496F2D /* TimerRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerRows.swift; sourceTree = "<group>"; };
@@ -1203,6 +1205,7 @@
 				8A64FA2992B47C9D88A77AFE /* PanelHost.swift */,
 				8C1DA7F52B1E57FBB729318A /* PanelSections.swift */,
 				F0DE6204FF40A0272CD6A9F8 /* PlaceRows.swift */,
+				5AF25D77D813A73B4FDFCF2B /* PointerRest.swift */,
 				D1BC40BEE768748F7B61C338 /* QRCodeRows.swift */,
 				64DBFEFC7F120CD40ACAD9AF /* QuickLookPresenter.swift */,
 				4F258F443B0715319BB464D8 /* ReceiptRows.swift */,
@@ -1729,6 +1732,7 @@
 				80E8738DFB5FD954E0772C36 /* PickerPanel.swift in Sources */,
 				2909B4475A01C867E5C4C97F /* PlaceRows.swift in Sources */,
 				8D2F0AA78B40E0096B679671 /* Places.swift in Sources */,
+				64C8CC116C231286FCA54282 /* PointerRest.swift in Sources */,
 				B8701225E05EEA2FD2F9DB92 /* Preferences.swift in Sources */,
 				21B238A5C590505D555A101F /* PreferredAppActions.swift in Sources */,
 				38510714DE1C1296051ADCA4 /* PreferredApps.swift in Sources */,

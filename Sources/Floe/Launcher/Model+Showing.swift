@@ -11,6 +11,7 @@ extension LauncherModel {
     /// Reads again what may have changed while the panel was away: scripts, hosts, shortcuts, permissions and
     /// stale search data. Called once the panel is on screen, so none of it holds the shortcut up.
     func panelDidShow() {
+        pointerRest.rest()
         catalog.reloadScripts()
         catalog.reloadSSHHosts()
         features.shortcuts.reload()

@@ -45,6 +45,7 @@ struct LauncherView: View {
         }
         .frame(width: size.width, height: size.height, alignment: .top)
         .environment(\.searchFieldShape, settings.searchFieldShape)
+        .environment(\.pointerRest, model.pointerRest)
         .modifier(PanelLook(look: look, pieces: settings.separatesSearchField ? PanelPieces(look: look, fieldShape: settings.searchFieldShape, heights: heights) : nil))
         .padding(Self.margin)
         // The window is resized a moment before or after the content: the search bar stays at the top meanwhile.

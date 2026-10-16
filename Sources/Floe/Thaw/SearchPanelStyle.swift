@@ -137,7 +137,7 @@ struct SearchRowBackground: ViewModifier {
             }
             // Under Differentiate Without Color the accent wash alone is not a mark.
             .thawSelectionCue(isSelected: selected)
-            .onHover { isHovering = $0 }
+            .modifier(PointerHover(isHovering: $isHovering))
     }
 }
 

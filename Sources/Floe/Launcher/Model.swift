@@ -33,6 +33,7 @@ final class LauncherModel: ObservableObject {
     /// Counts every new list of results, so the list view knows one from the next without comparing rows.
     private(set) var resultsVersion = 0
     let rowSelection = RowSelection()
+    let pointerRest = PointerRest()
 
     private func tellTheSelectedRow() {
         rowSelection.select(results.indices.contains(selection) ? results[selection].id : nil)

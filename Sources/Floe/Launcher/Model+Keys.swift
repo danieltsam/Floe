@@ -13,6 +13,7 @@ extension LauncherModel {
     func handleKey(_ event: NSEvent) -> Bool {
         // A key that acts on the results acts on those of the text as typed, not of a moment ago.
         typing.flush()
+        pointerRest.rest()
         let flags = event.modifierFlags.intersection([.command, .shift, .option, .control])
         if setup != nil {
             return handleSetupKey(event)
