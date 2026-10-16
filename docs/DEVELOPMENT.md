@@ -58,7 +58,8 @@ The resident keeps application and editing shortcuts but omits the whole Window 
 Window menu attached lets Accessibility queries populate AppKit's window commands and retain several MiB. Foreground
 and Settings processes still build the full menu, including Close Window and Minimize.
 
-When the panel closes, its process exits after a short idle grace period. It waits for the configured extension
+When the panel closes, its process waits three minutes for the next open, which then draws in milliseconds instead
+of starting over; under memory pressure it exits within a second. It also waits for the configured extension
 resume delay, open output/permission windows and finite work started by the user. `PanelWork` leases keep scripts,
 shell commands and automation alive after dismissal; add a lease when adding another asynchronous action that must
 outlive its panel. Timers belong to the resident, not a foreground lease. EOF ends the child if the resident dies.

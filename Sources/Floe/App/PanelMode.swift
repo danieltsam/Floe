@@ -26,6 +26,18 @@ enum PanelMode {
     }
 }
 
+/// How long the closed launcher's process waits for the next open, which then draws in milliseconds
+/// instead of starting the process over.
+nonisolated enum PanelKeepAlive {
+    static let closed: TimeInterval = 180
+    /// Under memory pressure, and in the resident benchmark, the process goes as soon as it is idle.
+    static let brief: TimeInterval = 0.75
+
+    static func wait(underPressure: Bool, environment: [String: String] = ProcessInfo.processInfo.environment) -> TimeInterval {
+        underPressure || environment["FLOE_RESIDENT_BENCH"] != nil ? brief : closed
+    }
+}
+
 final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let model: LauncherModel
     let channel: PanelChannel
@@ -38,6 +50,8 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
     private var appWatcher: AppFolderWatcher?
     private var timer: Timer?
     private var terminationWatch: DispatchSourceSignal?
+    private var pressureWatch: DispatchSourceMemoryPressure?
+    private var underPressure = false
     private var cancellables = Set<AnyCancellable>()
     private var sequence = 0
     private var lastActivity = Date()
@@ -96,6 +110,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
         channel.onClose = { [weak self] in self?.end() }
         channel.start()
         watchTermination()
+        watchMemoryPressure()
         model.startCatalogLoading()
         IntentHandler.current = .serving(model) { [channel] in channel.send(.present($0)) }
         IncomingURLRouter.shared.forwardAppearance = { [channel] in channel.send(.settings(LinkMessage.Kind.forwardURL.rawValue, $0.absoluteString)) }
@@ -241,7 +256,7 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
     /// Reports idle once per request only when no surface, modal interaction or finite work remains.
     private func reportIdleIfDue() {
         guard sequence > 0, !reportedIdle,
-              Date().timeIntervalSince(lastActivity) >= 0.75,
+              Date().timeIntervalSince(lastActivity) >= PanelKeepAlive.wait(underPressure: underPressure),
               !PanelWork.isBusy, !ModalGuard.isActive,
               model.runner.session == nil, model.setup == nil,
               !onboarding.isOpen,
@@ -269,6 +284,14 @@ final class PanelAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate 
         watch.setEventHandler { [weak self] in self?.end() }
         watch.resume()
         terminationWatch = watch
+    }
+
+    /// Once macOS asks for memory back, the closed launcher's process stops waiting for the next open.
+    private func watchMemoryPressure() {
+        let watch = DispatchSource.makeMemoryPressureSource(eventMask: [.warning, .critical], queue: .main)
+        watch.setEventHandler { [weak self] in self?.underPressure = true }
+        watch.resume()
+        pressureWatch = watch
     }
 
     /// Saves pending settings and drains outgoing mutations before ending the disposable process.
