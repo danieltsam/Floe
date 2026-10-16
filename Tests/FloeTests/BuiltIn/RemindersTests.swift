@@ -278,8 +278,16 @@ struct RemindersTests {
         #expect(try [parts(noon).weekday, parts(noon).hour] == [5, 12])
     }
 
+    /// A date a week ahead, as "oct 22": a fixed one is today once a year, and then its time may have passed.
+    private static nonisolated var aWeekAhead: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "MMM d"
+        return formatter.string(from: Date().addingTimeInterval(7 * 86400)).lowercased()
+    }
+
     @Test(arguments: [
-        "call mom tomorrow at 5pm", "standup next friday 9:30", "dentist on oct 15", "renew passport in 3 weeks", "lunch Thursday noon",
+        "call mom tomorrow at 5pm", "standup next friday 9:30", "dentist on \(aWeekAhead)", "renew passport in 3 weeks", "lunch Thursday noon",
         "call in 2 hours", "tea in 20 minutes", "call at 3", "call at 3pm", "call at 3:30", "movie tonight", "rent on the 1st",
     ])
     func everyPhraseIsDueAfterNowWithTheSystemsDetector(text: String) throws {
